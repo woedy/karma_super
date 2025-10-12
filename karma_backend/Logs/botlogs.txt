@@ -1,0 +1,35 @@
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Windows
+Browser    : Firefox
+User-Agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Windows
+Browser    : Firefox
+User-Agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Windows
+Browser    : Firefox
+User-Agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : node
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : node
++++++[ ######### ]+++++
+

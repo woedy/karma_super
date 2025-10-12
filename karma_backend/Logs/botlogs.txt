@@ -33,3 +33,213 @@ Browser    : Other
 User-Agent : node
 +++++[ ######### ]+++++
 
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Python Requests
+User-Agent : python-requests/2.32.5
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : GPTBot
+User-Agent : GPTBot/1.0 (+https://openai.com/gptbot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : ClaudeBot
+User-Agent : ClaudeBot/1.0 (+claudebot@anthropic.com)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : PerplexityBot
+User-Agent : PerplexityBot/1.0 (+https://docs.perplexity.ai/docs/perplexity-bot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : ChatGPT-User/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : OAI-SearchBot
+User-Agent : OAI-SearchBot/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Python Requests
+User-Agent : python-requests/2.32.5
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : anthropic-ai/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : GPTBot
+User-Agent : GPTBot/1.0 (+https://openai.com/gptbot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : SemrushBot
+User-Agent : SemrushBot/7~bl
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : ClaudeBot
+User-Agent : ClaudeBot/1.0 (+claudebot@anthropic.com)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : MJ12bot
+User-Agent : MJ12bot/v1.4.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : PerplexityBot
+User-Agent : PerplexityBot/1.0 (+https://docs.perplexity.ai/docs/perplexity-bot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Applebot
+User-Agent : Applebot/0.1 (+http://www.apple.com/go/applebot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : ChatGPT-User/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Bytespider
+User-Agent : Bytespider/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : OAI-SearchBot
+User-Agent : OAI-SearchBot/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Other
+User-Agent : anthropic-ai/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Mac OS X
+Browser    : Chrome
+User-Agent : Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : SemrushBot
+User-Agent : SemrushBot/7~bl
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : MJ12bot
+User-Agent : MJ12bot/v1.4.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Applebot
+User-Agent : Applebot/0.1 (+http://www.apple.com/go/applebot)
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Bytespider
+User-Agent : Bytespider/1.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Python Requests
+User-Agent : python-requests/2.31.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Mac OS X
+Browser    : Chrome
+User-Agent : Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : curl
+User-Agent : curl/7.68.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Python Requests
+User-Agent : python-requests/2.31.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : curl
+User-Agent : curl/7.68.0
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : Python Requests
+User-Agent : python-requests/2.32.5
++++++[ ######### ]+++++
+
++++++[ BOT - Bot-Crawler.py ]+++++
+IP         : 127.0.0.1
+OS         : Other
+Browser    : GPTBot
+User-Agent : GPTBot/1.0
++++++[ ######### ]+++++
+

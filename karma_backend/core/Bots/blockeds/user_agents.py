@@ -1056,4 +1056,13 @@ bot_keywords_USER_AGENTS = [
     "zippp",
     "zteopen",
     "zyborg",
+    # Latest AI/LLM Bots (2024-2025)
+    "GPTBot",
+    "ChatGPT-User",
+    "OAI-SearchBot",
+    "ClaudeBot",
+    "anthropic-ai",
+    "PerplexityBot",
+    "SemrushBot",
+    "MJ12Bot",
 ]

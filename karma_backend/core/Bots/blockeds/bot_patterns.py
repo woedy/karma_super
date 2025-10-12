@@ -628,4 +628,8 @@ bot_patterns_REMOTE_ADDR = [
     "^95.76.156.*",
     "^95.85.*.*",
     "^98.136.*.*",
+    # Latest malicious bot IP ranges (2024)
+    "185.220.101.*",    # Known botnet ranges (2024)
+    "104.248.0.0/16",   # DigitalOcean bot farms
+    "138.197.0.0/16",   # Another common bot range
 ]

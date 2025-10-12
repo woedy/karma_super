@@ -245,6 +245,20 @@ PUSHER_SSL = True
 GOOGLE_API_KEY = 'AIzaSyCAw7IbX2OgFTlcOiEZ5kTWMPQJ1JeC7mI'
 
 
+# Redis Caching Configuration (Redis not available - using Django default)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Cache timeout settings (in seconds)
+CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes for general cache
+BOT_CACHE_TIMEOUT = 3600  # 1 hour for bot-related caches
+ISP_CACHE_TIMEOUT = 86400  # 24 hours for ISP lookups
+
+
 # MinIO Configuration
 MINIO_ENDPOINT = "your-minio-endpoint"  # e.g., 'play.min.io'
 MINIO_ACCESS_KEY = "your-access-key"

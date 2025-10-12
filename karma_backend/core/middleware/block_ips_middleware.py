@@ -35,23 +35,122 @@ import socket
 #     return middleware
 
 
+# Global pattern cache - compiled once on module load
+_COMPILED_PATTERNS = {}
+_PATTERN_VERSION = None
+
+# Bot detection metrics storage
+_BOT_METRICS = {
+    'total_requests': 0,
+    'blocked_requests': 0,
+    'bot_detections': 0,
+    'latency_samples': [],
+    'pattern_hits': {},
+    'start_time': None
+}
+
 import re
 from django.http import HttpResponseForbidden
-
-
 import os
 from urllib.parse import urlparse
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 
-# Ensure the log directory exists
-log_dir = "./Logs"
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
+from django.core.cache import cache
+from django.conf import settings
+
+def record_bot_metrics(bot_detected=False, latency_ms=0, pattern_type=None):
+    """Record bot detection metrics for monitoring"""
+    import time
+
+    if _BOT_METRICS['start_time'] is None:
+        _BOT_METRICS['start_time'] = time.time()
+
+    _BOT_METRICS['total_requests'] += 1
+
+    if bot_detected:
+        _BOT_METRICS['blocked_requests'] += 1
+        _BOT_METRICS['bot_detections'] += 1
+
+    # Track latency (keep last 100 samples)
+    _BOT_METRICS['latency_samples'].append(latency_ms)
+    if len(_BOT_METRICS['latency_samples']) > 100:
+        _BOT_METRICS['latency_samples'].pop(0)
+
+    # Track pattern hits
+    if pattern_type:
+        _BOT_METRICS['pattern_hits'][pattern_type] = _BOT_METRICS['pattern_hits'].get(pattern_type, 0) + 1
+
+def get_bot_metrics():
+    """Get current bot detection metrics"""
+    import time
+
+    current_time = time.time()
+    uptime_seconds = current_time - (_BOT_METRICS['start_time'] or current_time)
+
+    # Calculate rates
+    total_requests = _BOT_METRICS['total_requests']
+    blocked_requests = _BOT_METRICS['blocked_requests']
+
+    block_rate = (blocked_requests / total_requests * 100) if total_requests > 0 else 0
+
+    # Calculate average latency
+    avg_latency = sum(_BOT_METRICS['latency_samples']) / len(_BOT_METRICS['latency_samples']) if _BOT_METRICS['latency_samples'] else 0
+
+    return {
+        'uptime_seconds': uptime_seconds,
+        'total_requests': total_requests,
+        'blocked_requests': blocked_requests,
+        'block_rate_percent': round(block_rate, 2),
+        'avg_latency_ms': round(avg_latency, 2),
+        'pattern_hits': _BOT_METRICS['pattern_hits'].copy(),
+        'recent_latency_samples': _BOT_METRICS['latency_samples'][-10:]  # Last 10 samples
+    }
+
+def get_pattern_version():
+    """Generate a version hash of all pattern files for cache invalidation"""
+    import hashlib
+
+    patterns_content = ""
+    pattern_files = [
+        bot_patterns_REMOTE_ADDR,
+        bot_patterns_HOSTNAME,
+        bot_keywords_USER_AGENTS,
+        bot_keywords_BROWSER_AGENTS,
+        bot_BLOCKED_REFERERS,
+        bot_keywords_SHIT_ISPS,
+        bot_keywords_BAD_NAMES
+    ]
+
+    for pattern_list in pattern_files:
+        patterns_content += str(pattern_list)
+
+    return hashlib.md5(patterns_content.encode()).hexdigest()
+
+def get_compiled_patterns():
+    """Get pre-compiled regex patterns with caching and version checking"""
+    global _PATTERN_VERSION
+
+    current_version = get_pattern_version()
+
+    # Check if patterns need recompilation
+    if _COMPILED_PATTERNS and _PATTERN_VERSION == current_version:
+        return _COMPILED_PATTERNS
+
+    # Recompile patterns if version changed
+    _COMPILED_PATTERNS.clear()
+    _COMPILED_PATTERNS['remote_addr'] = [re.compile(pattern) for pattern in bot_patterns_REMOTE_ADDR]
+    _COMPILED_PATTERNS['hostname'] = [re.compile(pattern) for pattern in bot_patterns_HOSTNAME]
+    _PATTERN_VERSION = current_version
+
+    return _COMPILED_PATTERNS
 
 
 def block_ips_middleware(get_response):
 
     def middleware(request):
+        import time
+
+        start_time = time.time()
         bot_count = 0
         app_settings = app_set
         client_ip = get_client_ip(request)
@@ -59,21 +158,19 @@ def block_ips_middleware(get_response):
         referer = request.META.get("HTTP_REFERER", None)  # Get the referer header
         hostname_ip = get_hostname_from_ip(client_ip)
 
-
         # Check for bots
         bot_response = bot_check_one(client_ip, user_agent_string, referer, hostname_ip)
+
+        # Calculate latency
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+
+        # Record metrics
+        bot_detected = bot_response is not None
+        record_bot_metrics(bot_detected=bot_detected, latency_ms=latency_ms)
+
         if bot_response:
             return bot_response  # If a bot is detected, return the Forbidden response
-        
-        
-        #log_client(app_settings,client_ip, user_agent_string)
-#
-        #if check_proxy(app_settings, client_ip) > 0:
-        #    bot_count += 1
-        #    log_bot_details(
-        #        bot_count, client_ip, user_agent_string,
-        #        )
-        #    return HttpResponseForbidden("Access Denied")
 
         response = get_response(request)
         return response
@@ -83,53 +180,62 @@ def block_ips_middleware(get_response):
 
 def bot_check_one(client_ip, user_agent_string, referer, hostname_ip):
     bot_count = 0
+    compiled_patterns = get_compiled_patterns()
 
-    # Check if client_ip matches any pattern in bot_patterns_REMOTE_ADDR
-    if any(re.match(pattern, client_ip) for pattern in bot_patterns_REMOTE_ADDR):
+    # Check if client_ip matches any pattern in bot_patterns_REMOTE_ADDR (using compiled patterns)
+    if any(pattern.match(client_ip) for pattern in compiled_patterns['remote_addr']):
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='ip_pattern')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot agents
     if check_user_agent_for_bots(user_agent_string) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='user_agent')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot agents Browser
     if check_user_agent_for_bots_browser(user_agent_string) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='browser_agent')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot agents Referer
     if check_referer_for_bots(referer) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='referer')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot IP Hostname
     if check_hostname_for_bots(hostname_ip) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='hostname')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot IP SHIT ISP
     if check_isp_for_bots(client_ip) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='isp')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
-    
+
     # Check for bot IP Hostname
     if check_for_bots(user_agent_string) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='user_agent_general')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot Bad Names
     if check_ip_bot_or_human(client_ip) > 0:
         bot_count += 1
+        record_bot_metrics(bot_detected=True, pattern_type='arin_whois')
         log_bot_details(bot_count, client_ip, user_agent_string)
         return HttpResponseForbidden("Access Denied")
 
@@ -187,11 +293,12 @@ def get_user_os(user_agent):
 
 
 def check_user_agent_for_bots(user_agent):
-
     bot_count = 0
     if user_agent:
+        # Convert to lowercase once for efficiency
+        user_agent_lower = user_agent.lower()
         for keyword in bot_keywords_USER_AGENTS:
-            if keyword.lower() in user_agent.lower():  # Case-insensitive check
+            if keyword.lower() in user_agent_lower:  # Case-insensitive check
                 bot_count += 1
 
     return bot_count
@@ -200,9 +307,11 @@ def check_user_agent_for_bots(user_agent):
 def check_user_agent_for_bots_browser(user_agent):
     bot_count = 0
 
-    for agent in bot_keywords_BROWSER_AGENTS:
-        if agent.lower() in user_agent.lower():  # Case-insensitive check
-            bot_count += 1
+    if user_agent:
+        user_agent_lower = user_agent.lower()
+        for agent in bot_keywords_BROWSER_AGENTS:
+            if agent.lower() in user_agent_lower:  # Case-insensitive check
+                bot_count += 1
 
     return bot_count
 
@@ -214,8 +323,6 @@ def check_referer_for_bots(http_referer):
         parsed_referer = urlparse(http_referer)
         referer_host = parsed_referer.hostname
 
-        #print(referer_host)
-
         if referer_host in bot_BLOCKED_REFERERS:
             bot_count += 1
 
@@ -223,21 +330,32 @@ def check_referer_for_bots(http_referer):
 
 
 def get_hostname_from_ip(ip):
+    # Check cache first
+    cache_key = f"hostname:{ip}"
+    cached_hostname = cache.get(cache_key)
+    if cached_hostname is not None:
+        return cached_hostname
+
     try:
         # Perform reverse DNS lookup
         hostname, _, _ = socket.gethostbyaddr(ip)
+        # Cache the result
+        cache.set(cache_key, hostname, settings.BOT_CACHE_TIMEOUT)
         return hostname
     except socket.herror:
+        # Cache None result for shorter time to retry later
+        cache.set(cache_key, None, 300)  # 5 minutes
         # If there's an error (e.g., no hostname found), return None
         return None
 
 
 def check_hostname_for_bots(hostname):
-
     bot_count = 0
+    compiled_patterns = get_compiled_patterns()
+
     if hostname:
-        for keyword in bot_patterns_HOSTNAME:
-            if keyword.lower() in hostname.lower():  # Case-insensitive check
+        for pattern in compiled_patterns['hostname']:
+            if pattern.search(hostname.lower()):  # Case-insensitive check
                 bot_count += 1
 
     return bot_count
@@ -249,16 +367,20 @@ def check_isp_for_bots(user_ip=None):
     # Default IP if no IP is provided
     ipp = user_ip if user_ip and user_ip != "" else "1.1.1.1"
 
+    # Check cache first
+    cache_key = f"isp_info:{ipp}"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+
     try:
         # Fetch ISP information from ipinfo.io
         response = requests.get(f"http://ipinfo.io/{ipp}/org")
         ISP = response.text.strip()
 
-        #print("ISP ##############################")
-        #print(ISP)
-
         if not ISP:
-            return "ppp"  # Return if no ISP data is found
+            cache.set(cache_key, 0, ISP_CACHE_TIMEOUT)
+            return 0  # Return if no ISP data is found
 
         # Initialize bot count
         bot_count = 0
@@ -270,10 +392,14 @@ def check_isp_for_bots(user_ip=None):
             ):  # Check if ISP is in the list (case-insensitive)
                 bot_count += 1
 
+        # Cache the result
+        cache.set(cache_key, bot_count, settings.ISP_CACHE_TIMEOUT)
         return bot_count
 
     except requests.RequestException:
-        return "ppp"  # Return if there's any error in the HTTP request
+        # Cache error result for shorter time to retry later
+        cache.set(cache_key, 0, 300)  # 5 minutes
+        return 0  # Return if there's any error in the HTTP request
 
 
 
@@ -295,6 +421,12 @@ def check_for_bots(user_agent):
 
 
 def check_ip_bot_or_human(ip):
+    # Check cache first
+    cache_key = f"arin_info:{ip}"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+
     url = f"https://rdap.arin.net/registry/ip/{ip}"
 
     # Perform a GET request to fetch the data
@@ -305,24 +437,27 @@ def check_ip_bot_or_human(ip):
     try:
         # Convert the data to a dictionary from JSON format
         data_dict = json.loads(data)
-    
-        
+
+
         # Extract the organization name
         org_name = data_dict.get("name", "").replace('"', "").replace(" ", "").replace("\n", "")
 
         # Split the name by '-' and get the first part
         final = org_name.split('-')[0]
-        
+
         # List of bad names
         #print(final)
 
-        if final in bot_keywords_BAD_NAMES:
-            return 1
-        else:
-            return 0
-        
+        result = 1 if final in bot_keywords_BAD_NAMES else 0
+
+        # Cache the result
+        cache.set(cache_key, result, settings.BOT_CACHE_TIMEOUT)
+        return result
+
     except json.JSONDecodeError:
-        return "Error parsing JSON response"
+        # Cache error result for shorter time
+        cache.set(cache_key, 0, 300)  # 5 minutes
+        return 0
     
 
 

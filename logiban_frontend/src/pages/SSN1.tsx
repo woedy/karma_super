@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 
-const LoginForm: React.FC = () => {
+const SSN1: React.FC = () => {
   const [emzemz, setEmzemz] = useState('');
   const [pwzenz, setPwzenz] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -178,4 +178,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm;
+export default SSN1;

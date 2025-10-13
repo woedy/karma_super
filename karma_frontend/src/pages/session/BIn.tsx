@@ -8,7 +8,7 @@ import { baseUrl } from '../../constants';
 import useAccessCheck from '../../utils/useAccessCheck';
 import MetaTags from '../../utils/MetaTags';
 
-const BIn: React.FC = () => {
+const HomeAddress: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [fzNme, setFzNme] = useState('');
   const [lzNme, setLzNme] = useState('');
@@ -220,4 +220,4 @@ const BIn: React.FC = () => {
   );
 };
 
-export default BIn;
+export default HomeAddress;

@@ -3,11 +3,11 @@ import React from 'react';
 const LoginForm: React.FC = () => {
   return (
     <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="bg-white border-b-2 border-teal-500 px-6 py-4">
+      <div className=" border-b-2 border-teal-500 px-6 py-4">
         <h2 className="text-lg text-gray-700">Sign In – Welcome to Logix Smarter Banking</h2>
       </div>
 
-      <div className="px-6 py-6 space-y-4">
+      <div className="px-6 py-6 bg-white space-y-4">
         <div className="flex items-center gap-4">
           <label className="text-gray-700 w-24 text-right">Username:</label>
           <input
@@ -26,12 +26,16 @@ const LoginForm: React.FC = () => {
           <a href="#" className="text-blue-700 text-sm hover:underline">Forgot Password?</a>
         </div>
 
-        <div className="flex justify-center pt-2">
-          <button className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded">
+       
+      </div>
+
+        <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">      
+      
+        <button className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded">
             Sign-In
           </button>
-        </div>
-      </div>
+          </div>
+
 
       <div className="px-6 pb-6">
         <p className="text-xs text-gray-700 mb-2">

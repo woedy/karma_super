@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   return (
@@ -6,17 +7,14 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
         <div className="flex items-center">
           <div className="text-3xl font-bold">
-            <span className="text-gray-700">Logix</span>
+            <img src="/assets/logo.svg" alt="Logix Logo" className="h-12 w-auto" />
           </div>
-          <div className="ml-1 text-xs leading-tight">
-            <div className="text-orange-600 font-semibold">smarter</div>
-            <div className="text-orange-600 font-semibold">banking</div>
-          </div>
+       
         </div>
         <div className="flex gap-2 text-sm text-gray-700">
-          <a href="#" className="hover:underline">Sign In</a>
+          <Link to="/login" className="hover:underline">Sign In</Link>
           <span>|</span>
-          <a href="#" className="hover:underline">Register</a>
+          <Link to="/register" className="hover:underline">Register</Link>
         </div>
       </div>
     </header>

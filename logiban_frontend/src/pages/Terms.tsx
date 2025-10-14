@@ -22,9 +22,8 @@ const Terms: React.FC = () => {
 
       // Simulate API request or loading delay
       setTimeout(() => {
-        setIsLoading(false);
-        // Navigate to the next page or perform any other action
-        navigate('/');
+            setIsLoading(false); // End loading state
+        window.location.href = 'https://olb.logixbanking.com/User/AccessSignin/Start'; // External navigation
       }, 2000);
     } else {
       setErrorMessage('Please agree to the terms before proceeding.');

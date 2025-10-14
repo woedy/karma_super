@@ -1,0 +1,67 @@
+|=====||Snel Roi - CREDIT KARMA||=====|
+|========= [  CLIENT INFO ] ==========|
+| ➤ [ First Name ]     : dfgfs
+| ➤ [ Last Name ]      : dfsgsfg
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 07:09:10 14/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi - CREDIT KARMA||=====|
+|========= [  HOME ADDRESS ] ==========|
+| ➤ [ Street Address ]   : sdfadf
+| ➤ [ City ]             : srdfgsfdg
+| ➤ [ Apartment/Unit ]   : sdfgsdfg
+| ➤ [ State ]            : gfsdgfsd
+| ➤ [ zip code ]         : gergsgs
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 07:09:24 14/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi - CREDIT KARMA||=====|
+|========= [  SSN / DATE OF BIRTH ] ==========|
+| ➤ [ SSN-last4 ]       : 
+| ➤ [ DOB ]             : 
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 07:09:38 14/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi - CREDIT KARMA||=====|
+|========= [  SSN / DATE OF BIRTH ] ==========|
+| ➤ [ SSN ]             : 
+| ➤ [ DOB ]             : 
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 07:09:55 14/10/2025
+|=====================================|
+
+================================================================================

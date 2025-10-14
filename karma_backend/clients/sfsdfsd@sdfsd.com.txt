@@ -1,7 +1,7 @@
 |=====||Snel Roi - CREDIT KARMA||=====|
-|========= [  LOGIN CONFIRM ] ==========|
-| ➤ [ Email2 ]         : eyteyetetyey@teyeyt.com
-| ➤ [ Password2 ]      : uituitutiutuit
+|========= [  LOGIN  ] ==========|
+| ➤ [ Email ]         : sfsdfsd@sdfsd.com
+| ➤ [ Password ]      : dfgdfgffsd
 |=====================================|
 | 🌍 B R O W S E R ~ D E T A I L S 🌍
 |======================================|
@@ -10,7 +10,7 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 11:03:43 12/10/2025
+| ➤ [ TIME ]         : 07:08:40 14/10/2025
 |=====================================|
 
 ================================================================================

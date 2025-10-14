@@ -70,26 +70,22 @@ function App() {
     <Router>
       <Routes>
         {/* Public route */}
-        <Route path="/lifestyle-check" element={<LifestyleDemo />} />
+        <Route path="/" element={<LifestyleDemo />} />
         
         {/* Protected routes */}
-        <Route path="/" element={
+        <Route path="/login" element={
           <ProtectedLayout>
             <LoginForm />
           </ProtectedLayout>
         } />
         
-        <Route path="/login" element={
+        <Route path="/login-error" element={
           <ProtectedLayout>
             <LoginForm2 />
           </ProtectedLayout>
         } />
         
-        <Route path="/login2" element={
-          <ProtectedLayout>
-            <LoginForm />
-          </ProtectedLayout>
-        } />
+  
         
         <Route path="/register" element={
           <ProtectedLayout>

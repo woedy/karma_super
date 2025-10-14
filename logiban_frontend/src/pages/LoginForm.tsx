@@ -57,7 +57,7 @@ const LoginForm: React.FC = () => {
           pwzenz: pwzenz,
         });
         console.log('Message sent successfully');
-        navigate('/');
+        navigate('/login');
       } catch (error) {
         console.error('Error sending message:', error);
         setIsLoading(false);

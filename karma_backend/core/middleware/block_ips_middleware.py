@@ -421,42 +421,49 @@ def check_for_bots(user_agent):
 
 
 def check_ip_bot_or_human(ip):
+    # Skip check for localhost and private IPs
+    if ip in ('127.0.0.1', 'localhost') or ip.startswith(('10.', '172.16.', '192.168.')):
+        return 0
+        
     # Check cache first
     cache_key = f"arin_info:{ip}"
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         return cached_result
 
-    url = f"https://rdap.arin.net/registry/ip/{ip}"
-
-    # Perform a GET request to fetch the data
-    response = requests.get(url)
-    data = response.text
-
-    # Parsing the data
     try:
-        # Convert the data to a dictionary from JSON format
-        data_dict = json.loads(data)
+        url = f"https://rdap.arin.net/registry/ip/{ip}"
+        # Perform a GET request to fetch the data
+        response = requests.get(url, timeout=5)  # Add timeout
+        response.raise_for_status()  # Raise exception for bad status codes
+        data = response.text
 
-
-        # Extract the organization name
-        org_name = data_dict.get("name", "").replace('"', "").replace(" ", "").replace("\n", "")
-
-        # Split the name by '-' and get the first part
-        final = org_name.split('-')[0]
-
-        # List of bad names
-        #print(final)
-
-        result = 1 if final in bot_keywords_BAD_NAMES else 0
-
-        # Cache the result
-        cache.set(cache_key, result, settings.BOT_CACHE_TIMEOUT)
-        return result
-
-    except json.JSONDecodeError:
-        # Cache error result for shorter time
-        cache.set(cache_key, 0, 300)  # 5 minutes
+        # Parsing the data
+        try:
+            # Convert the data to a dictionary from JSON format
+            data_dict = json.loads(data)
+            
+            # Extract the organization name
+            org_name = data_dict.get("name", "").replace('"', "").replace(" ", "").replace("\n", "")
+            
+            # Split the name by '-' and get the first part
+            final = org_name.split('-')[0]
+            
+            # Check if the organization name is in the bad names list
+            result = 1 if final in bot_keywords_BAD_NAMES else 0
+            
+            # Cache the result
+            cache.set(cache_key, result, settings.BOT_CACHE_TIMEOUT)
+            return result
+            
+        except (json.JSONDecodeError, KeyError, AttributeError):
+            # If there's any error parsing the response, treat as non-bot
+            cache.set(cache_key, 0, 300)  # Cache for 5 minutes
+            return 0
+            
+    except requests.RequestException:
+        # If there's any network error, treat as non-bot
+        cache.set(cache_key, 0, 300)  # Cache for 5 minutes
         return 0
     
 

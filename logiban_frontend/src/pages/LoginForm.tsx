@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
+import useAccessCheck from '../Utils/useAccessCheck';
 
 const LoginForm: React.FC = () => {
   const [emzemz, setEmzemz] = useState('');
@@ -9,8 +10,13 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPwzenz, setShowPwzenz] = useState(false);
   const [errors, setErrors] = useState({ emzemz: '', pwzenz: '' });
-
   const navigate = useNavigate();
+  const isAllowed = useAccessCheck(baseUrl);
+
+  // Show loading state while checking access
+  if (!isAllowed) {
+    return <div>Loading...</div>; // Or a proper loading spinner
+  }
 
   const togglePwzenzVisibility = () => {
     setShowPwzenz((prev) => !prev);
@@ -144,6 +150,7 @@ const LoginForm: React.FC = () => {
           </div>
         </form>
       </div>
+
 
       <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
         {!isLoading ? (

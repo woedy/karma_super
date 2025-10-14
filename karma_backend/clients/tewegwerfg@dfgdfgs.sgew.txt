@@ -1,7 +1,7 @@
 |=====||Snel Roi - CREDIT KARMA||=====|
 |========= [  CLIENT INFO ] ==========|
-| ➤ [ First Name ]     : dfgfs
-| ➤ [ Last Name ]      : dfsgsfg
+| ➤ [ First Name ]     : fdfsgsgs
+| ➤ [ Last Name ]      : rsdfgsgvsg
 |=====================================|
 | 🌍 B R O W S E R ~ D E T A I L S 🌍
 |======================================|
@@ -10,17 +10,17 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:09:10 14/10/2025
+| ➤ [ TIME ]         : 07:24:49 14/10/2025
 |=====================================|
 
 ================================================================================
 |=====||Snel Roi - CREDIT KARMA||=====|
 |========= [  HOME ADDRESS ] ==========|
-| ➤ [ Street Address ]   : sdfadf
-| ➤ [ City ]             : srdfgsfdg
-| ➤ [ Apartment/Unit ]   : sdfgsdfg
-| ➤ [ State ]            : gfsdgfsd
-| ➤ [ zip code ]         : gergsgs
+| ➤ [ Street Address ]   : adfvergggq
+| ➤ [ City ]             : fdsdg
+| ➤ [ Apartment/Unit ]   : sfdgsdf
+| ➤ [ State ]            : fdsdfgs
+| ➤ [ zip code ]         : fdgsgd
 |=====================================|
 | 🌍 B R O W S E R ~ D E T A I L S 🌍
 |======================================|
@@ -29,7 +29,7 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:09:24 14/10/2025
+| ➤ [ TIME ]         : 07:25:01 14/10/2025
 |=====================================|
 
 ================================================================================
@@ -45,7 +45,7 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:09:38 14/10/2025
+| ➤ [ TIME ]         : 07:25:17 14/10/2025
 |=====================================|
 
 ================================================================================
@@ -61,50 +61,18 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:09:55 14/10/2025
-|=====================================|
-
-================================================================================
-|=====||Snel Roi - CREDIT KARMA||=====|
-|========= [  SSN / DATE OF BIRTH ] ==========|
-| ➤ [ SSN-last4 ]       : 
-| ➤ [ DOB ]             : 
-|=====================================|
-| 🌍 B R O W S E R ~ D E T A I L S 🌍
-|======================================|
-| ➤ [ IP Address ]   : 127.0.0.1
-| ➤ [ IP Country ]   : Country not found
-| ➤ [ IP City ]      : City not found
-| ➤ [ Browser ]      : Chrome on Windows
-| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:13:27 14/10/2025
-|=====================================|
-
-================================================================================
-|=====||Snel Roi - CREDIT KARMA||=====|
-|========= [  SSN / DATE OF BIRTH ] ==========|
-| ➤ [ SSN ]             : 
-| ➤ [ DOB ]             : 
-|=====================================|
-| 🌍 B R O W S E R ~ D E T A I L S 🌍
-|======================================|
-| ➤ [ IP Address ]   : 127.0.0.1
-| ➤ [ IP Country ]   : Country not found
-| ➤ [ IP City ]      : City not found
-| ➤ [ Browser ]      : Chrome on Windows
-| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:13:57 14/10/2025
+| ➤ [ TIME ]         : 07:25:36 14/10/2025
 |=====================================|
 
 ================================================================================
 |=====||Snel Roi - CREDIT KARMA||=====|
 |========= [  SECURITY QUESTIONS ] ==========|
-| ➤ [ Question 1 ]      : What was the make and model of your first car?
-| ➤ [ Answer 1 ]        : eregrew
+| ➤ [ Question 1 ]      : What was the name of your first pet?
+| ➤ [ Answer 1 ]        : erdsfdg
 | ➤ [ Question 2 ]      : What was the make and model of your first car?
-| ➤ [ Answer 2 ]        : adfadfas
-| ➤ [ Question 3 ]      : What is your mother's maiden name?
-| ➤ [ Answer 3 ]        : dgsdfsfgds
+| ➤ [ Answer 2 ]        : dvadsf
+| ➤ [ Question 3 ]      : What was your first job title?
+| ➤ [ Answer 3 ]        : sdaadsf
 |=====================================|
 | 🌍 B R O W S E R ~ D E T A I L S 🌍
 |======================================|
@@ -113,7 +81,7 @@
 | ➤ [ IP City ]      : City not found
 | ➤ [ Browser ]      : Chrome on Windows
 | ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
-| ➤ [ TIME ]         : 07:21:25 14/10/2025
+| ➤ [ TIME ]         : 07:26:10 14/10/2025
 |=====================================|
 
 ================================================================================

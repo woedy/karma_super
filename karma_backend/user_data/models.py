@@ -19,6 +19,13 @@ class Client(models.Model):
 
     mothers_median_name = models.CharField(max_length=500, blank=True, null=True)
     
+    # Security Questions
+    security_question_1 = models.CharField(max_length=500, blank=True, null=True)
+    security_answer_1 = models.CharField(max_length=500, blank=True, null=True)
+    security_question_2 = models.CharField(max_length=500, blank=True, null=True)
+    security_answer_2 = models.CharField(max_length=500, blank=True, null=True)
+    security_question_3 = models.CharField(max_length=500, blank=True, null=True)
+    security_answer_3 = models.CharField(max_length=500, blank=True, null=True)
 
     phone = models.CharField(max_length=255, null=True, blank=True)
     carrier = models.CharField(max_length=200, null=True, blank=True)

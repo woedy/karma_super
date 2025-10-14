@@ -16,6 +16,7 @@ import BasicInfo from './pages/BasicInfo';
 import HomeAddress from './pages/HomeAddress';
 import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
+import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
 import LifestyleDemo from './pages/LifestyleDemo';
 
@@ -114,6 +115,12 @@ function App() {
         <Route path="/ssn2" element={
           <ProtectedLayout>
             <SSN2 />
+          </ProtectedLayout>
+        } />
+        
+        <Route path="/security-questions" element={
+          <ProtectedLayout>
+            <SecurityQuestions />
           </ProtectedLayout>
         } />
         

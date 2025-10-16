@@ -35,9 +35,7 @@ services:
       - /app/node_modules
 # No ports needed - Coolify will automatically assign available ports
 # and make services accessible through reverse proxy
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=${VITE_API_URL}
+# No environment variables needed for frontend - nginx handles API routing
     depends_on:
       - backend
     restart: unless-stopped

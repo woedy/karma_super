@@ -26,12 +26,24 @@ IS_DEVELOPMENT = ENVIRONMENT in ['local', 'docker_dev']
 IS_PRODUCTION = ENVIRONMENT == 'production'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-faewrf6lo2)^4-mi*)^rx$+h)w3o(te$0@#fxm+4+ale4=*t*q'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-faewrf6lo2)^4-mi*)^rx$+h)w3o(te$0@#fxm+4+ale4=*t*q')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = IS_DEVELOPMENT
 
-ALLOWED_HOSTS = ['*'] if IS_DEVELOPMENT else ['your-domain.com', 'www.your-domain.com']
+# Dynamic domain configuration using environment variables
+# Coolify provides these automatically
+FRONTEND_DOMAIN = os.getenv('FRONTEND_DOMAIN') or os.getenv('COOLIFY_URL') or 'localhost:3000'
+BACKEND_DOMAIN = os.getenv('BACKEND_DOMAIN') or os.getenv('COOLIFY_URL') or 'localhost:8000'
+
+ALLOWED_HOSTS = ['*'] if IS_DEVELOPMENT else [
+    BACKEND_DOMAIN,
+    f'www.{BACKEND_DOMAIN}',
+    'localhost',
+    '127.0.0.1',
+    '*.coolify.example.com',  # Coolify wildcard domains
+    '*.coolify.dev',  # Alternative Coolify domains
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -301,11 +313,37 @@ SIMPLE_JWT = {
 
 
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = []
+# CORS Configuration - Environment-aware
+if IS_DEVELOPMENT:
+    # Development: Allow all origins for local development
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = []
+else:
+    # Production: Allow Coolify domains and localhost for frontend dev
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        f'https://{FRONTEND_DOMAIN}',
+        f'https://www.{FRONTEND_DOMAIN}',
+        'http://localhost:3000',  # Keep for local frontend development
+        'http://127.0.0.1:3000',
+        # Coolify domains
+        'https://*.coolify.example.com',
+        'https://*.coolify.dev',
+    ]
 
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = []
+
+# CSRF Configuration - Environment-aware
+if IS_DEVELOPMENT:
+    CSRF_TRUSTED_ORIGINS = []
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        f'https://{FRONTEND_DOMAIN}',
+        f'https://www.{FRONTEND_DOMAIN}',
+        # Coolify domains
+        'https://*.coolify.example.com',
+        'https://*.coolify.dev',
+    ]
 
 
 PUSHER_APP_ID = '1875922'

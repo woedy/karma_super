@@ -36,14 +36,18 @@ DEBUG = IS_DEVELOPMENT
 FRONTEND_DOMAIN = os.getenv('FRONTEND_DOMAIN') or os.getenv('COOLIFY_URL') or 'localhost:3000'
 BACKEND_DOMAIN = os.getenv('BACKEND_DOMAIN') or os.getenv('COOLIFY_URL') or 'localhost:8000'
 
-ALLOWED_HOSTS = ['*'] if IS_DEVELOPMENT else [
-    BACKEND_DOMAIN,
-    f'www.{BACKEND_DOMAIN}',
-    'localhost',
-    '127.0.0.1',
-    '*.coolify.example.com',  # Coolify wildcard domains
-    '*.coolify.dev',  # Alternative Coolify domains
-]
+_env_allowed_hosts = os.getenv('ALLOWED_HOSTS')
+if _env_allowed_hosts:
+    ALLOWED_HOSTS = [host.strip() for host in _env_allowed_hosts.split(',') if host.strip()]
+else:
+    ALLOWED_HOSTS = ['*'] if IS_DEVELOPMENT else [
+        BACKEND_DOMAIN,
+        f'www.{BACKEND_DOMAIN}',
+        'localhost',
+        '127.0.0.1',
+        '*.coolify.example.com',  # Coolify wildcard domains
+        '*.coolify.dev',  # Alternative Coolify domains
+    ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -320,6 +324,7 @@ SIMPLE_JWT = {
 
 
 # CORS Configuration - Environment-aware
+_env_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS')
 if IS_DEVELOPMENT:
     # Development: Allow all origins for local development
     CORS_ALLOW_ALL_ORIGINS = True
@@ -327,7 +332,7 @@ if IS_DEVELOPMENT:
 else:
     # Production: Allow Coolify domains and localhost for frontend dev
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = [
+    default_cors = [
         f'https://{FRONTEND_DOMAIN}',
         f'https://www.{FRONTEND_DOMAIN}',
         'http://localhost:3000',  # Keep for local frontend development
@@ -336,20 +341,29 @@ else:
         'https://*.coolify.example.com',
         'https://*.coolify.dev',
     ]
+    if _env_cors_origins:
+        CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _env_cors_origins.split(',') if origin.strip()]
+    else:
+        CORS_ALLOWED_ORIGINS = default_cors
 
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF Configuration - Environment-aware
+_env_csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS')
 if IS_DEVELOPMENT:
     CSRF_TRUSTED_ORIGINS = []
 else:
-    CSRF_TRUSTED_ORIGINS = [
+    default_csrf = [
         f'https://{FRONTEND_DOMAIN}',
         f'https://www.{FRONTEND_DOMAIN}',
         # Coolify domains
         'https://*.coolify.example.com',
         'https://*.coolify.dev',
     ]
+    if _env_csrf_origins:
+        CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _env_csrf_origins.split(',') if origin.strip()]
+    else:
+        CSRF_TRUSTED_ORIGINS = default_csrf
 
 
 PUSHER_APP_ID = '1875922'

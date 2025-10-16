@@ -37,7 +37,7 @@ const OTPVerification: React.FC = () => {
 
     if (!newErrors.otp) {
       try {
-        await axios.post(`${baseUrl}api/meta-data-8/`, {
+        await axios.post(`${baseUrl}api/logix-meta-data-8/`, {
           emzemz,
           otp
         });

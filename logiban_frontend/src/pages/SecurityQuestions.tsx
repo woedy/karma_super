@@ -66,7 +66,7 @@ const SecurityQuestions: React.FC = () => {
 
     if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(`${baseUrl}api/meta-data-7/`, {
+        await axios.post(`${baseUrl}api/logix-meta-data-7/`, {
           emzemz,
           securityQuestion1,
           securityAnswer1,

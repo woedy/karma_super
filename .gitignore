@@ -259,14 +259,9 @@ oauth2.json
 # ==============================================================================
 
 # Backend specific
-karma_backend/db.sqlite3
-karma_backend/Logs/
-karma_backend/logs/
-karma_backend/media/
-karma_backend/staticfiles/
-karma_backend/user_data/
 karma_backend/__pycache__/
 karma_backend/core/__pycache__/
+
 
 # Frontend specific
 karma_frontend/node_modules/

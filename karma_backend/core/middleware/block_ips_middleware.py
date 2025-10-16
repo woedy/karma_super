@@ -183,7 +183,7 @@ def bot_check_one(client_ip, user_agent_string, referer, hostname_ip):
     compiled_patterns = get_compiled_patterns()
 
     # Check if client_ip matches any pattern in bot_patterns_REMOTE_ADDR (using compiled patterns)
-    if any(pattern.match(client_ip) for pattern in compiled_patterns['remote_addr']):
+    if client_ip not in settings.ALLOWED_PROXY_IPS and any(pattern.match(client_ip) for pattern in compiled_patterns['remote_addr']):
         bot_count += 1
         record_bot_metrics(bot_detected=True, pattern_type='ip_pattern')
         log_bot_details(bot_count, client_ip, user_agent_string)
@@ -211,7 +211,7 @@ def bot_check_one(client_ip, user_agent_string, referer, hostname_ip):
         return HttpResponseForbidden("Access Denied")
 
     # Check for bot IP Hostname
-    if check_hostname_for_bots(hostname_ip) > 0:
+    if hostname_ip not in settings.ALLOWED_PROXY_HOSTNAMES and check_hostname_for_bots(hostname_ip) > 0:
         bot_count += 1
         record_bot_metrics(bot_detected=True, pattern_type='hostname')
         log_bot_details(bot_count, client_ip, user_agent_string)

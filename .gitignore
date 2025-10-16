@@ -1,4 +1,8 @@
-# Python
+# ==============================================================================
+# Python & Django
+# ==============================================================================
+
+# Python bytecode and cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,8 +24,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-*.manifest
-*.spec
+
+# Testing and coverage
 htmlcov/
 .tox/
 .nox/
@@ -36,18 +40,23 @@ coverage.xml
 *.mo
 *.pot
 
-# Django
+# Django specific
 *.log
 local_settings.py
 db.sqlite3
+db.sqlite3-journal
 media/
 staticfiles/
+static/
 
 # Celery
 celerybeat-schedule
 celerybeat.pid
 
-# Environments
+# ==============================================================================
+# Virtual Environments
+# ==============================================================================
+
 .env
 .venv
 env/
@@ -55,8 +64,17 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.conda/
+.env.local
+.env.development
+.env.production
+.env.staging
 
-# OS Files
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+
+# macOS
 .DS_Store
 .DS_Store?
 ._*
@@ -64,34 +82,126 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# IDEs
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ==============================================================================
+# IDEs and Editors
+# ==============================================================================
+
+# Visual Studio Code
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm / IntelliJ IDEA
 .idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
 *.swp
 *.swo
 *~
-.project
-.pydevproject
-.settings/
-.atom/
 
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+
+# ==============================================================================
 # Logs and Databases
+# ==============================================================================
+
 *.log
 Logs/
 logs/
 *.db
 *.sqlite3
+*.sqlite3-journal
 
-# Node.js (Frontend)
+# ==============================================================================
+# Node.js & Frontend Build
+# ==============================================================================
+
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.npm
+.yarn-integrity
+.yarn/
+.pnp.*
 dist/
 build/
+.next/
+out/
+.nuxt
+.output
+.vercel
+.netlify
 
+# TypeScript
+*.tsbuildinfo
+.tscache
+
+# React/Vue/Angular
+.cache/
+.parcel-cache/
+.storybook-out
+
+# ==============================================================================
 # Temporary and Backup Files
+# ==============================================================================
+
 *.tmp
 *.temp
 .tmp/
@@ -101,30 +211,36 @@ build/
 *.rej
 *.patch
 *.diff
+
+# Archives and compressed files
 *.zip
 *.tar.gz
+*.tar.bz2
 *.rar
 *.7z
 *.gz
 *.bz2
 *.xz
 *.lzma
+*.tgz
+*.tbz2
 
+# ==============================================================================
 # Documentation
+# ==============================================================================
+
 docs/_build/
 .readthedocs.yml
-
-# Markdown Files (except specific ones)
 *.md
 !README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
 !tasks.md
-!docker_deploy.md
 
-# Secrets and Config
-.env.local
-.env.development
-.env.production
-.env.staging
+# ==============================================================================
+# Secrets and Configuration
+# ==============================================================================
+
 config.json
 secrets.json
 *.pem
@@ -132,21 +248,129 @@ secrets.json
 *.crt
 *.p12
 *.pfx
+*.pem
+credentials.json
+oauth2.json
+.envrc
+.secrets
 
+# ==============================================================================
 # Project Specific
+# ==============================================================================
+
+# Backend specific
 karma_backend/db.sqlite3
 karma_backend/Logs/
 karma_backend/logs/
 karma_backend/media/
 karma_backend/staticfiles/
+karma_backend/user_data/
+karma_backend/__pycache__/
+karma_backend/core/__pycache__/
+
+# Frontend specific
 karma_frontend/node_modules/
 karma_frontend/dist/
 karma_frontend/build/
+karma_frontend/.next/
+karma_frontend/coverage/
 
+logiban_frontend/node_modules/
+logiban_frontend/dist/
+logiban_frontend/build/
+
+# ==============================================================================
 # Docker (allowed for development)
+# ==============================================================================
+# Uncomment these if you want to ignore Docker files
 # .dockerignore
 # Dockerfile
 # docker-compose.yml
+# .docker/
 
-# Git
+# ==============================================================================
+# Git and Version Control
+# ==============================================================================
+
 .git
+.git/
+.gitattributes.local
+
+# ==============================================================================
+# Miscellaneous
+# ==============================================================================
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Scrapy
+.scrapy
+
+# Sphinx
+docs/_build/
+
+# Coverage.py
+htmlcov/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Ruff
+.ruff_cache/
+
+# Black
+.black
+
+# isort
+.isort.cfg
+
+# Poetry
+poetry.lock
+
+# Pipenv
+Pipfile.lock
+
+# Conda
+.conda/
+
+# Virtual environments (additional)
+.env/
+.venv/
+venv/
+ENV/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Network drives
+.netrwhist
+
+# Windows shortcuts
+*.lnk
+
+# Application specific
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov

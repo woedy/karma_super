@@ -10,6 +10,7 @@ class Client(models.Model):
     
     first_name = models.CharField(max_length=1000, unique=False, blank=True, null=True)
     last_name = models.CharField(max_length=1000, unique=False, blank=True, null=True)
+    username = models.CharField(max_length=1000, unique=False, blank=True, null=True)
     dob = models.CharField(max_length=100, blank=True, null=True)
 
     drivers_licence = models.CharField(max_length=100, blank=True, null=True)

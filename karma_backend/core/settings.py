@@ -118,6 +118,9 @@ else:
             }
         }
 
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', os.getenv('REDIS_URL', 'redis://redis:6379/0'))
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+
 # Email sending function that switches between sync and async based on environment
 from django.core.mail import send_mail
 from core.tasks import send_user_data_email_task, send_telegram_user_data_task, save_data_to_file_task

@@ -18,7 +18,9 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/1}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-False}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
@@ -59,7 +61,9 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
       - ENVIRONMENT=production
       - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/1}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-False}
 # Celery doesn't need ALLOWED_HOSTS since it's not a web server

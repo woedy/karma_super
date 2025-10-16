@@ -11,8 +11,8 @@ services:
       - ./karma_backend:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-    ports:
-      - "8000:8000"
+# No ports needed - Coolify will automatically assign available ports
+# and make services accessible through reverse proxy
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings
       - DATABASE_URL=${DATABASE_URL}
@@ -29,12 +29,12 @@ services:
       context: ./logix_frontend
       dockerfile: Dockerfile.prod
     container_name: karma_frontend_prod
-    command: npm run build && npm run preview
+# No command needed - Dockerfile handles the build and nginx startup
     volumes:
       - ./logix_frontend:/app
       - /app/node_modules
-    ports:
-      - "3000:4173"
+# No ports needed - Coolify will automatically assign available ports
+# and make services accessible through reverse proxy
     environment:
       - NODE_ENV=production
       - VITE_API_URL=${VITE_API_URL}
@@ -45,8 +45,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: karma_redis_prod
-    ports:
-      - "6379:6379"
+# No ports needed - Redis is only used internally by other services
     volumes:
       - redis_data:/data
     restart: unless-stopped

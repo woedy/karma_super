@@ -121,17 +121,25 @@ docker-compose up -d
    - **Build Context**: `./`
 
 5. **Domain Configuration**:
-   - Frontend: `your-domain.com` → Port 3000
-   - Backend: `api.your-domain.com` → Port 8000 *(if you want separate domains)*
-   *(Alternatively, use subdomains like `app.your-domain.com` for frontend and `api.your-domain.com` for backend)*
+   - Coolify **automatically** assigns a domain like `your-project-name.coolify.example.com`
+   - **No manual port configuration needed**
+   - Both frontend and backend API are accessible through the same domain
+   - **Frontend**: `https://your-project-name.coolify.example.com/`
+   - **API**: `https://your-project-name.coolify.example.com/api/`
+
+### Access Points (Coolify)
+
+Coolify automatically assigns available ports and provides access through:
+- **Application URL**: `https://your-project-name.coolify.example.com`
+- **API endpoints** accessible at the same domain under `/api/` path
+- **All services** (frontend, backend, redis, celery) run internally without port conflicts
 
 ### Production Features
 
-- **Gunicorn** for backend (3 workers, 2 threads)
-- **Nginx** for frontend with static asset caching
-- **Redis** for session storage and caching
-- **Celery** for background tasks
-- **PostgreSQL** for production database
+- **Automatic port assignment** - No port conflicts with other projects
+- **Reverse proxy** - Coolify routes requests to appropriate services
+- **Service discovery** - Backend and frontend communicate via service names
+- **SSL/TLS** - Automatic HTTPS certificates via Coolify
 
 ### SSL/TLS
 
@@ -153,12 +161,10 @@ For updates:
 
 ## Troubleshooting
 
-- If you encounter port conflicts, modify the port mappings in `docker-compose.yml`
-- For database issues, you can reset the database by removing the `postgres_data` volume:
-  ```bash
-  docker-compose down -v
-  docker-compose up -d
-  ```
+- **Build failures**: Check the deployment logs in Coolify dashboard for specific error messages
+- **Environment variables**: Ensure all required variables are set in Coolify (see `.env.example`)
+- **Service connectivity**: Coolify handles internal service communication automatically
+- **Domain access**: If you can't access your application, check Coolify's service status and logs
 
 ## File Structure
 

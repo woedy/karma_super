@@ -1,0 +1,16 @@
+|=====||Snel Roi -LOGIX||=====|
+|========= [  LOGIN  ] ==========|
+| ➤ [ Username ]         : ihljkhlh
+| ➤ [ Password ]      : ij;ljkl;j
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:49:01 16/10/2025
+|=====================================|
+
+================================================================================

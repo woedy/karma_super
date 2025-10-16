@@ -270,9 +270,9 @@ karma_frontend/build/
 karma_frontend/.next/
 karma_frontend/coverage/
 
-logiban_frontend/node_modules/
-logiban_frontend/dist/
-logiban_frontend/build/
+logix_frontend/node_modules/
+logix_frontend/dist/
+logix_frontend/build/
 
 # ==============================================================================
 # Docker (allowed for development)

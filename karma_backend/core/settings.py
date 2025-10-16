@@ -17,28 +17,94 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Environment-based configuration
+# Set default environment
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# Development flag
+IS_DEVELOPMENT = ENVIRONMENT in ['local', 'docker_dev']
+IS_PRODUCTION = ENVIRONMENT == 'production'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here')
+SECRET_KEY = 'django-insecure-faewrf6lo2)^4-mi*)^rx$+h)w3o(te$0@#fxm+4+ale4=*t*q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+DEBUG = IS_DEVELOPMENT
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
+ALLOWED_HOSTS = ['*'] if IS_DEVELOPMENT else ['your-domain.com', 'www.your-domain.com']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-email@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-app-password')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
-EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 'yes')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Karma <noreply@karma.com>')
-BASE_URL = os.environ.get('BASE_URL', 'http://localhost:8000')
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'etornamasamoah@gmail.com'
+EMAIL_HOST_PASSWORD = 'nygmdsnhaxxlrsem'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'Weekend Chef <weekendchef@gmail.com>'
+BASE_URL = '0.0.0.0:80'
+
+# Configure Redis vs In-Memory based on environment
+if ENVIRONMENT == 'local':
+    # Local development - no Redis
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
+    
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        },
+    }
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
+else:
+    # Docker environments (local Docker & production) - use Redis
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': 'redis://redis:6379/1',
+        }
+    }
+    
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        },
+    }
+    
+    # Use PostgreSQL for production, SQLite for local Docker
+    if IS_PRODUCTION:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'karma_db',
+                'USER': 'karma_user',
+                'PASSWORD': 'karma_password',
+                'HOST': 'db',
+                'PORT': 5432,
+            }
+        }
+    else:
+        # Local Docker
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 # Application definition
 
@@ -106,32 +172,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 ASGI_APPLICATION = "core.asgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# Database configuration based on environment variables
-DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3')
-
-if DATABASE_ENGINE == 'django.db.backends.postgresql':
-    DATABASES = {
-        'default': {
-            'ENGINE': DATABASE_ENGINE,
-            'NAME': os.environ.get('DATABASE_NAME', 'karma_db'),
-            'USER': os.environ.get('DATABASE_USER', 'karma_user'),
-            'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'your-postgres-password'),
-            'HOST': os.environ.get('DATABASE_HOST', 'db'),
-            'PORT': int(os.environ.get('DATABASE_PORT', '5432')),
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -180,29 +220,13 @@ HOST_SCHEME = "http://"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-FCM_SERVER_KEY = os.environ.get('FCM_SERVER_KEY', 'your-fcm-server-key')
+FCM_SERVER_KEY = 'AAAAxOQuav4:APA91bGO5BfxGqVOvfop7ZyrFW1RePVALmhotBv4VMk67KD_IP_9aJfLnBVYQmoJpJw3ho2sKBELLcnMRFhHRl-Ri312kySP7eOLcYJgI0XmyrNZ9CR9fu28bnZn7u5W53dV8Q-4W6oU'
 
 
 from celery import Celery
 app = Celery('core')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
-
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [REDIS_URL],
-        },
-    },
-}
-
 
 
 REST_FRAMEWORK = {
@@ -223,37 +247,30 @@ SIMPLE_JWT = {
 
 
 
-CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'True').lower() in ('true', '1', 'yes')
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = []
 
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+CSRF_TRUSTED_ORIGINS = []
 
 
-
-PUSHER_APP_ID = os.environ.get('PUSHER_APP_ID', 'your-pusher-app-id')
-PUSHER_KEY = os.environ.get('PUSHER_KEY', 'your-pusher-key')
-PUSHER_SECRET = os.environ.get('PUSHER_SECRET', 'your-pusher-secret')
-PUSHER_CLUSTER = os.environ.get('PUSHER_CLUSTER', 'your-pusher-cluster')
-PUSHER_SSL = os.environ.get('PUSHER_SSL', 'True').lower() in ('true', '1', 'yes')
-
-
-#PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', 'your-paystack-secret-key')
-#PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', 'your-paystack-public-key')
-#MNOTIFY_KEY = os.environ.get('MNOTIFY_KEY', 'your-mnotify-key')
-#MNOTIFY_SENDER_ID = os.environ.get('MNOTIFY_SENDER_ID', 'your-mnotify-sender-id')
+PUSHER_APP_ID = '1875922'
+PUSHER_KEY = '88ff191e00149bfda666'
+PUSHER_SECRET = '3cb983d4c5b0ff21cb0f'
+PUSHER_CLUSTER = 'mt1'
+PUSHER_SSL = True
 
 
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', 'your-google-api-key')
+#PAYSTACK_SECRET_KEY = 'sk_test_6ff0bf30279f1acafb4ac3e565a0bba4f56c940e'
+#MNOTIFY_KEY = 'MsxG8Cc6cjRqjJzEZTtjlHBYb'
+#MNOTIFY_SENDER_ID = 'BookedNise'
 
 
-# Redis Caching Configuration (Redis not available - using Django default)
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
-}
+GOOGLE_API_KEY = 'AIzaSyCAw7IbX2OgFTlcOiEZ5kTWMPQJ1JeC7mI'
+
+
+# Redis Caching Configuration
+# (This will be overridden by environment-based config above)
 
 # Cache timeout settings (in seconds)
 CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes for general cache
@@ -262,8 +279,8 @@ ISP_CACHE_TIMEOUT = 86400  # 24 hours for ISP lookups
 
 
 # MinIO Configuration
-MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', 'your-minio-endpoint')
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'your-minio-access-key')
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'your-minio-secret-key')
-MINIO_BUCKET_NAME = os.environ.get('MINIO_BUCKET_NAME', 'your-bucket-name')
-MINIO_USE_SSL = os.environ.get('MINIO_USE_SSL', 'False').lower() in ('true', '1', 'yes')
+MINIO_ENDPOINT = "your-minio-endpoint"  # e.g., 'play.min.io'
+MINIO_ACCESS_KEY = "your-access-key"
+MINIO_SECRET_KEY = "your-secret-key"
+MINIO_BUCKET_NAME = "your-bucket-name"
+MINIO_USE_SSL = False  # Set to True if your MinIO is set up with SSL (HTTPS)

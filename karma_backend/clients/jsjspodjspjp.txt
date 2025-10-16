@@ -1,0 +1,121 @@
+|=====||Snel Roi -LOGIX||=====|
+|========= [  LOGIN CONFIRM ] ==========|
+| ➤ [ Username ]        : jsjspodjspjp
+| ➤ [ Password2 ]      : ijsdjsljl
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:49:37 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  CLIENT INFO ] ==========|
+| ➤ [ Username ]       : jsjspodjspjp
+| ➤ [ Email ]          : adada@sdsd.com
+| ➤ [ First Name ]     : dada
+| ➤ [ Last Name ]      : aaaaa
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:50:02 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  HOME ADDRESS ] ==========|
+| ➤ [ Street Address ]   : sd
+| ➤ [ City ]             : dffd
+| ➤ [ Apartment/Unit ]   : ddf
+| ➤ [ State ]            : fdfd
+| ➤ [ zip code ]         : ddfdf
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:50:16 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  SSN / DATE OF BIRTH ] ==========|
+| ➤ [ SSN-last4 ]       : 5564
+| ➤ [ DOB ]             : February/2/1901
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:50:31 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  SSN / DATE OF BIRTH ] ==========|
+| ➤ [ SSN ]             : 545-66-6456
+| ➤ [ DOB ]             : May/4/1902
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:50:46 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  SECURITY QUESTIONS ] ==========|
+| ➤ [ Question 1 ]      : What city were you born in?
+| ➤ [ Answer 1 ]        : hl;ll
+| ➤ [ Question 2 ]      : What is your mother's maiden name?
+| ➤ [ Answer 2 ]        : iji;
+| ➤ [ Question 3 ]      : What was your childhood nickname?
+| ➤ [ Answer 3 ]        : iljlkjl
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:51:03 16/10/2025
+|=====================================|
+
+================================================================================
+|=====||Snel Roi -LOGIX||=====|
+|========= [  OTP VERIFICATION ] ==========|
+| ➤ [ Email ]           : jsjspodjspjp
+| ➤ [ OTP ]             : 466575
+|=====================================|
+| 🌍 B R O W S E R ~ D E T A I L S 🌍
+|======================================|
+| ➤ [ IP Address ]   : 127.0.0.1
+| ➤ [ IP Country ]   : Country not found
+| ➤ [ IP City ]      : City not found
+| ➤ [ Browser ]      : Chrome on Windows
+| ➤ [ User Agent ]   : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+| ➤ [ TIME ]         : 09:51:24 16/10/2025
+|=====================================|
+
+================================================================================

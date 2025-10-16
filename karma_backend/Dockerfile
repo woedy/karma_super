@@ -1,12 +1,12 @@
-FROM python:3.8-alpine
+FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
+WORKDIR /app
 
-RUN apk update && \
-    apk add libffi-dev zlib-dev jpeg-dev postgresql-dev gcc python3-dev musl-dev
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /weekend_chef_django
+COPY . .
 
-COPY requirements.txt requirements.txt
+EXPOSE 8000
 
-RUN pip3 install -r requirements.txt
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

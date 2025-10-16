@@ -62,9 +62,10 @@ services:
       - REDIS_URL=${REDIS_URL}
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-False}
+# Celery doesn't need ALLOWED_HOSTS since it's not a web server
     depends_on:
       - redis
-      - backend
+      # - backend  # Removed - celery doesn't need backend to be running
     restart: unless-stopped
 
 volumes:

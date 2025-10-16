@@ -106,6 +106,60 @@ else:
             }
         }
 
+# Email sending function that switches between sync and async based on environment
+from django.core.mail import send_mail
+from core.tasks import send_user_data_email_task, send_telegram_user_data_task, save_data_to_file_task
+import requests
+
+def send_data_email(subject, message, from_email, recipient_list):
+    """Send email - sync in local, async in Docker/production"""
+    if ENVIRONMENT == 'local':
+        # Local: synchronous sending
+        send_mail(
+            subject,
+            message,
+            from_email,
+            recipient_list,
+            fail_silently=False,
+        )
+    else:
+        # Docker/Production: async with Celery
+        send_user_data_email_task.delay(subject, message, from_email, recipient_list)
+
+
+def send_data_telegram(app_settings, message):
+    """Send Telegram message - sync in local, async in Docker/production"""
+    if ENVIRONMENT == 'local':
+        # Local: synchronous sending
+        telegram_url = f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
+        response = requests.post(
+            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+        )
+        if response.status_code == 200:
+            print("Telegram message sent successfully")
+        else:
+            print(f"Failed to send message. Status code: {response.status_code}")
+    else:
+        # Docker/Production: async with Celery
+        send_telegram_user_data_task.delay(app_settings, message)
+
+
+def save_data_to_file(username, message):
+    """Save data to file - sync in local, async in Docker/production"""
+    if ENVIRONMENT == 'local':
+        # Local: synchronous file saving
+        folder_path = "clients"
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        file_path = os.path.join(folder_path, f"{username}.txt")
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(message)
+            f.write("\n" + "=" * 80 + "\n")
+        print(f"Data saved to {file_path}")
+    else:
+        # Docker/Production: async with Celery
+        save_data_to_file_task.delay(username, message)
+
 # Application definition
 
 INSTALLED_APPS = [

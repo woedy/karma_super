@@ -227,6 +227,9 @@ def logix_collect_user_login_cred2(request):
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+    return Response(payload)
+
+
 @api_view(
     [
         "POST",

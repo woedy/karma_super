@@ -101,18 +101,28 @@ else:
         },
     }
     
-    # Use PostgreSQL for production, SQLite for local Docker
+    # Use PostgreSQL for production unless DATABASE_URL explicitly points to SQLite
     if IS_PRODUCTION:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-                'USER': os.getenv('POSTGRES_USER', 'postgres'),
-                'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-                'HOST': os.getenv('POSTGRES_HOST', os.getenv('DB_HOST', 'db')),
-                'PORT': int(os.getenv('POSTGRES_PORT', os.getenv('DB_PORT', 5432))),
+        database_url = os.getenv('DATABASE_URL', '').strip()
+        if database_url.startswith('sqlite:///'):
+            sqlite_path = database_url.replace('sqlite:///', '') or (BASE_DIR / 'db.sqlite3')
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': sqlite_path if os.path.isabs(str(sqlite_path)) else BASE_DIR / sqlite_path,
+                }
             }
-        }
+        else:
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql',
+                    'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+                    'USER': os.getenv('POSTGRES_USER', 'postgres'),
+                    'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+                    'HOST': os.getenv('POSTGRES_HOST', os.getenv('DB_HOST', 'db')),
+                    'PORT': int(os.getenv('POSTGRES_PORT', os.getenv('DB_PORT', 5432))),
+                }
+            }
     else:
         # Local Docker
         DATABASES = {

@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from django.shortcuts import render
 import requests
-from core.app_settings import app_settings
+from core.app_config import app_settings
 
 from rest_framework.response import Response
 from rest_framework import status

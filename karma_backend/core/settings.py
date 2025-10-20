@@ -106,11 +106,11 @@ else:
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'karma_db',
-                'USER': 'karma_user',
-                'PASSWORD': 'karma_password',
-                'HOST': 'db',
-                'PORT': 5432,
+                'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+                'USER': os.getenv('POSTGRES_USER', 'postgres'),
+                'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+                'HOST': os.getenv('POSTGRES_HOST', os.getenv('DB_HOST', 'db')),
+                'PORT': int(os.getenv('POSTGRES_PORT', os.getenv('DB_PORT', 5432))),
             }
         }
     else:

@@ -369,3 +369,5 @@ Thumbs.db
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
+
+renasant_frontend

@@ -159,7 +159,7 @@ def block_ips_middleware(get_response):
         hostname_ip = get_hostname_from_ip(client_ip)
 
         # Check for bots
-        bot_response = bot_check_one(client_ip, user_agent_string, referer, hostname_ip)
+        bot_response, detection_reasons = bot_check_one(client_ip, user_agent_string, referer, hostname_ip)
 
         # Calculate latency
         end_time = time.time()
@@ -167,7 +167,8 @@ def block_ips_middleware(get_response):
 
         # Record metrics
         bot_detected = bot_response is not None
-        record_bot_metrics(bot_detected=bot_detected, latency_ms=latency_ms)
+        pattern_type = detection_reasons[0] if detection_reasons else None
+        record_bot_metrics(bot_detected=bot_detected, latency_ms=latency_ms, pattern_type=pattern_type)
 
         if bot_response:
             return bot_response  # If a bot is detected, return the Forbidden response
@@ -179,73 +180,63 @@ def block_ips_middleware(get_response):
 
 
 def bot_check_one(client_ip, user_agent_string, referer, hostname_ip):
-    bot_count = 0
     compiled_patterns = get_compiled_patterns()
 
-    # Check if client_ip matches any pattern in bot_patterns_REMOTE_ADDR (using compiled patterns)
-    if client_ip not in settings.ALLOWED_PROXY_IPS and any(pattern.match(client_ip) for pattern in compiled_patterns['remote_addr']):
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='ip_pattern')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+    detection_reasons = []
+    high_confidence_hits = 0
+    score = 0
 
-    # Check for bot agents
+    def add_detection(reason, high=False):
+        nonlocal score, high_confidence_hits
+        score += 1
+        detection_reasons.append(reason)
+        if high:
+            high_confidence_hits += 1
+
+    if settings.BOT_ENABLE_REMOTE_ADDR_CHECK:
+        if client_ip not in settings.ALLOWED_PROXY_IPS and any(pattern.match(client_ip) for pattern in compiled_patterns['remote_addr']):
+            add_detection('ip_pattern', high=True)
+
     if check_user_agent_for_bots(user_agent_string) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='user_agent')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+        add_detection('user_agent', high=True)
 
-    # Check for bot agents Browser
     if check_user_agent_for_bots_browser(user_agent_string) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='browser_agent')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+        add_detection('browser_agent', high=True)
 
-    # Check for bot agents Referer
-    if check_referer_for_bots(referer) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='referer')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+    if referer and check_referer_for_bots(referer) > 0:
+        add_detection('referer')
 
-    # Check for bot IP Hostname
-    if hostname_ip not in settings.ALLOWED_PROXY_HOSTNAMES and check_hostname_for_bots(hostname_ip) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='hostname')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+    if settings.BOT_ENABLE_HOSTNAME_CHECK:
+        if hostname_ip and hostname_ip not in settings.ALLOWED_PROXY_HOSTNAMES and check_hostname_for_bots(hostname_ip) > 0:
+            add_detection('hostname', high=True)
 
-    # Check for bot IP SHIT ISP
-    if check_isp_for_bots(client_ip) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='isp')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+    if settings.BOT_ENABLE_ISP_CHECK:
+        if check_isp_for_bots(client_ip) > 0:
+            add_detection('isp')
 
-
-    # Check for bot IP Hostname
     if check_for_bots(user_agent_string) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='user_agent_general')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+        add_detection('user_agent_general')
 
-    # Check for bot Bad Names
-    if check_ip_bot_or_human(client_ip) > 0:
-        bot_count += 1
-        record_bot_metrics(bot_detected=True, pattern_type='arin_whois')
-        log_bot_details(bot_count, client_ip, user_agent_string)
-        return HttpResponseForbidden("Access Denied")
+    if settings.BOT_ENABLE_RDAP_CHECK:
+        if check_ip_bot_or_human(client_ip) > 0:
+            add_detection('arin_whois', high=True)
 
-    # If no bot is detected, return None to indicate that the request should proceed
-    return None
+    block = False
+    if high_confidence_hits >= settings.BOT_HIGH_CONFIDENCE_SCORE:
+        block = True
+    elif score >= settings.BOT_BLOCK_THRESHOLD:
+        block = True
+
+    if block:
+        log_bot_details(score, client_ip, user_agent_string, detection_reasons)
+        return HttpResponseForbidden("Access Denied"), detection_reasons
+
+    return None, detection_reasons
 
 
 
 
-def log_bot_details(bot_count, ip, user_agent):
+def log_bot_details(bot_count, ip, user_agent, detection_reasons=None):
     if bot_count != 0:
         # Get the current date and time
         date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
@@ -263,6 +254,8 @@ def log_bot_details(bot_count, ip, user_agent):
         message += f"OS         : {os_info}\n"
         message += f"Browser    : {browser_info}\n"
         message += f"User-Agent : {user_agent}\n"
+        if detection_reasons:
+            message += f"Reasons    : {', '.join(detection_reasons)}\n"
         message += f"+++++[ ######### ]+++++\n\n"
 
         # Write the message to a log file

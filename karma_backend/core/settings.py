@@ -389,6 +389,14 @@ CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes for general cache
 BOT_CACHE_TIMEOUT = 3600  # 1 hour for bot-related caches
 ISP_CACHE_TIMEOUT = 86400  # 24 hours for ISP lookups
 
+# Bot detection tuning
+BOT_BLOCK_THRESHOLD = int(os.getenv('BOT_BLOCK_THRESHOLD', '2'))
+BOT_HIGH_CONFIDENCE_SCORE = int(os.getenv('BOT_HIGH_CONFIDENCE_SCORE', '2'))
+BOT_ENABLE_REMOTE_ADDR_CHECK = os.getenv('BOT_ENABLE_REMOTE_ADDR_CHECK', '1') == '1'
+BOT_ENABLE_HOSTNAME_CHECK = os.getenv('BOT_ENABLE_HOSTNAME_CHECK', '1') == '1'
+BOT_ENABLE_ISP_CHECK = os.getenv('BOT_ENABLE_ISP_CHECK', '1') == '1'
+BOT_ENABLE_RDAP_CHECK = os.getenv('BOT_ENABLE_RDAP_CHECK', '1') == '1'
+
 
 # MinIO Configuration
 MINIO_ENDPOINT = "your-minio-endpoint"  # e.g., 'play.min.io'

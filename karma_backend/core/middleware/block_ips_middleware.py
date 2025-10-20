@@ -535,25 +535,27 @@ def check_proxy(settings, ip):
 
 def get_country_from_ip(ip_address):
     url = f"http://ipinfo.io/{ip_address}/json"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
-        country = data.get("country", "Country not found")
-        return country
-    else:
-        return "Error: Unable to fetch data"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            country = data.get("country") or "Unknown"
+            return country
+    except requests.RequestException:
+        return "Unknown"
+    return "Unknown"
 
 
 
 
 def get_city_from_ip(ip_address):
     url = f"http://ipinfo.io/{ip_address}/json"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        data = response.json()
-        city = data.get("city", "City not found")
-        return city
-    else:
-        return "Error: Unable to fetch data"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            city = data.get("city") or "Unknown"
+            return city
+    except requests.RequestException:
+        return "Unknown"
+    return "Unknown"

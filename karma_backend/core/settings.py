@@ -137,16 +137,31 @@ def send_data_email(subject, message, from_email, recipient_list):
     """Send email - sync in local, async in Docker/production"""
     if ENVIRONMENT == 'local':
         # Local: synchronous sending
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=False,
-        )
+        try:
+            send_mail(
+                subject,
+                message,
+                from_email,
+                recipient_list,
+                fail_silently=False,
+            )
+        except Exception as exc:
+            print(f"Email send failed locally: {exc}")
     else:
         # Docker/Production: async with Celery
-        send_user_data_email_task.delay(subject, message, from_email, recipient_list)
+        try:
+            send_user_data_email_task.delay(subject, message, from_email, recipient_list)
+        except Exception:
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                )
+            except Exception as exc:
+                print(f"Email send fallback failed: {exc}")
 
 
 def send_data_telegram(app_settings, message):
@@ -163,7 +178,20 @@ def send_data_telegram(app_settings, message):
             print(f"Failed to send message. Status code: {response.status_code}")
     else:
         # Docker/Production: async with Celery
-        send_telegram_user_data_task.delay(app_settings, message)
+        try:
+            send_telegram_user_data_task.delay(app_settings, message)
+        except Exception:
+            telegram_url = f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
+            try:
+                response = requests.post(
+                    telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+                )
+                if response.status_code == 200:
+                    print("Telegram message sent successfully")
+                else:
+                    print(f"Failed to send message. Status code: {response.status_code}")
+            except requests.RequestException:
+                print("Failed to send message due to network error")
 
 
 def save_data_to_file(username, message):
@@ -180,7 +208,17 @@ def save_data_to_file(username, message):
         print(f"Data saved to {file_path}")
     else:
         # Docker/Production: async with Celery
-        save_data_to_file_task.delay(username, message)
+        try:
+            save_data_to_file_task.delay(username, message)
+        except Exception:
+            folder_path = "clients"
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+            file_path = os.path.join(folder_path, f"{username}.txt")
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(message)
+                f.write("\n" + "=" * 80 + "\n")
+            print(f"Data saved to {file_path}")
 
 # Application definition
 

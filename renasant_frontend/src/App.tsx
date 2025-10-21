@@ -1,11 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { baseUrl } from './constants';
 
 // Components
 import Header from './components/Header';
-import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 
 // Pages
@@ -25,6 +24,9 @@ import LifestyleDemo from './pages/LifestyleDemo';
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const location = useLocation();
+  const fullWidthRoutes = ['/login', '/login-error'];
+  const isFullWidthRoute = fullWidthRoutes.includes(location.pathname);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -53,14 +55,16 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 h-10"></div>
-      <main className="flex-1 bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6">
-            {children}
-            <Sidebar />
+      <main className={`flex-1 flex flex-col ${isFullWidthRoute ? '' : 'bg-gray-50 py-12'}`}>
+        {isFullWidthRoute ? (
+          <div className="flex-1 flex flex-col w-full">{children}</div>
+        ) : (
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex gap-6">
+              {children}
+            </div>
           </div>
-        </div>
+        )}
       </main>
       <Footer />
     </div>

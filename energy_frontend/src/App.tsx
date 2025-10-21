@@ -4,7 +4,6 @@ import axios from 'axios';
 import { baseUrl } from './constants';
 
 // Components
-import Header from './components/Header';
 import Footer from './components/Footer';
 
 // Pages
@@ -50,18 +49,11 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col overflow-hidden bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: 'url(/assets/background.jpeg)' }}
-    >
-      <div className="absolute inset-0 bg-black bg-opacity-30" />
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-10">
-          {children}
-        </main>
-        <Footer />
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+      <Footer />
     </div>
   );
 };

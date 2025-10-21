@@ -370,4 +370,4 @@ Thumbs.db
 coverage/
 *.lcov
 
-renasant_frontend
+#renasant_frontend

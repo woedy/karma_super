@@ -113,8 +113,12 @@ docker-compose up -d
    ENVIRONMENT=production
    SECRET_KEY=your-production-secret-key
    ALLOWED_HOSTS=your-domain.com,www.your-domain.com
+   DEPLOYMENT_FREEZE_ENABLED=1  # keep frozen until the access gate enforces decisions
    ```
    Copy other variables from `.env.example` as needed
+
+   > ⚠️ When the access gate stops allowing every request through, flip
+   > `DEPLOYMENT_FREEZE_ENABLED` to `0` and redeploy to lift the freeze.
 
 4. **Deploy Configuration**:
    - **Docker Compose File**: `docker-compose.prod.yml`

@@ -236,6 +236,8 @@ docs/_build/
 !CHANGELOG.md
 !CONTRIBUTING.md
 !tasks.md
+!AGENTS.md
+!IMPROVEMENTS.md
 
 # ==============================================================================
 # Secrets and Configuration

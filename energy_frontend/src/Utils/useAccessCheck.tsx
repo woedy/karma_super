@@ -1,41 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const useAccessCheck = (baseUrl: string, redirectPath: string = '/lifestyle-check'): boolean => {
-  const [isAllowed, setIsAllowed] = useState<boolean>(true); // Default to allowed
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const useAccessCheck = (baseUrl: string, redirectPath: string = '/'): boolean | null => {
+  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAccess = async () => {
-      setIsLoading(true);
+    let cancelled = false;
+
+    const verifyAccess = async () => {
       try {
         const response = await axios.get(`${baseUrl}api/check-access/`, {
-          timeout: 5000, // 5 second timeout
+          timeout: 5000,
         });
+
+        if (cancelled) {
+          return;
+        }
+
         if (response.status === 200) {
           setIsAllowed(true);
         } else {
           setIsAllowed(false);
-          navigate(redirectPath);
+          navigate(redirectPath, { replace: true });
         }
       } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
         console.warn('Access check failed, allowing access:', error);
-        // Don't block access on error, just log it
         setIsAllowed(true);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    // Optional: Only check access if we want strict access control
-    // For now, allow access by default
-    checkAccess();
+    verifyAccess();
+
+    return () => {
+      cancelled = true;
+    };
   }, [baseUrl, navigate, redirectPath]);
 
-  // Return true while loading to allow the UI to show
-  if (isLoading) return true;
   return isAllowed;
 };
 

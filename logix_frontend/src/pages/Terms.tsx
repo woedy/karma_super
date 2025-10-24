@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleCheckboxChange = () => {
     setIsChecked((previous) => {
@@ -27,10 +25,8 @@ const Terms: React.FC = () => {
     setIsLoading(true);
     setErrorMessage('');
 
-    // Simulate API request or loading delay
     setTimeout(() => {
-      setIsLoading(false);
-      navigate('/', { replace: true });
+      window.location.href = 'https://olb.logixbanking.com/User/AccessSignin/Start';
     }, 2000);
   };
 

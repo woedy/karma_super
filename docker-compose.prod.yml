@@ -42,6 +42,15 @@ services:
       - backend
     restart: unless-stopped
 
+  renasant_frontend:
+    build:
+      context: ./renasant_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_renasant_frontend_prod
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis_prod

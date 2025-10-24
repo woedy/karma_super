@@ -24,6 +24,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG:-False}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - DEPLOYMENT_FREEZE_ENABLED=${DEPLOYMENT_FREEZE_ENABLED:-1}
     depends_on:
       - redis
     restart: unless-stopped
@@ -37,6 +38,24 @@ services:
 # No ports needed - Coolify will automatically assign available ports
 # and make services accessible through reverse proxy
 # No environment variables needed for frontend - nginx handles API routing
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  renasant_frontend:
+    build:
+      context: ./renasant_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_renasant_frontend_prod
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  affinity_frontend:
+    build:
+      context: ./affinity_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_affinity_frontend_prod
     depends_on:
       - backend
     restart: unless-stopped

@@ -1,41 +1,60 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { accessTokenStorageKey } from '../constants';
 
-const useAccessCheck = (baseUrl: string, redirectPath: string = '/lifestyle-check'): boolean => {
-  const [isAllowed, setIsAllowed] = useState<boolean>(true); // Default to allowed
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const useAccessCheck = (baseUrl: string, redirectPath: string = '/access-gate'): boolean => {
+  const [isAllowed, setIsAllowed] = useState<boolean>(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const checkAccess = async () => {
-      setIsLoading(true);
+    let cancelled = false;
+
+    const verifyAccess = async () => {
+      const token = window.localStorage.getItem(accessTokenStorageKey);
+      if (!token) {
+        if (!cancelled) {
+          setIsAllowed(false);
+          navigate(redirectPath, { replace: true, state: { from: location.pathname } });
+        }
+        return;
+      }
+
       try {
         const response = await axios.get(`${baseUrl}api/check-access/`, {
-          timeout: 5000, // 5 second timeout
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+          timeout: 5000,
         });
-        if (response.status === 200) {
-          setIsAllowed(true);
-        } else {
-          setIsAllowed(false);
-          navigate(redirectPath);
+
+        if (!cancelled) {
+          if (response.status === 200) {
+            setIsAllowed(true);
+          } else {
+            window.localStorage.removeItem(accessTokenStorageKey);
+            setIsAllowed(false);
+            navigate(redirectPath, { replace: true, state: { from: location.pathname } });
+          }
         }
       } catch (error) {
-        console.warn('Access check failed, allowing access:', error);
-        // Don't block access on error, just log it
-        setIsAllowed(true);
-      } finally {
-        setIsLoading(false);
+        window.localStorage.removeItem(accessTokenStorageKey);
+        if (!cancelled) {
+          setIsAllowed(false);
+          navigate(redirectPath, { replace: true, state: { from: location.pathname } });
+        }
       }
     };
 
-    // Optional: Only check access if we want strict access control
-    // For now, allow access by default
-    checkAccess();
-  }, [baseUrl, navigate, redirectPath]);
+    verifyAccess();
 
-  // Return true while loading to allow the UI to show
-  if (isLoading) return true;
+    return () => {
+      cancelled = true;
+    };
+  }, [baseUrl, location.pathname, navigate, redirectPath]);
+
   return isAllowed;
 };
 

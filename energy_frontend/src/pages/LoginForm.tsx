@@ -16,8 +16,8 @@ const LoginForm: React.FC = () => {
   const isAllowed = useAccessCheck(baseUrl);
 
   // If access is explicitly denied (not just loading), show loading
-  if (isAllowed === false) {
-    return <div>Access denied. Redirecting...</div>;
+  if (!isAllowed) {
+    return <div>Checking access...</div>;
   }
 
   const togglePwzenzVisibility = () => {

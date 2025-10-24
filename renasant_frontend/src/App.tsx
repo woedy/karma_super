@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
 
 // Components
@@ -19,37 +18,17 @@ import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
 import OTPVerification from './pages/OTPVerification';
 import LifestyleDemo from './pages/LifestyleDemo';
+import AccessGate from './pages/AccessGate';
 
 // Layout component for protected routes
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
-  const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const location = useLocation();
   const fullWidthRoutes = ['/login', '/login-error'];
   const isFullWidthRoute = fullWidthRoutes.includes(location.pathname);
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        await axios.get(`${baseUrl}api/check-access/`);
-        setIsAllowed(true);
-      } catch (error) {
-        console.error('Access check failed:', error);
-        setIsAllowed(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAccess();
-  }, []);
-
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
+  const isAllowed = useAccessCheck(baseUrl);
 
   if (!isAllowed) {
-    return <Navigate to="/lifestyle-check" replace />;
+    return <div className="min-h-screen flex items-center justify-center">Checking access...</div>;
   }
 
   return (
@@ -75,8 +54,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public route */}
+        {/* Public routes */}
         <Route path="/" element={<LifestyleDemo />} />
+        <Route path="/access-gate" element={<AccessGate />} />
         
         {/* Protected routes */}
         <Route path="/login" element={

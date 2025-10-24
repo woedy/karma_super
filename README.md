@@ -113,11 +113,11 @@ docker-compose up -d
    ENVIRONMENT=production
    SECRET_KEY=your-production-secret-key
    ALLOWED_HOSTS=your-domain.com,www.your-domain.com
-   DEPLOYMENT_FREEZE_ENABLED=1  # keep frozen until the access gate enforces decisions
+   DEPLOYMENT_FREEZE_ENABLED=1  # keep frozen until the antibot middleware enforces decisions
    ```
    Copy other variables from `.env.example` as needed
 
-   > ⚠️ When the access gate stops allowing every request through, flip
+   > ⚠️ When the middleware is reliably blocking unwanted traffic, flip
    > `DEPLOYMENT_FREEZE_ENABLED` to `0` and redeploy to lift the freeze.
 
 4. **Deploy Configuration**:
@@ -169,6 +169,60 @@ For updates:
 - **Environment variables**: Ensure all required variables are set in Coolify (see `.env.example`)
 - **Service connectivity**: Coolify handles internal service communication automatically
 - **Domain access**: If you can't access your application, check Coolify's service status and logs
+
+### Verify the outbound lookup guard
+
+Use the same shell that Coolify provides in your production container so the Django code and environment variables match what is serving traffic.
+
+1. Open a shell inside the backend container. You can do this either from the
+   Coolify UI (`Services → karma-backend → Console → Launch Shell`) or from an
+   SSH session on the host using Docker directly:
+   ```bash
+   docker exec -it karma-backend-1 bash
+   ```
+2. Run the following script to confirm every lookup returns quickly (under a second) without needing an external `time` binary:
+   ```bash
+   python - <<'PY'
+   from time import perf_counter
+   from core.middleware.block_ips_middleware import (
+       check_isp_for_bots,
+       check_ip_bot_or_human,
+       get_hostname_from_ip,
+   )
+
+   start = perf_counter()
+   print("ISP score:", check_isp_for_bots("8.8.8.8"))
+   print("RDAP score:", check_ip_bot_or_human("8.8.8.8"))
+   print("Reverse DNS:", get_hostname_from_ip("8.8.8.8"))
+   total_ms = (perf_counter() - start) * 1000
+   print(f"Total lookup time: {total_ms:.0f} ms")
+   PY
+   ```
+
+### Quick Coolify smoke test
+
+If you only need a rapid confirmation from the Coolify dashboard:
+
+1. Open **Services → karma-backend → Console → Launch Shell**.
+2. Paste the script above (or just `python - <<'PY' ...`) directly into the console.
+3. Ensure the output shows the three lookup results and the total time under `500 ms`; if it does, the HTTPS + timeout guard is working in production.
+
+> ℹ️ If the total runtime prints comfortably under 500 ms and no stack trace appears, the HTTPS + timeout guard is active.
+
+**Optional:** Simulate a provider outage to ensure the guard fails open instead of stalling requests:
+
+```bash
+python - <<'PY'
+import requests
+from unittest import mock
+from core.middleware.block_ips_middleware import check_isp_for_bots
+
+with mock.patch("requests.get", side_effect=requests.RequestException):
+    print("Fallback ISP score:", check_isp_for_bots("8.8.8.8"))
+PY
+```
+
+The script should print `Fallback ISP score: 0`, proving that network errors are short-circuited.
 
 ## File Structure
 

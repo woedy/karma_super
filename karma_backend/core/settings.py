@@ -42,7 +42,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 IS_DEVELOPMENT = ENVIRONMENT in ['local', 'docker_dev']
 IS_PRODUCTION = ENVIRONMENT == 'production'
 
-# Default to freezing production deployments until the access gate is fixed
+# Default to freezing production deployments until the antibot middleware stops allowing everyone through
 DEPLOYMENT_FREEZE_ENABLED = _env_bool('DEPLOYMENT_FREEZE_ENABLED', default=IS_PRODUCTION)
 
 # SECURITY WARNING: keep the secret key used in production secret!

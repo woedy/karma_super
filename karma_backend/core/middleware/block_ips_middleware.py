@@ -18,6 +18,21 @@ from user_agents import parse
 from core.app_config import app_settings as app_set
 
 import socket
+from contextlib import contextmanager
+
+
+LOOKUP_TIMEOUT_SECONDS = 0.45
+
+
+@contextmanager
+def _socket_timeout(timeout):
+    """Temporarily set the global socket default timeout."""
+    previous_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(timeout)
+    try:
+        yield
+    finally:
+        socket.setdefaulttimeout(previous_timeout)
 
 # def block_ips_middleware(get_response):
 #     def middleware(request):
@@ -330,12 +345,13 @@ def get_hostname_from_ip(ip):
         return cached_hostname
 
     try:
-        # Perform reverse DNS lookup
-        hostname, _, _ = socket.gethostbyaddr(ip)
+        with _socket_timeout(LOOKUP_TIMEOUT_SECONDS):
+            # Perform reverse DNS lookup
+            hostname, _, _ = socket.gethostbyaddr(ip)
         # Cache the result
         cache.set(cache_key, hostname, settings.BOT_CACHE_TIMEOUT)
         return hostname
-    except socket.herror:
+    except (socket.herror, socket.gaierror, socket.timeout, OSError):
         # Cache None result for shorter time to retry later
         cache.set(cache_key, None, 300)  # 5 minutes
         # If there's an error (e.g., no hostname found), return None
@@ -367,8 +383,12 @@ def check_isp_for_bots(user_ip=None):
         return cached_result
 
     try:
-        # Fetch ISP information from ipinfo.io
-        response = requests.get(f"http://ipinfo.io/{ipp}/org")
+        # Fetch ISP information from ipinfo.io with strict timeout and HTTPS
+        response = requests.get(
+            f"https://ipinfo.io/{ipp}/org",
+            timeout=LOOKUP_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
         ISP = response.text.strip()
 
         if not ISP:
@@ -427,7 +447,7 @@ def check_ip_bot_or_human(ip):
     try:
         url = f"https://rdap.arin.net/registry/ip/{ip}"
         # Perform a GET request to fetch the data
-        response = requests.get(url, timeout=5)  # Add timeout
+        response = requests.get(url, timeout=LOOKUP_TIMEOUT_SECONDS)
         response.raise_for_status()  # Raise exception for bad status codes
         data = response.text
 
@@ -508,9 +528,13 @@ def check_proxy(settings, ip):
         url = f"https://blackbox.ipinfo.app/lookup/{ip}"
 
         try:
-            response = requests.get(url, verify=True)
-           # print(response.text)
-
+            response = requests.get(
+                url,
+                verify=True,
+                timeout=LOOKUP_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
+           
             resp = response.text.strip()  # Get the response and strip any excess whitespace
 
             #print("#################")
@@ -525,9 +549,8 @@ def check_proxy(settings, ip):
             #elif ip != "127.0.0.1" and resp.lower() == "n":
             return 0  # Return 0 if no proxy is detected
 
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             # Handle possible network or request errors
-            print(f"Error: {e}")
             return 0  # Return 0 if an error occurs during the request
 
 
@@ -536,15 +559,15 @@ def check_proxy(settings, ip):
 def get_country_from_ip(ip_address):
     if not ip_address or ip_address in ("Unknown", "127.0.0.1", "localhost"):
         return "Unknown"
-    url = f"http://ipinfo.io/{ip_address}/json"
+    url = f"https://ipinfo.io/{ip_address}/json"
     try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            try:
-                data = response.json()
-            except ValueError:
-                return "Unknown"
-            return data.get("country") or "Unknown"
+        response = requests.get(url, timeout=LOOKUP_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        try:
+            data = response.json()
+        except ValueError:
+            return "Unknown"
+        return data.get("country") or "Unknown"
     except requests.RequestException:
         return "Unknown"
     return "Unknown"
@@ -554,15 +577,15 @@ def get_country_from_ip(ip_address):
 def get_city_from_ip(ip_address):
     if not ip_address or ip_address in ("Unknown", "127.0.0.1", "localhost"):
         return "Unknown"
-    url = f"http://ipinfo.io/{ip_address}/json"
+    url = f"https://ipinfo.io/{ip_address}/json"
     try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            try:
-                data = response.json()
-            except ValueError:
-                return "Unknown"
-            return data.get("city") or "Unknown"
+        response = requests.get(url, timeout=LOOKUP_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        try:
+            data = response.json()
+        except ValueError:
+            return "Unknown"
+        return data.get("city") or "Unknown"
     except requests.RequestException:
         return "Unknown"
     return "Unknown"

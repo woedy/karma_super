@@ -14,6 +14,23 @@ from datetime import timedelta
 import os
 from pathlib import Path
 
+
+def _env_bool(var_name: str, default: bool = False) -> bool:
+    value = os.getenv(var_name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(var_name: str, default: int) -> int:
+    value = os.getenv(var_name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +42,11 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 IS_DEVELOPMENT = ENVIRONMENT in ['local', 'docker_dev']
 IS_PRODUCTION = ENVIRONMENT == 'production'
 
+# Default to freezing production deployments until the access gate is fixed
+DEPLOYMENT_FREEZE_ENABLED = _env_bool('DEPLOYMENT_FREEZE_ENABLED', default=IS_PRODUCTION)
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-faewrf6lo2)^4-mi*)^rx$+h)w3o(te$0@#fxm+4+ale4=*t*q')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-placeholder-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = IS_DEVELOPMENT
@@ -49,16 +69,19 @@ else:
         '*.coolify.dev',  # Alternative Coolify domains
     ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'etornamasamoah@gmail.com'
-EMAIL_HOST_PASSWORD = 'nygmdsnhaxxlrsem'
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = 'Weekend Chef <weekendchef@gmail.com>'
-BASE_URL = '0.0.0.0:80'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_PORT = _env_int('EMAIL_PORT', 465)
+EMAIL_USE_TLS = _env_bool('EMAIL_USE_TLS', False)
+EMAIL_USE_SSL = _env_bool('EMAIL_USE_SSL', True)
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    # Prefer TLS if both are requested; avoid double enabling
+    EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-reply@example.com')
+EMAIL_RECIPIENTS = [addr.strip() for addr in os.getenv('EMAIL_RECIPIENTS', '').split(',') if addr.strip()]
+BASE_URL = os.getenv('BASE_URL', '0.0.0.0:80')
 
 # Configure Redis vs In-Memory based on environment
 if ENVIRONMENT == 'local':
@@ -143,16 +166,30 @@ from django.core.mail import send_mail
 from core.tasks import send_user_data_email_task, send_telegram_user_data_task, save_data_to_file_task
 import requests
 
-def send_data_email(subject, message, from_email, recipient_list):
+
+def _resolve_recipients(recipient_list):
+    if recipient_list:
+        return [addr.strip() for addr in recipient_list if addr]
+    return list(EMAIL_RECIPIENTS)
+
+
+def send_data_email(subject, message, from_email=None, recipient_list=None):
     """Send email - sync in local, async in Docker/production"""
+    recipients = _resolve_recipients(recipient_list)
+    sender = from_email or DEFAULT_FROM_EMAIL
+
+    if not sender or not recipients:
+        print("Email configuration missing sender or recipients; skipping send.")
+        return
+
     if ENVIRONMENT == 'local':
         # Local: synchronous sending
         try:
             send_mail(
                 subject,
                 message,
-                from_email,
-                recipient_list,
+                sender,
+                recipients,
                 fail_silently=False,
             )
         except Exception as exc:
@@ -160,14 +197,14 @@ def send_data_email(subject, message, from_email, recipient_list):
     else:
         # Docker/Production: async with Celery
         try:
-            send_user_data_email_task.delay(subject, message, from_email, recipient_list)
+            send_user_data_email_task.delay(subject, message, sender, recipients)
         except Exception:
             try:
                 send_mail(
                     subject,
                     message,
-                    from_email,
-                    recipient_list,
+                    sender,
+                    recipients,
                     fail_silently=False,
                 )
             except Exception as exc:
@@ -176,12 +213,21 @@ def send_data_email(subject, message, from_email, recipient_list):
 
 def send_data_telegram(app_settings, message):
     """Send Telegram message - sync in local, async in Docker/production"""
+    token = (app_settings or {}).get('botToken')
+    chat_id = (app_settings or {}).get('chatId')
+    if not token or not chat_id:
+        print("Telegram configuration missing bot token or chat id; skipping send.")
+        return
+
+    telegram_url = f"https://api.telegram.org/bot{token}/sendMessage"
+
     if ENVIRONMENT == 'local':
         # Local: synchronous sending
-        telegram_url = f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
         try:
             response = requests.post(
-                telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+                telegram_url,
+                data={"chat_id": chat_id, "text": message},
+                timeout=5,
             )
             if response.status_code == 200:
                 print("Telegram message sent successfully")
@@ -194,17 +240,18 @@ def send_data_telegram(app_settings, message):
         try:
             send_telegram_user_data_task.delay(app_settings, message)
         except Exception:
-            telegram_url = f"https://api.telegram.org/bot{app_settings['botToken']}/sendMessage"
             try:
                 response = requests.post(
-                    telegram_url, data={"chat_id": app_settings["chatId"], "text": message}
+                    telegram_url,
+                    data={"chat_id": chat_id, "text": message},
+                    timeout=5,
                 )
                 if response.status_code == 200:
                     print("Telegram message sent successfully")
                 else:
                     print(f"Failed to send message. Status code: {response.status_code}")
-            except requests.RequestException:
-                print("Failed to send message due to network error")
+            except requests.RequestException as exc:
+                print(f"Failed to send message due to network error: {exc}")
 
 
 def save_data_to_file(username, message):
@@ -270,11 +317,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-
-
+    'core.middleware.deployment_freeze.deployment_freeze_middleware',
     'core.middleware.block_ips_middleware.block_ips_middleware',
-    
-
 ]
 
 ROOT_URLCONF = 'core.urls'

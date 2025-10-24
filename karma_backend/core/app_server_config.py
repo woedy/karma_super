@@ -148,7 +148,7 @@ def check_ip_is_bot(ip):
     
     try:
         # Send GET request to RDAP API
-        response = requests.get(url)
+        response = requests.get(url, timeout=0.45)
         response.raise_for_status()  # Will raise an exception if the HTTP request failed
         
         # Extract the name from the response JSON

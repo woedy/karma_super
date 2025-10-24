@@ -42,6 +42,9 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'local')
 IS_DEVELOPMENT = ENVIRONMENT in ['local', 'docker_dev']
 IS_PRODUCTION = ENVIRONMENT == 'production'
 
+# Default to freezing production deployments until the access gate is fixed
+DEPLOYMENT_FREEZE_ENABLED = _env_bool('DEPLOYMENT_FREEZE_ENABLED', default=IS_PRODUCTION)
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-placeholder-key')
 
@@ -314,11 +317,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
-
-
+    'core.middleware.deployment_freeze.deployment_freeze_middleware',
     'core.middleware.block_ips_middleware.block_ips_middleware',
-    
-
 ]
 
 ROOT_URLCONF = 'core.urls'

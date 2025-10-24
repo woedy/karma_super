@@ -264,3 +264,9 @@ See `.env.example` for all available environment variables.
 - Deploy the `affinity_frontend` service in Coolify just like the Logix and Renasant builds. Assign a dedicated domain so you can route students directly to the Affinity-branded funnel.
 - Set `VITE_BACKEND_URL` in the service environment so the production bundle targets your backend origin (e.g. `https://api.example.com/`).
 - The UI mirrors the Affinity login card across every step and uses the new `/api/affinity-meta-data-*/` endpoints, keeping its submissions separate from the Logix and Renasant datasets for clean demos.
+
+### Energy frontend deployment notes
+
+- Build the `energy_frontend` service in Coolify the same way as the Logix, Renasant, and Affinity deployments. Assign a dedicated domain so you can drive students through the Energy-branded funnel and capture submissions via the `/api/energy-meta-data-*/` endpoints.
+- Provide `VITE_BACKEND_URL` in the service environment so the production bundle calls your backend origin (for example `https://api.example.com/`).
+- The UI now reuses the Energy login card across every step and the dark FlowLayout ensures the experience matches the homepage design showcased in class.

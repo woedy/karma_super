@@ -60,6 +60,15 @@ services:
       - backend
     restart: unless-stopped
 
+  energy_frontend:
+    build:
+      context: ./energy_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_energy_frontend_prod
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis_prod

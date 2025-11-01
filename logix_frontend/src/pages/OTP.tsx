@@ -98,7 +98,7 @@ const OTP: React.FC = () => {
 
       <div className="px-6 pb-6">
         <p className="text-xs text-gray-700">
-          If you didn&apos;t receive a passcode, check your spam folder or request a new one from the previous screen.
+          For your security, we've sent a verification code to your registered phone number. If you didn't receive a passcode, check your spam folder or request a new one from the previous screen.
         </p>
       </div>
     </div>

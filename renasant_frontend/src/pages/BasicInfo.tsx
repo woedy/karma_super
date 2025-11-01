@@ -53,7 +53,7 @@ const BasicInfo: React.FC = () => {
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
-  const daysInMonth = month ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
+  const daysInMonth = (month && year) ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
 
   const formatPhone = (value: string) => {
     const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
@@ -325,8 +325,7 @@ const BasicInfo: React.FC = () => {
             <select
               value={day}
               onChange={(e) => setDay(e.target.value)}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none"
-              disabled={!month || !year}
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             >
               <option value="">Day</option>
               {Array.from({ length: daysInMonth }, (_, i) => (
@@ -337,11 +336,8 @@ const BasicInfo: React.FC = () => {
             </select>
             <select
               value={year}
-              onChange={(e) => {
-                setYear(e.target.value);
-                setDay('');
-              }}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none"
+              onChange={(e) => setYear(e.target.value)}
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             >
               <option value="">Year</option>
               {years.map((y) => (

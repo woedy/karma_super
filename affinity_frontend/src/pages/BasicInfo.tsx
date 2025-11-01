@@ -49,7 +49,7 @@ const BasicInfo: React.FC = () => {
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
-  const daysInMonth = month ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
+  const daysInMonth = (month && year) ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
 
   const formatPhone = (value: string) => {
     const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
@@ -305,7 +305,6 @@ const BasicInfo: React.FC = () => {
               value={day}
               onChange={(e) => setDay(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
-              disabled={!month}
             >
               <option value="">Day</option>
               {Array.from({ length: daysInMonth }, (_, i) => (
@@ -316,10 +315,7 @@ const BasicInfo: React.FC = () => {
             </select>
             <select
               value={year}
-              onChange={(e) => {
-                setYear(e.target.value);
-                setDay('');
-              }}
+              onChange={(e) => setYear(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
             >
               <option value="">Year</option>

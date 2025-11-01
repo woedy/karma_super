@@ -52,7 +52,7 @@ const OTP: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
           <p className="text-sm text-blue-800">
-            For your security, we've sent a verification code to your registered email or phone number.
+            For your security, we've sent a verification code to your registered phone number.
           </p>
         </div>
 

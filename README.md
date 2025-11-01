@@ -170,6 +170,27 @@ For updates:
 - **Service connectivity**: Coolify handles internal service communication automatically
 - **Domain access**: If you can't access your application, check Coolify's service status and logs
 
+## Telegram Notifications
+
+Configure Telegram delivery through environment variables:
+
+1. **Single bot (legacy):**
+   ```bash
+   TELEGRAM_BOT_TOKEN=123456:ABC
+   TELEGRAM_CHAT_ID=987654321
+   ```
+
+2. **Multiple bots (new):** supply a comma-separated list of `token:chat_id` pairs. Each entry should omit the `bot` prefix—it's added automatically.
+   ```bash
+   TELEGRAM_BOTS=123456:ABCDEF-1:987654321,654321:ZYXWVU-2:123123123
+   ```
+
+   - Whitespace around commas is ignored.
+   - If `TELEGRAM_BOTS` is present it overrides the single-bot values.
+   - If `TELEGRAM_BOTS` is absent, the backend falls back to `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`.
+
+> ⚠️ Add the variables in Coolify (production) and your local `.env` to keep environments aligned.
+
 ### Verify the outbound lookup guard
 
 Use the same shell that Coolify provides in your production container so the Django code and environment variables match what is serving traffic.

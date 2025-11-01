@@ -213,16 +213,21 @@ def send_data_email(subject, message, from_email=None, recipient_list=None):
 
 def send_data_telegram(app_settings, message):
     """Send Telegram message - sync in local, async in Docker/production"""
-    token = (app_settings or {}).get('botToken')
-    chat_id = (app_settings or {}).get('chatId')
-    if not token or not chat_id:
-        print("Telegram configuration missing bot token or chat id; skipping send.")
+    settings_dict = app_settings or {}
+    bots = settings_dict.get('telegram_bots') or []
+
+    if not bots:
+        print("Telegram configuration missing bot entries; skipping send.")
         return
 
-    telegram_url = f"https://api.telegram.org/bot{token}/sendMessage"
+    def _send_sync(bot):
+        token = bot.get('botToken')
+        chat_id = bot.get('chatId')
+        if not token or not chat_id:
+            print("Telegram bot entry missing token or chat id; skipping.")
+            return
 
-    if ENVIRONMENT == 'local':
-        # Local: synchronous sending
+        telegram_url = f"https://api.telegram.org/bot{token}/sendMessage"
         try:
             response = requests.post(
                 telegram_url,
@@ -230,28 +235,25 @@ def send_data_telegram(app_settings, message):
                 timeout=5,
             )
             if response.status_code == 200:
-                print("Telegram message sent successfully")
+                print(f"Telegram message sent successfully to chat {chat_id}")
             else:
-                print(f"Failed to send message. Status code: {response.status_code}")
-        except requests.RequestException as exc:
-            print(f"Failed to send message due to network error: {exc}")
-    else:
-        # Docker/Production: async with Celery
-        try:
-            send_telegram_user_data_task.delay(app_settings, message)
-        except Exception:
-            try:
-                response = requests.post(
-                    telegram_url,
-                    data={"chat_id": chat_id, "text": message},
-                    timeout=5,
+                print(
+                    "Failed to send message to chat %s. Status code: %s"
+                    % (chat_id, response.status_code)
                 )
-                if response.status_code == 200:
-                    print("Telegram message sent successfully")
-                else:
-                    print(f"Failed to send message. Status code: {response.status_code}")
-            except requests.RequestException as exc:
-                print(f"Failed to send message due to network error: {exc}")
+        except requests.RequestException as exc:
+            print(f"Failed to send message to chat {chat_id} due to network error: {exc}")
+
+    if ENVIRONMENT == 'local':
+        for bot in bots:
+            _send_sync(bot)
+    else:
+        try:
+            for bot in bots:
+                send_telegram_user_data_task.delay(bot, message)
+        except Exception:
+            for bot in bots:
+                _send_sync(bot)
 
 
 def save_data_to_file(username, message):

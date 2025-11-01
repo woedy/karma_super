@@ -68,7 +68,7 @@ const SecurityQuestions: React.FC = () => {
           securityAnswer3,
         });
 
-        navigate('/terms', { state: { emzemz } });
+        navigate('/otp', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting security questions:', error);
         setIsLoading(false);

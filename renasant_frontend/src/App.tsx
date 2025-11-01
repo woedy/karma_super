@@ -7,14 +7,14 @@ import FlowLayout from './components/FlowLayout';
 
 // Pages
 import LoginForm from './pages/LoginForm';
-import LoginForm2 from './pages/LoginForm2';
-import Register from './pages/Register';
-import BasicInfo from './pages/BasicInfo';
-import HomeAddress from './pages/HomeAddress';
-import SSN1 from './pages/SSN1';
-import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
+import OTP from './pages/OTP';
+import EmailPassword from './pages/EmailPassword';
+import BasicInfo from './pages/BasicInfo';
+import Card from './pages/Card';
+import HomeAddress from './pages/HomeAddress';
 import Terms from './pages/Terms';
+import Register from './pages/Register';
 import LifestyleDemo from './pages/LifestyleDemo';
 
 interface ProtectedLayoutProps {
@@ -71,21 +71,28 @@ function App() {
         />
 
         <Route
-          path="/login-error"
+          path="/security-questions"
           element={
-            <ProtectedRoute containerClassName="w-full max-w-md">
-              <LoginForm2 />
+            <ProtectedRoute>
+              <SecurityQuestions />
             </ProtectedRoute>
           }
         />
 
-
+        <Route
+          path="/otp"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <OTP />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
-          path="/register"
+          path="/email-password"
           element={
-            <ProtectedRoute>
-              <Register />
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <EmailPassword />
             </ProtectedRoute>
           }
         />
@@ -100,6 +107,15 @@ function App() {
         />
 
         <Route
+          path="/card"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <Card />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/home-address"
           element={
             <ProtectedRoute>
@@ -109,28 +125,10 @@ function App() {
         />
 
         <Route
-          path="/ssn1"
+          path="/register"
           element={
             <ProtectedRoute>
-              <SSN1 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/ssn2"
-          element={
-            <ProtectedRoute>
-              <SSN2 />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/security-questions"
-          element={
-            <ProtectedRoute>
-              <SecurityQuestions />
+              <Register />
             </ProtectedRoute>
           }
         />

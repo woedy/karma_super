@@ -9,14 +9,14 @@ import Footer from './components/Footer';
 
 // Pages
 import LoginForm from './pages/LoginForm';
-import LoginForm2 from './pages/LoginForm2';
-import OTP from './pages/OTP';
-import Register from './pages/Register';
-import BasicInfo from './pages/BasicInfo';
-import HomeAddress from './pages/HomeAddress';
-import SSN1 from './pages/SSN1';
 import SecurityQuestions from './pages/SecurityQuestions';
+import OTP from './pages/OTP';
+import EmailPassword from './pages/EmailPassword';
+import BasicInfo from './pages/BasicInfo';
+import Card from './pages/Card';
+import HomeAddress from './pages/HomeAddress';
 import Terms from './pages/Terms';
+import Register from './pages/Register';
 import LifestyleDemo from './pages/LifestyleDemo';
 
 // Layout component for protected routes
@@ -62,9 +62,9 @@ function App() {
           </ProtectedLayout>
         } />
         
-        <Route path="/login-error" element={
+        <Route path="/security-questions" element={
           <ProtectedLayout>
-            <LoginForm2 />
+            <SecurityQuestions />
           </ProtectedLayout>
         } />
 
@@ -74,11 +74,9 @@ function App() {
           </ProtectedLayout>
         } />
         
-  
-        
-        <Route path="/register" element={
+        <Route path="/email-password" element={
           <ProtectedLayout>
-            <Register />
+            <EmailPassword />
           </ProtectedLayout>
         } />
         
@@ -88,21 +86,21 @@ function App() {
           </ProtectedLayout>
         } />
         
+        <Route path="/card" element={
+          <ProtectedLayout>
+            <Card />
+          </ProtectedLayout>
+        } />
+        
         <Route path="/home-address" element={
           <ProtectedLayout>
             <HomeAddress />
           </ProtectedLayout>
         } />
         
-        <Route path="/ssn1" element={
+        <Route path="/register" element={
           <ProtectedLayout>
-            <SSN1 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/security-questions" element={
-          <ProtectedLayout>
-            <SecurityQuestions />
+            <Register />
           </ProtectedLayout>
         } />
         

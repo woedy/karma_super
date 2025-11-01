@@ -66,9 +66,8 @@ const OTP: React.FC = () => {
             type="text"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
-            placeholder="Enter 6-digit code"
-            maxLength={6}
+            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
+            placeholder="Enter verification code"
           />
           {error && (
             <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
@@ -84,13 +83,13 @@ const OTP: React.FC = () => {
           {!isLoading ? (
             <button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded font-medium transition-colors"
+              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
             >
               Verify
             </button>
           ) : (
             <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent" />
             </div>
           )}
         </div>
@@ -98,7 +97,7 @@ const OTP: React.FC = () => {
         <div className="text-center mt-4">
           <button
             type="button"
-            className="text-sm text-green-600 hover:underline"
+            className="text-sm text-[#0f4f6c] hover:underline"
             onClick={() => {
               // Resend OTP logic here
               console.log('Resend OTP');

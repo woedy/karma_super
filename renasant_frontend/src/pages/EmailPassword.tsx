@@ -84,7 +84,7 @@ const EmailPassword: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             placeholder="Enter your email"
           />
           {errors.email && (
@@ -109,13 +109,13 @@ const EmailPassword: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
               placeholder="Enter password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm hover:underline"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
@@ -142,13 +142,13 @@ const EmailPassword: React.FC = () => {
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
               placeholder="Re-enter password"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm hover:underline"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
             >
               {showConfirmPassword ? 'Hide' : 'Show'}
             </button>
@@ -167,13 +167,13 @@ const EmailPassword: React.FC = () => {
           {!isLoading ? (
             <button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded font-medium transition-colors"
+              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
             >
               Continue
             </button>
           ) : (
             <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent" />
             </div>
           )}
         </div>

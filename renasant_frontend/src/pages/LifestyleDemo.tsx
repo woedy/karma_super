@@ -1,64 +1,165 @@
-import React, {useState} from 'react'
-import Footer from '../components/Footer'
-import Header from '../components/Header'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-export default function LoginForm(){
-  const [remember,setRemember] = useState(true)
-  const [show,setShow] = useState(false)
-
+const LifestyleDemo: React.FC = () => {
   return (
-
-    <div className="min-h-screen bg-gradient-to-b from-[#f7f9fd] via-[#d6e0ec] to-[#4d6f96] flex flex-col">
-      <Header />
-
-      <main className="flex-1 flex items-center justify-center px-4 py-20">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-md p-8 login-card shadow-lg shadow-slate-900/10">
-            <h2 className="text-center text-2xl font-semibold mb-6 text-slate-700">Login to Online Banking</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-500 mb-1">User ID</label>
-                <div className="flex items-center border border-slate-200 rounded">
-                  <input className="flex-1 px-3 py-3 text-sm focus:outline-none" placeholder="User ID" />
-                  <button className="px-3 text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-..."/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-slate-500 mb-1">Password</label>
-                <div className="flex items-center border border-slate-200 rounded">
-                  <input type={show? 'text':'password'} className="flex-1 px-3 py-3 text-sm focus:outline-none" placeholder="Password" />
-                  <button onClick={()=>setShow(s=>!s)} className="px-3 text-slate-400">
-                    {show ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input id="remember" type="checkbox" checked={remember} onChange={()=>setRemember(r=>!r)} className="h-4 w-4 text-blue-600" />
-                <label htmlFor="remember" className="text-sm text-slate-700">Remember Me</label>
-              </div>
-
-              <button className="w-full bg-[#0f4f6c] text-white py-3 rounded-md flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3v1H6v-1c0-1.657 1.343-3 3-3s3 1.343 3 3z" /></svg>
-                <span>Login</span>
-              </button>
-
-              <div className="text-center">
-                <a href="#" className="text-sm text-[#0f4f6c] hover:underline">Trouble logging in?</a>
-              </div>
-
-              <div className="text-center">
-                <a href="#" className="inline-block text-sm border border-slate-300 rounded px-4 py-2">Enroll in Online Banking</a>
-              </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <span className="text-xl font-bold text-[#0f4f6c]">Renasant Bank</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link to="/login" className="px-4 py-2 text-sm font-medium text-[#0f4f6c] hover:text-[#083d52]">
+                Sign In
+              </Link>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </nav>
+
+      {/* Hero Section */}
+      <div className="relative bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+            <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 lg:mt-16 lg:px-8 xl:mt-20">
+              <div className="sm:text-center lg:text-left">
+                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                  <span className="block">Banking Made</span>
+                  <span className="block text-[#0f4f6c]">Simple & Secure</span>
+                </h1>
+                <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                  Experience modern banking with Renasant Bank. Manage your finances with confidence, 
+                  security, and the personal touch you deserve.
+                </p>
+                <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                  <div className="rounded-md shadow">
+                    <Link 
+                      to="/register" 
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#0f4f6c] hover:bg-[#083d52] md:py-4 md:text-lg md:px-10"
+                    >
+                      Open Account
+                    </Link>
+                  </div>
+                  <div className="mt-3 sm:mt-0 sm:ml-3">
+                    <Link 
+                      to="/login" 
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-[#0f4f6c] bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10"
+                    >
+                      Sign In
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+          <img 
+            className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full" 
+            src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80" 
+            alt="Banking services" 
+          />
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="lg:text-center">
+            <h2 className="text-base text-[#0f4f6c] font-semibold tracking-wide uppercase">Services</h2>
+            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              Everything you need for modern banking
+            </p>
+          </div>
+
+          <div className="mt-10">
+            <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+              {[
+                {
+                  name: 'Online Banking',
+                  description: '24/7 access to your accounts from anywhere with secure online banking.'
+                },
+                {
+                  name: 'Mobile App',
+                  description: 'Bank on the go with our easy-to-use mobile banking application.'
+                },
+                {
+                  name: 'Personal Service',
+                  description: 'Get personalized financial advice from our experienced banking professionals.'
+                },
+                {
+                  name: 'Security First',
+                  description: 'Your security is our priority with advanced fraud protection and monitoring.'
+                }
+              ].map((feature) => (
+                <div key={feature.name} className="relative">
+                  <dt>
+                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-[#0f4f6c] text-white">
+                      <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">{feature.name}</p>
+                  </dt>
+                  <dd className="mt-2 ml-16 text-base text-gray-500">
+                    {feature.description}
+                  </dd>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-[#0f4f6c]">
+        <div className="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
+            <span className="block">Ready to get started?</span>
+            <span className="block">Open your account today.</span>
+          </h2>
+          <p className="mt-4 text-lg leading-6 text-blue-200">
+            Join thousands of satisfied customers who trust Renasant Bank for their financial needs.
+          </p>
+          <Link
+            to="/register"
+            className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-[#0f4f6c] bg-white hover:bg-blue-50 sm:w-auto"
+          >
+            Open Account Now
+          </Link>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-white">
+        <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+          <nav className="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
+            <div className="px-5 py-2">
+              <Link to="/terms" className="text-base text-gray-500 hover:text-gray-900">
+                Terms & Conditions
+              </Link>
+            </div>
+            <div className="px-5 py-2">
+              <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+                Privacy Policy
+              </a>
+            </div>
+            <div className="px-5 py-2">
+              <a href="#" className="text-base text-gray-500 hover:text-gray-900">
+                Contact Us
+              </a>
+            </div>
+          </nav>
+          <p className="mt-8 text-center text-base text-gray-400">
+            &copy; {new Date().getFullYear()} Renasant Bank. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
-  )
-}
+  );
+};
+
+export default LifestyleDemo;

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import FlowCard from '../components/FlowCard';
 
 const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -21,10 +19,10 @@ const Terms: React.FC = () => {
       setIsLoading(true);
       setErrorMessage('');
 
-      // Simulate API request or loading delay
+      // Redirect to Renasant Bank website
       setTimeout(() => {
         setIsLoading(false);
-        navigate('/', { replace: true });
+        window.location.href = 'https://www.renasantbank.com/';
       }, 1500);
     } else {
       setErrorMessage('Please agree to the terms before proceeding.');
@@ -63,7 +61,7 @@ const Terms: React.FC = () => {
                 type="checkbox"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
-                className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                className="h-4 w-4 text-[#0f4f6c] focus:ring-[#0f4f6c] border-gray-300 rounded"
               />
               <span className="text-sm text-gray-700">I understand and agree</span>
             </label>

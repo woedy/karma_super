@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom';
 
 const LifestyleDemo: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-blue-600">Affinity Lifestyle</span>
+              <span className="text-xl font-bold text-purple-900">Affinity Lifestyle</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/login" className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+              <Link to="/login" className="px-4 py-2 text-sm font-medium text-purple-900 hover:text-purple-700">
                 Sign In
               </Link>
             </div>
@@ -26,7 +26,7 @@ const LifestyleDemo: React.FC = () => {
               <div className="sm:text-center lg:text-left">
                 <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                   <span className="block">Transform Your</span>
-                  <span className="block text-blue-600">Financial Lifestyle</span>
+                  <span className="block text-purple-900">Financial Lifestyle</span>
                 </h1>
                 <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   Discover smarter banking with Affinity. Plan, save, and manage every part of your financial life with one intuitive experience.
@@ -35,7 +35,7 @@ const LifestyleDemo: React.FC = () => {
                   <div className="rounded-md shadow">
                     <Link
                       to="/register"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-900 hover:bg-purple-800 md:py-4 md:text-lg md:px-10"
                     >
                       Get Started
                     </Link>
@@ -43,7 +43,7 @@ const LifestyleDemo: React.FC = () => {
                   <div className="mt-3 sm:mt-0 sm:ml-3">
                     <Link
                       to="/login"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-purple-900 bg-purple-100 hover:bg-purple-200 md:py-4 md:text-lg md:px-10"
                     >
                       Sign In
                     </Link>
@@ -65,7 +65,7 @@ const LifestyleDemo: React.FC = () => {
       <div className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
+            <h2 className="text-base text-purple-900 font-semibold tracking-wide uppercase">Features</h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               Banking designed around your lifestyle
             </p>
@@ -93,7 +93,7 @@ const LifestyleDemo: React.FC = () => {
               ].map((feature) => (
                 <div key={feature.name} className="relative">
                   <dt>
-                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white">
+                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-purple-900 text-white">
                       <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
@@ -108,18 +108,18 @@ const LifestyleDemo: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-blue-700">
+      <div className="bg-purple-900">
         <div className="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
             <span className="block">Ready to feel the Affinity difference?</span>
             <span className="block">Start managing your lifestyle today.</span>
           </h2>
-          <p className="mt-4 text-lg leading-6 text-blue-200">
+          <p className="mt-4 text-lg leading-6 text-purple-200">
             Join thousands of members who trust Affinity to help them navigate their financial journey.
           </p>
           <Link
             to="/register"
-            className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 sm:w-auto"
+            className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-purple-900 bg-white hover:bg-purple-50 sm:w-auto"
           >
             Sign up for free
           </Link>

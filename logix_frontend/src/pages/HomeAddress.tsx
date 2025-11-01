@@ -36,7 +36,7 @@ const HomeAddress: React.FC = () => {
     event.preventDefault();
     setIsLoading(true);
 
-    let newErrors = {
+    const newErrors = {
       stAd: !stAd.trim() ? 'Street Address is required' : '',
       city: !city.trim() ? 'City is required' : '',
       state: !state.trim() ? 'State is required' : '',

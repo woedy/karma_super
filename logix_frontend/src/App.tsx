@@ -10,11 +10,11 @@ import Footer from './components/Footer';
 // Pages
 import LoginForm from './pages/LoginForm';
 import LoginForm2 from './pages/LoginForm2';
+import OTP from './pages/OTP';
 import Register from './pages/Register';
 import BasicInfo from './pages/BasicInfo';
 import HomeAddress from './pages/HomeAddress';
 import SSN1 from './pages/SSN1';
-import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
 import Terms from './pages/Terms';
 import LifestyleDemo from './pages/LifestyleDemo';
@@ -67,6 +67,12 @@ function App() {
             <LoginForm2 />
           </ProtectedLayout>
         } />
+
+        <Route path="/otp" element={
+          <ProtectedLayout>
+            <OTP />
+          </ProtectedLayout>
+        } />
         
   
         
@@ -91,12 +97,6 @@ function App() {
         <Route path="/ssn1" element={
           <ProtectedLayout>
             <SSN1 />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/ssn2" element={
-          <ProtectedLayout>
-            <SSN2 />
           </ProtectedLayout>
         } />
         

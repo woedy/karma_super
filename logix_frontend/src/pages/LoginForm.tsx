@@ -27,7 +27,7 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(true);
     event.preventDefault();
-    let newErrors = { emzemz: '', pwzenz: '' };
+    const newErrors = { emzemz: '', pwzenz: '' };
 
 
     if (pwzenz.length <= 0) {

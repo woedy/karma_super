@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import FlowCard from '../components/FlowCard';
 import FormError from '../components/FormError';
 
@@ -7,7 +6,6 @@ const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleCheckboxChange = () => {
     setIsChecked((prev) => !prev);
@@ -24,7 +22,7 @@ const Terms: React.FC = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      navigate('/', { replace: true });
+      window.location.href = 'https://www.eccu.net/';
     }, 1200);
   };
 

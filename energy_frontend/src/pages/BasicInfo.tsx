@@ -33,7 +33,7 @@ const BasicInfo: React.FC = () => {
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { email: emzemzState } = location.state || {};
+  const { emzemz: emzemzState } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
   useEffect(() => {
@@ -41,8 +41,9 @@ const BasicInfo: React.FC = () => {
       setUsername(emzemzState);
     } else {
       console.error('No username provided from previous page');
+      navigate('/login');
     }
-  }, [emzemzState]);
+  }, [emzemzState, navigate]);
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);

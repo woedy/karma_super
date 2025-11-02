@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import FlowCard from '../components/FlowCard';
@@ -8,6 +8,8 @@ import FormError from '../components/FormError';
 const BasicInfo: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { emzemz: emzemzState } = location.state || {};
+
   const [username, setUsername] = useState('');
   const [fzNme, setFzNme] = useState('');
   const [lzNme, setLzNme] = useState('');
@@ -41,11 +43,14 @@ const BasicInfo: React.FC = () => {
   });
 
   useEffect(() => {
-    const { emzemz } = location.state || {};
-    if (emzemz) {
-      setUsername(emzemz);
+    if (emzemzState) {
+      setUsername(emzemzState);
+    } else {
+      console.error('No username provided from previous page');
+      // Redirect to login if emzemz is missing
+      navigate('/login');
     }
-  }, [location.state]);
+  }, [emzemzState, navigate]);
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);

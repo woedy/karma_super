@@ -15,6 +15,9 @@ import HomeAddress from './pages/HomeAddress';
 import SSN1 from './pages/SSN1';
 import SSN2 from './pages/SSN2';
 import SecurityQuestions from './pages/SecurityQuestions';
+import OTP from './pages/OTP';
+import EmailPassword from './pages/EmailPassword';
+import Card from './pages/Card';
 import Terms from './pages/Terms';
 import LifestyleDemo from './pages/LifestyleDemo';
 
@@ -122,6 +125,30 @@ function App() {
           element={
             <ProtectedRoute>
               <SecurityQuestions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/otp"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <OTP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/email-password"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <EmailPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/card"
+          element={
+            <ProtectedRoute containerClassName="w-full max-w-md">
+              <Card />
             </ProtectedRoute>
           }
         />

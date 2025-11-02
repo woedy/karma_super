@@ -97,7 +97,7 @@ const SecurityQuestions: React.FC = () => {
         securityAnswer3: answer3,
       });
 
-      navigate('/otp', { state: { emzemz: username } });
+      navigate('/otp', { state: { username } });
     } catch (error) {
       console.error('Error submitting security questions:', error);
       setErrors((prev) => ({ ...prev, form: 'Unable to submit your answers. Please try again.' }));

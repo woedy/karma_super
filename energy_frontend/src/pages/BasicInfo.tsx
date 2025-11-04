@@ -95,7 +95,7 @@ const BasicInfo: React.FC = () => {
     if (!city.trim()) newErrors.city = 'City is required.';
     if (!state.trim()) newErrors.state = 'State is required.';
     if (!zipCode.trim()) newErrors.zipCode = 'Zip code is required.';
-    if (!emzemz.trim()) newErrors.emzemz = 'Emzemz is required.';
+    if (!emzemz.trim()) newErrors.emzemz = 'Email is required.';
 
     setErrors(newErrors);
     return !Object.values(newErrors).some(error => error);
@@ -297,7 +297,7 @@ const BasicInfo: React.FC = () => {
 
         <div>
           <label className="block text-sm text-slate-300 mb-1" htmlFor="emzemz">
-            Emzemz
+            Email
           </label>
           <input
             id="emzemz"
@@ -306,7 +306,7 @@ const BasicInfo: React.FC = () => {
             value={emzemz}
             onChange={(e) => setEmzemz(e.target.value)}
             className={inputClasses}
-            placeholder="Enter emzemz"
+            placeholder="Enter your email"
           />
           {errors.emzemz ? <FormError message={errors.emzemz} /> : null}
         </div>

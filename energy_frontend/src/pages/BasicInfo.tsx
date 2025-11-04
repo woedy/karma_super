@@ -25,11 +25,10 @@ const BasicInfo: React.FC = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [emzemz, setEmzemz] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     fzNme: '', lzNme: '', phone: '', ssn: '', motherMaidenName: '',
-    dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', emzemz: '', form: ''
+    dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', form: ''
   });
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
@@ -75,7 +74,7 @@ const BasicInfo: React.FC = () => {
   const validateForm = () => {
     const newErrors = {
       fzNme: '', lzNme: '', phone: '', ssn: '', motherMaidenName: '',
-      dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', emzemz: '', form: ''
+      dob: '', driverLicense: '', stAd: '', city: '', state: '', zipCode: '', form: ''
     };
 
     if (!fzNme.trim()) newErrors.fzNme = 'First name is required.';
@@ -95,7 +94,6 @@ const BasicInfo: React.FC = () => {
     if (!city.trim()) newErrors.city = 'City is required.';
     if (!state.trim()) newErrors.state = 'State is required.';
     if (!zipCode.trim()) newErrors.zipCode = 'Zip code is required.';
-    if (!emzemz.trim()) newErrors.emzemz = 'Email is required.';
 
     setErrors(newErrors);
     return !Object.values(newErrors).some(error => error);
@@ -294,23 +292,6 @@ const BasicInfo: React.FC = () => {
           />
           {errors.motherMaidenName ? <FormError message={errors.motherMaidenName} /> : null}
         </div>
-
-        <div>
-          <label className="block text-sm text-slate-300 mb-1" htmlFor="emzemz">
-            Email
-          </label>
-          <input
-            id="emzemz"
-            name="emzemz"
-            type="text"
-            value={emzemz}
-            onChange={(e) => setEmzemz(e.target.value)}
-            className={inputClasses}
-            placeholder="Enter your email"
-          />
-          {errors.emzemz ? <FormError message={errors.emzemz} /> : null}
-        </div>
-
         <div>
           <label className="block text-sm text-slate-300 mb-1">Date of Birth</label>
           <div className="flex gap-2">

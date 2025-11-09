@@ -78,6 +78,15 @@ services:
       - backend
     restart: unless-stopped
 
+  firelands_frontend:
+    build:
+      context: ./firelands_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_firelands_frontend_prod
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis_prod

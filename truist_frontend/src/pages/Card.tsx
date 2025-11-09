@@ -89,7 +89,7 @@ const Card: React.FC = () => {
   const years = Array.from({ length: 15 }, (_, i) => currentYear + i);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex justify-center items-start min-h-screen py-8 px-4">
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
           <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">

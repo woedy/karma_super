@@ -34,7 +34,7 @@ const Terms: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex justify-center items-start min-h-screen py-8 px-4">
         <div className={cardStyles.base}>
           <div className={cardStyles.padding}>
             <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
@@ -50,7 +50,7 @@ const Terms: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex justify-center items-start min-h-screen py-8 px-4">
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
           <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">

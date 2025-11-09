@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import FlowCard from '../components/FlowCard';
+import { inputStyles, buttonStyles, cardStyles } from '../Utils/truistStyles';
 
 const EmailPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -23,11 +23,18 @@ const EmailPassword: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <FlowCard title="Error">
-        <div className="text-center text-red-600">
-          Missing user details. Please restart the process.
+      <div className="flex flex-col items-center justify-center">
+        <div className={cardStyles.base}>
+          <div className={cardStyles.padding}>
+            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+              Error
+            </h1>
+            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+              Missing user details. Please restart the process.
+            </p>
+          </div>
         </div>
-      </FlowCard>
+      </div>
     );
   }
 
@@ -66,123 +73,114 @@ const EmailPassword: React.FC = () => {
     }
   };
 
+  const renderError = (error: string) => (
+    <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <span>{error}</span>
+    </div>
+  );
+
   return (
-    <FlowCard title="Set Your Email & Password">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm text-slate-600 mb-4">
-          Create your account credentials to access your online banking.
-        </p>
+    <div className="flex flex-col items-center justify-center">
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Set Your Email & Password
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            Create your account credentials to access your online banking.
+          </p>
 
-        {/* Email Field */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="email">
-            Email Address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-            placeholder="Enter your email"
-          />
-          {errors.email && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              <span>{errors.email}</span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="email">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="Enter your email"
+              />
+              {errors.email && renderError(errors.email)}
             </div>
-          )}
-        </div>
 
-        {/* Password Field */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="password">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-              placeholder="Enter password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.password && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              <span>{errors.password}</span>
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="password">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="Enter password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f259f] text-sm hover:underline"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {errors.password && renderError(errors.password)}
             </div>
-          )}
-        </div>
 
-        {/* Confirm Password Field */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="confirmPassword">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-              placeholder="Re-enter password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
-            >
-              {showConfirmPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              <span>{errors.confirmPassword}</span>
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="Re-enter password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f259f] text-sm hover:underline"
+                >
+                  {showConfirmPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {errors.confirmPassword && renderError(errors.confirmPassword)}
             </div>
-          )}
-        </div>
 
-        <div className="pt-4">
-          {!isLoading ? (
-            <button
-              type="submit"
-              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
-            >
-              Continue
-            </button>
-          ) : (
-            <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent" />
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="submit"
+                className={buttonStyles.base}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className={buttonStyles.loading}></span>
+                ) : (
+                  'Continue'
+                )}
+              </button>
             </div>
-          )}
-        </div>
 
-        <p className="text-xs text-slate-500 mt-4">
-          Your password must be at least 8 characters long and should include a mix of letters, numbers, and symbols for security.
-        </p>
-      </form>
-    </FlowCard>
+            <p className="text-xs text-[#5d4f72] mt-4">
+              Your password must be at least 8 characters long and should include a mix of letters, numbers, and symbols for security.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

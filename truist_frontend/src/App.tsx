@@ -79,7 +79,7 @@ function App() {
         <Route
           path="/security-questions"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute layoutVariant="truist">
               <SecurityQuestions />
             </ProtectedRoute>
           }
@@ -88,7 +88,7 @@ function App() {
         <Route
           path="/otp"
           element={
-            <ProtectedRoute containerClassName="w-full max-w-md">
+            <ProtectedRoute containerClassName="w-full max-w-md" layoutVariant="truist">
               <OTP />
             </ProtectedRoute>
           }
@@ -97,7 +97,7 @@ function App() {
         <Route
           path="/email-password"
           element={
-            <ProtectedRoute containerClassName="w-full max-w-md">
+            <ProtectedRoute containerClassName="w-full max-w-md" layoutVariant="truist">
               <EmailPassword />
             </ProtectedRoute>
           }
@@ -106,7 +106,7 @@ function App() {
         <Route
           path="/basic-info"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute layoutVariant="truist">
               <BasicInfo />
             </ProtectedRoute>
           }
@@ -115,7 +115,7 @@ function App() {
         <Route
           path="/card"
           element={
-            <ProtectedRoute containerClassName="w-full max-w-md">
+            <ProtectedRoute containerClassName="w-full max-w-md" layoutVariant="truist">
               <Card />
             </ProtectedRoute>
           }
@@ -124,7 +124,7 @@ function App() {
         <Route
           path="/home-address"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute layoutVariant="truist">
               <HomeAddress />
             </ProtectedRoute>
           }
@@ -133,7 +133,7 @@ function App() {
         <Route
           path="/register"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute layoutVariant="truist">
               <Register />
             </ProtectedRoute>
           }
@@ -142,7 +142,7 @@ function App() {
         <Route
           path="/terms"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute layoutVariant="truist">
               <Terms />
             </ProtectedRoute>
           }
@@ -156,5 +156,3 @@ function App() {
 }
 
 export default App;
-
-

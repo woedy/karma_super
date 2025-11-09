@@ -28,6 +28,20 @@ services:
     depends_on:
       - backend
 
+  fifty_frontend:
+    build: ./fifty_frontend
+    container_name: fifty_frontend
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./fifty_frontend:/app
+      - /app/node_modules
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis

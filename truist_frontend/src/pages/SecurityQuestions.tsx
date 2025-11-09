@@ -89,28 +89,28 @@ const SecurityQuestions: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <div className="flex flex-col items-center justify-center">
+      <section className="w-full px-4 py-8">
+        <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+          Unable to continue
+        </h1>
         <div className={cardStyles.base}>
           <div className={cardStyles.padding}>
-            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-              Unable to continue
-            </h1>
-            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            <p className="text-sm font-semibold text-[#6c5d85]">
               We could not locate your previous step. Please restart the flow from the beginning.
             </p>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="flex justify-center items-start min-h-screen py-8 px-4">
+    <section className="w-full px-4 py-8">
+      <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+        Set Your Security Questions
+      </h1>
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
-          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-            Set Your Security Questions
-          </h1>
           <p className="text-sm font-semibold text-[#6c5d85] mb-8">
             Choose unique questions and answers to protect your account
           </p>
@@ -253,12 +253,11 @@ const SecurityQuestions: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-2 text-[#5f259f]">
               <a href="#" className="hover:underline">Forgot Security Questions?</a>
               <span className="text-[#cfc2df]">|</span>
-              <a href="#" className="hover:underline">Account Recovery Help</a>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -170,28 +170,28 @@ const BasicInfo: React.FC = () => {
 
   if (!username) {
     return (
-      <div className="flex justify-center items-start min-h-screen py-8 px-4">
+      <section className="w-full px-4 py-8">
+        <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+          Unable to continue
+        </h1>
         <div className={cardStyles.base}>
           <div className={cardStyles.padding}>
-            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-              Unable to continue
-            </h1>
-            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            <p className="text-sm font-semibold text-[#6c5d85]">
               We could not determine your session details. Please return to the previous step and try again.
             </p>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="flex justify-center items-start min-h-screen py-8 px-4">
+    <section className="w-full px-4 py-8">
+      <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+        Verify Your Basic Information & Home Address
+      </h1>
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
-          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-            Verify Your Basic Information & Home Address
-          </h1>
           <p className="text-sm font-semibold text-[#6c5d85] mb-8">
             Please confirm the details we have on file
           </p>
@@ -362,7 +362,7 @@ const BasicInfo: React.FC = () => {
 
             <div className="border-t-2 border-slate-300 pt-6 mt-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Home Address</h3>
-              
+
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm text-[#5d4f72]" htmlFor="stAd">
@@ -482,8 +482,17 @@ const BasicInfo: React.FC = () => {
           private data online, unless you are certain who you are providing that information to, and only share
           information through a secure webpage or site.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-4 text-center font-semibold text-[#5f259f]">
+          <a className="hover:underline" href="#">
+            Need to update something?
+          </a>
+          <span className="text-[#cfc2df]">|</span>
+          <a className="hover:underline" href="#">
+            Contact Truist Support
+          </a>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

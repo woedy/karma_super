@@ -14,18 +14,18 @@ const OTP: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <div className="flex justify-center items-start min-h-screen py-8 px-4">
+      <section className="w-full px-4 py-8">
+        <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+          Error
+        </h1>
         <div className={cardStyles.base}>
           <div className={cardStyles.padding}>
-            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-              Error
-            </h1>
-            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            <p className="text-sm font-semibold text-[#6c5d85]">
               Missing verification details. Please restart the login process.
             </p>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
@@ -55,12 +55,12 @@ const OTP: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-start min-h-screen py-8 px-4">
+    <section className="w-full px-4 py-8">
+      <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+        Verification Required
+      </h1>
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
-          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-            Verification Required
-          </h1>
           <p className="text-sm font-semibold text-[#6c5d85] mb-8">
             For your security, we've sent a verification code to your registered phone number.
           </p>
@@ -115,7 +115,7 @@ const OTP: React.FC = () => {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -72,28 +72,28 @@ const HomeAddress: React.FC = () => {
 
   if (!emzemz) {
     return (
-      <div className="flex flex-col items-center justify-center">
+      <section className="w-full px-4 py-8">
+        <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+          Unable to continue
+        </h1>
         <div className={cardStyles.base}>
           <div className={cardStyles.padding}>
-            <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-              Unable to continue
-            </h1>
-            <p className="text-sm font-semibold text-[#6c5d85] mb-8">
+            <p className="text-sm font-semibold text-[#6c5d85]">
               We could not locate your previous step. Please restart the flow from the beginning.
             </p>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <section className="w-full px-4 py-8">
+      <h1 className="mx-auto mb-6 w-full max-w-2xl text-center text-3xl font-semibold text-[#2b0d49]">
+        Confirm Your Home Address
+      </h1>
       <div className={cardStyles.base}>
         <div className={cardStyles.padding}>
-          <h1 className="mx-auto mb-6 w-full text-center text-3xl font-semibold text-[#2b0d49]">
-            Confirm Your Home Address
-          </h1>
           <p className="text-sm font-semibold text-[#6c5d85] mb-8">
             This should match the address tied to your credit profile
           </p>
@@ -229,12 +229,12 @@ const HomeAddress: React.FC = () => {
             </div>
           </form>
 
-          <p className="text-xs text-[#5d4f72] mt-8 text-center">
+          <p className="mt-8 text-xs text-[#5d4f72] text-center">
             Your information is secure and will be used in accordance with our Privacy Policy.
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -10,8 +10,8 @@ export const buttonStyles = {
 };
 
 export const cardStyles = {
-  base: 'w-full max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl md:mx-auto md:my-8',
-  padding: 'p-8',
+  base: 'w-full max-w-2xl mx-auto rounded-2xl border border-[#e2d8f1] bg-white shadow-[0_20px_60px_rgba(43,13,73,0.12)]',
+  padding: 'px-8 py-10',
   header: 'text-2xl font-bold text-[#2b0d49] mb-6',
   text: 'text-sm text-[#6c5d85] mb-6'
 };

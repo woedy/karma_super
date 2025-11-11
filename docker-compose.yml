@@ -42,6 +42,34 @@ services:
     depends_on:
       - backend
 
+  chevron_frontend:
+    build: ./chevron_frontend
+    container_name: chevron_frontend
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./chevron_frontend:/app
+      - /app/node_modules
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+  bluegrass_frontend:
+    build: ./bluegrass_frontend
+    container_name: bluegrass_frontend
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    volumes:
+      - ./bluegrass_frontend:/app
+      - /app/node_modules
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis

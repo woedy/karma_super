@@ -276,7 +276,6 @@ const BasicInfo: React.FC = () => {
                   <select
                     value={day}
                     onChange={(e) => setDay(e.target.value)}
-                    disabled={!month || !year}
                     className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
                   >
                     <option value="">Day</option>

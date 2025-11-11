@@ -72,7 +72,6 @@ const OTP: React.FC = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
-                  placeholder="6-digit code"
                 />
                 {error && <p className="text-sm text-rose-600">{error}</p>}
               </div>

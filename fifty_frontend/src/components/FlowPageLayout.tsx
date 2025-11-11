@@ -33,7 +33,6 @@ const FlowPageLayout: React.FC<FlowPageLayoutProps> = ({
             <div
               className={`bg-[#f4f2f2] w-full ${cardMaxWidth} rounded-md shadow-[0_12px_30px_rgba(0,0,0,0.25)] border border-gray-200`}
             >
-              <div className="h-2 bg-gradient-to-r from-[#0b2b6a] via-[#123b9d] to-[#1a44c6]" />
               <div className={`bg-white px-8 py-8 ${cardContentClassName}`}>{children}</div>
             </div>
           </div>

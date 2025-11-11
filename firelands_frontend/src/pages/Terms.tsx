@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { baseUrl } from '../constants';
+import useAccessCheck from '../Utils/useAccessCheck';
 
 const heroImageUrl = '/assets/firelands-landing.jpg';
 
@@ -10,6 +12,7 @@ const Terms: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isAllowed = useAccessCheck(baseUrl);
 
   useEffect(() => {
     if (!emzemz) {
@@ -17,6 +20,14 @@ const Terms: React.FC = () => {
       return;
     }
   }, [emzemz, navigate]);
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

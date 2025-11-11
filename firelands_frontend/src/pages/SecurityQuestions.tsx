@@ -28,6 +28,14 @@ const SecurityQuestions: React.FC = () => {
   const navigate = useNavigate();
   const isAllowed = useAccessCheck(baseUrl);
 
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
   const securityQuestions = [
     "What was your childhood nickname?",
     "What is your mother's maiden name?",
@@ -77,10 +85,6 @@ const SecurityQuestions: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  if (!isAllowed) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden text-white">

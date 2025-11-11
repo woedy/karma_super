@@ -52,6 +52,10 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const isAllowed = useAccessCheck(baseUrl);
 
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
   // If access is explicitly denied (not just loading), show loading
   if (isAllowed === false) {
     return <div>Access denied. Redirecting...</div>;

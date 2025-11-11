@@ -3,9 +3,6 @@ import useAccessCheck from './Utils/useAccessCheck';
 import { baseUrl } from './constants';
 
 // Components
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
 
 // Pages
 import LoginForm from './pages/LoginForm';
@@ -31,21 +28,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
     return <div className="min-h-screen flex items-center justify-center">Access denied. Redirecting...</div>;
   }
 
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header />
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 h-10"></div>
-      <main className="flex-1 bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6">
-            {children}
-            <Sidebar />
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  return <>{children}</>;
 };
 
 function App() {

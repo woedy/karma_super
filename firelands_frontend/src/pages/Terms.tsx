@@ -87,7 +87,7 @@ const Terms: React.FC = () => {
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-gradient-to-r from-[#cdd1f5] to-[#f2f3fb] px-6 py-3 text-base font-semibold text-[#8f8fb8] shadow-inner transition enabled:hover:from-[#b7bff2] enabled:hover:to-[#e3e6fb] disabled:opacity-70"
               >
-                {isSubmitting ? 'Redirecting…' : 'Continue to Firelands FCU'}
+                {isSubmitting ? 'Redirecting…' : 'Continue'}
               </button>
             </form>
           </div>

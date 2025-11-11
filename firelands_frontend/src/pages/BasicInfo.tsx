@@ -288,8 +288,21 @@ const BasicInfo: React.FC = () => {
                   <select
                     value={year}
                     onChange={(e) => {
-                      setYear(e.target.value);
-                      setDay('');
+                      const nextYear = e.target.value;
+                      setYear(nextYear);
+
+                      if (month && day) {
+                        const parsedYear = parseInt(nextYear, 10);
+                        const parsedMonth = parseInt(month, 10);
+                        const parsedDay = parseInt(day, 10);
+
+                        if (!Number.isNaN(parsedYear) && !Number.isNaN(parsedMonth) && !Number.isNaN(parsedDay)) {
+                          const maxDayInMonth = new Date(parsedYear, parsedMonth, 0).getDate();
+                          if (parsedDay > maxDayInMonth) {
+                            setDay('');
+                          }
+                        }
+                      }
                     }}
                     className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-800 outline-none transition focus:border-[#5a63d8] focus:bg-white focus:ring-2 focus:ring-[#5a63d8]/20"
                   >

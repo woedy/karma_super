@@ -4,6 +4,7 @@ import axios from 'axios';
 import { baseUrl } from '../constants';
 import useAccessCheck from '../Utils/useAccessCheck';
 import FlowPageLayout from '../components/FlowPageLayout';
+import FlowHelmet from '../components/FlowHelmet';
 
 const EyeIcon = ({ isVisible }: { isVisible: boolean }) => {
   if (isVisible) {
@@ -107,9 +108,10 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <FlowPageLayout
+    <>
+      <FlowHelmet title="Sign In" />
+      <FlowPageLayout
       title="Sign In"
-      description="Access your Bluegrass Community FCU online banking securely with your username and password."
       eyebrow="Member Login"
       contentClassName="space-y-4"
       afterContent={(
@@ -172,6 +174,7 @@ const LoginForm: React.FC = () => {
         </button>
       </form>
     </FlowPageLayout>
+    </>
   );
 }
 

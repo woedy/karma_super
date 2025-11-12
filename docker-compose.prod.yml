@@ -114,6 +114,15 @@ services:
       - backend
     restart: unless-stopped
 
+  usps_frontend:
+    build:
+      context: ./usps_frontend
+      dockerfile: Dockerfile.prod
+    container_name: karma_usps_frontend_prod
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: karma_redis_prod

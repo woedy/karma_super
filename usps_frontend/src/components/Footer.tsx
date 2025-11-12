@@ -1,46 +1,61 @@
-import React from 'react';
+import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-white border-t border-gray-300 py-6">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <p className="text-xs text-gray-700 mb-2">
-              Logix Federal Credit Union | Routing and Transit number — 322274187
-            </p>
-            <p className="text-xs text-gray-700 mb-3">
-              Logix Online Banking is protected by reCAPTCHA and the{' '}
-              <a href="#" className="text-blue-700 hover:underline">Google Privacy Policy</a> and the{' '}
-              <a href="#" className="text-blue-700 hover:underline">Terms of Service</a> apply.
-            </p>
-            <p className="text-xs text-gray-700">
-              © 2025 Logix Federal Credit Union. All Rights Reserved.
-            </p>
-            <div className="flex gap-3 text-xs text-blue-700 mt-2">
-              <a href="#" className="hover:underline">Web Site</a>
-              <span className="text-gray-400">|</span>
-              <a href="#" className="hover:underline">Privacy</a>
-              <span className="text-gray-400">|</span>
-              <a href="#" className="hover:underline">Contact Us</a>
-              <span className="text-gray-400">|</span>
-              <a href="#" className="hover:underline">Join</a>
-            </div>
+    <footer className="w-full text-[#1a2252] text-[0.75rem] py-10 mt-16">
+      <div className="max-w-[1180px] mx-auto px-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-10">
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-[#1a2252] mb-3">
+              Helpful Links
+            </h4>
+            <ul className="space-y-1 text-[#4a4f6d]">
+              <li><a href="#" className="hover:text-[#c5282c]">Contact Us</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Site Index</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">FAQs</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Feedback</a></li>
+            </ul>
           </div>
-          <div className="flex flex-col items-end">
-            <div className="w-16 h-16 border border-gray-300 flex items-center justify-center mb-2">
-              <div className="text-center">
-                <div className="text-xs font-bold text-gray-700">EQUAL</div>
-                <div className="text-xs font-bold text-gray-700">HOUSING</div>
-                <div className="text-xs font-bold text-gray-700">LENDER</div>
-              </div>
-            </div>
-            <div className="text-xs font-bold text-gray-700 mb-1">NCUA</div>
-            <p className="text-xs text-gray-700">Federally insured by NCUA</p>
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-[#1a2252] mb-3">
+              On About.usps.com
+            </h4>
+            <ul className="space-y-1 text-[#4a4f6d]">
+              <li><a href="#" className="hover:text-[#c5282c]">About USPS Home</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Newsroom</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">USPS Service Updates</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Forms &amp; Publications</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Government Services</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Careers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-[#1a2252] mb-3">
+              Other USPS Sites
+            </h4>
+            <ul className="space-y-1 text-[#4a4f6d]">
+              <li><a href="#" className="hover:text-[#c5282c]">Business Customer Gateway</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Postal Inspectors</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Inspector General</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Postal Explorer</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">National Postal Museum</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Resources for Developers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-[#1a2252] mb-3">
+              Legal Information
+            </h4>
+            <ul className="space-y-1 text-[#4a4f6d]">
+              <li><a href="#" className="hover:text-[#c5282c]">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">Terms of Use</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">FOIA</a></li>
+              <li><a href="#" className="hover:text-[#c5282c]">No FEAR Act EEO Data</a></li>
+            </ul>
           </div>
         </div>
-        <div className="text-center text-xs text-gray-500 mt-6 border-t border-gray-200 pt-4">
-          ~ Current time is 10/12/2025 5:35:36 PM ~ 0 ~ NWEB02 ~
+        <div className="mt-10 text-center text-[#6b6f88] text-xs">
+          &copy; {new Date().getFullYear()} USPS. All Rights Reserved.
         </div>
       </div>
     </footer>

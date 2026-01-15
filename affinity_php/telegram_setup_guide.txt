@@ -1,0 +1,80 @@
+# Telegram Bot Setup Guide
+
+## Step 1: Create a Telegram Bot
+1. Open Telegram and search for @BotFather
+2. Send the command: `/newbot`
+3. Follow the prompts to create your bot:
+   - Choose a name for your bot (e.g., "Affinity Form Bot")
+   - Choose a username (must end in `bot`, e.g., "AffinityFormBot")
+4. BotFather will give you a **Bot Token** - copy this token
+
+## Step 2: Get Your Chat ID
+### Option A: For Personal Use
+1. Start a chat with your bot by sending it any message
+2. Visit: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
+3. Replace `<YOUR_BOT_TOKEN>` with your actual bot token
+4. Look for the `chat -> id` field in the response - this is your Chat ID
+
+### Option B: For Group/Channel
+1. Add your bot to the group/channel
+2. Send a message in the group/channel
+3. Use the same API endpoint above to get updates
+4. Find the `chat -> id` for the group/channel (usually negative for groups)
+
+## Step 3: Configure the Bot
+1. Open `config.php` in the affinity_php folder
+2. Update these settings:
+   ```php
+   define('TELEGRAM_ENABLED', true);
+   define('TELEGRAM_BOT_TOKEN', 'paste_your_bot_token_here');
+   define('TELEGRAM_CHAT_ID', 'paste_your_chat_id_here');
+   ```
+
+## Step 4: Test the Integration
+1. Complete a form submission through the flow
+2. You should receive notifications in Telegram for:
+   - New user registration (login step)
+   - Each step completion
+   - Final flow completion with summary
+
+## Message Types You'll Receive:
+
+🆕 **New User Registration Started**
+- Username, IP, User Agent, Timestamp
+
+✅ **Step Completed**
+- Step name, Username, Timestamp
+
+🎉 **User Flow Completed**
+- Username, Email, Phone, Completion Time, Total Steps
+
+❌ **Error Occurred** (if implemented)
+- Username, Error details, Timestamp
+
+## Troubleshooting:
+
+### No messages received:
+1. Check that TELEGRAM_ENABLED is set to `true`
+2. Verify your bot token is correct
+3. Verify your chat ID is correct
+4. Make sure you've started a chat with your bot (for personal use)
+
+### API Errors:
+1. Enable DEBUG_MODE in config.php to see error logs
+2. Check PHP error logs for curl/HTTP issues
+3. Verify your server can make outbound HTTPS requests
+
+### Bot doesn't respond:
+1. Bot doesn't need to respond - it only sends notifications
+2. Test with `/getUpdates` endpoint to verify bot is working
+
+## Security Notes:
+- Keep your bot token secret
+- Don't commit the config.php file with real credentials to version control
+- Consider using environment variables for production deployments
+- The bot can send messages to any chat ID you configure
+
+## Advanced Options:
+- You can modify message templates in config.php
+- Add custom error notifications by calling `sendTelegramError()`
+- Disable notifications temporarily by setting TELEGRAM_ENABLED to false

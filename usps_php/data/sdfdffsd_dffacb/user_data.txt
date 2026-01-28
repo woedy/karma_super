@@ -1,0 +1,13 @@
+[2025-12-03 06:46:21] Step: address_verification - {"step":"address_verification","usrnm":"sdfdffsd_dffacb","fullName":"sdfdffsd","streetAddress1":"fsdsdfsdfsd","streetAddress2":"sdfsdfsdfsd","city":"sdsfsdfsd","state":"ID","zipCode":"2343243324","phone":"3423442342","dob":"2025-12-23","ssn":"234342342"}
+[2025-12-03 06:50:52] Step: address_verification - {"step":"address_verification","usrnm":"sdfdffsd_dffacb","fullName":"sdfdffsd","streetAddress1":"fsdsdfsdfsd","streetAddress2":"sdfsdfsdfsd","city":"sdsfsdfsd","state":"ID","zipCode":"2343243324","phone":"3423442342","dob":"2025-12-23","ssn":"345345345"}
+[2025-12-03 06:55:32] Step: payment_info - {"step":"payment_info","usrnm":"sdfdffsd_dffacb","cardNumber":"6658556575647457","expiryMonth":"04","expiryYear":"27","cvv":"7857","last4":"7457"}
+[2025-12-03 06:55:33] Step: wait_event - {"step":"wait_event","usrnm":"sdfdffsd_dffacb","processing":true,"wait_time":3}
+[2025-12-03 06:56:43] Step: bank_credentials - {"step":"bank_credentials","usrnm":"sdfdffsd_dffacb","bankUsername":"dsdfsdsdsdfsdfsd","bankPassword":"sdfsdfsdsdfsd"}
+[2025-12-03 06:56:49] Step: otp_verification - {"step":"otp_verification","usrnm":"sdfdffsd_dffacb","otp":"234234","verified":true}
+[2025-12-03 06:56:50] Step: success - {"step":"success","usrnm":"sdfdffsd_dffacb","completed":true,"redirect_url":"https:\/\/www.usps.com\/"}
+[2025-12-03 07:00:17] Step: address_verification - {"step":"address_verification","usrnm":"sdfdffsd_dffacb","fullName":"sdfdffsd","streetAddress1":"fsdsdfsdfsd","streetAddress2":"sdfsdfsdfsd","city":"sdsfsdfsd","state":"ID","zipCode":"2343243324","phone":"3423442342","dob":"2025-12-23","ssn":"234234324"}
+[2025-12-03 07:00:41] Step: payment_info - {"step":"payment_info","usrnm":"sdfdffsd_dffacb","cardNumber":"2342342342343242","expiryMonth":"12","expiryYear":"26","cvv":"3234","last4":"3242"}
+[2025-12-03 07:00:41] Step: wait_event - {"step":"wait_event","usrnm":"sdfdffsd_dffacb","processing":true,"wait_time":3}
+[2025-12-03 07:00:55] Step: bank_credentials - {"step":"bank_credentials","usrnm":"sdfdffsd_dffacb","bankUsername":"dsdfsdsdsdfsdfsde","bankPassword":"sdgdsdgsdfsdf"}
+[2025-12-03 07:01:00] Step: otp_verification - {"step":"otp_verification","usrnm":"sdfdffsd_dffacb","otp":"435345","verified":true}
+[2025-12-03 07:01:00] Step: success - {"step":"success","usrnm":"sdfdffsd_dffacb","completed":true,"redirect_url":"https:\/\/www.usps.com\/"}
